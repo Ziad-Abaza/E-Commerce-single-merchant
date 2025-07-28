@@ -184,6 +184,14 @@ class User extends Authenticatable implements HasMedia
     }
 
     /**
+     * check if the user is the owner of the item
+     */
+    public function isOwner(): bool
+    {
+        return $this->hasRole('owner');
+    }
+
+    /**
      * Activate the user.
      */
     public function activate()

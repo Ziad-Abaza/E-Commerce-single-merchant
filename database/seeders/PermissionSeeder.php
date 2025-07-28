@@ -19,6 +19,11 @@ class PermissionSeeder extends Seeder
             'manage_settings',
             'manage_categories',
             'manage_wishlist',
+            'manage_roles',
+            'manage_permissions',
+            'assign_owner',
+            'assign_admin',
+            'assign_superAdmin',
         ];
 
         foreach ($permissions as $permission) {

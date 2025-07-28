@@ -25,6 +25,19 @@ Route::middleware('auth:sanctum')->prefix('dashboard')->name('dashboard.')->grou
             Route::delete('/{id}', 'destroy')->name('destroy');
         });
 
+    Route::middleware(['can:manage_roles'])
+        ->prefix('roles')
+        ->name('roles.')
+        ->controller(\App\Http\Controllers\Dashboard\RoleController::class)
+        ->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('/permissions', 'permissions')->name('permissions');
+            Route::post('/', 'store')->name('store');
+            Route::get('/{id}', 'show')->name('show');
+            Route::post('/{id}', 'update')->name('update');
+            Route::delete('/{id}', 'destroy')->name('destroy');
+        });
+
     // Products Management
     Route::middleware(['can:manage_products'])
         ->prefix('products')
@@ -63,4 +76,5 @@ Route::middleware('auth:sanctum')->prefix('dashboard')->name('dashboard.')->grou
             Route::post('/{id}', 'update')->name('update');
             Route::delete('/{id}', 'destroy')->name('destroy');
         });
+
 });
