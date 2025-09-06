@@ -1,11 +1,11 @@
 <template>
   <div class="fixed inset-0 z-50 lg:hidden">
     <!-- Backdrop -->
-    <div 
-      class="fixed inset-0 bg-black bg-opacity-50" 
+    <div
+      class="fixed inset-0 bg-black bg-opacity-50"
       @click="$emit('close')"
     ></div>
-    
+
     <!-- Menu Panel -->
     <div class="fixed inset-y-0 right-0 w-full max-w-sm bg-white shadow-xl">
       <div class="flex flex-col h-full">
@@ -19,7 +19,7 @@
             </div>
             <span class="text-lg font-bold text-gray-900">E-Commerce</span>
           </div>
-          <button 
+          <button
             @click="$emit('close')"
             class="p-2 text-gray-400 hover:text-gray-600 transition-colors"
           >
@@ -38,8 +38,8 @@
         <nav class="flex-1 overflow-y-auto p-4">
           <ul class="space-y-2">
             <li>
-              <router-link 
-                to="/" 
+              <router-link
+                to="/"
                 @click="$emit('close')"
                 class="flex items-center px-3 py-2 text-gray-700 hover:text-primary-600 hover:bg-primary-50 rounded-md transition-colors"
                 :class="{ 'text-primary-600 bg-primary-50': $route.name === 'home' }"
@@ -50,10 +50,10 @@
                 Home
               </router-link>
             </li>
-            
+
             <li>
-              <router-link 
-                to="/products" 
+              <router-link
+                to="/products"
                 @click="$emit('close')"
                 class="flex items-center px-3 py-2 text-gray-700 hover:text-primary-600 hover:bg-primary-50 rounded-md transition-colors"
                 :class="{ 'text-primary-600 bg-primary-50': $route.name === 'products' }"
@@ -67,7 +67,7 @@
 
             <!-- Categories -->
             <li>
-              <button 
+              <button
                 @click="toggleCategories"
                 class="flex items-center justify-between w-full px-3 py-2 text-gray-700 hover:text-primary-600 hover:bg-primary-50 rounded-md transition-colors"
               >
@@ -77,19 +77,19 @@
                   </svg>
                   Categories
                 </div>
-                <svg 
-                  class="h-4 w-4 transition-transform" 
+                <svg
+                  class="h-4 w-4 transition-transform"
                   :class="{ 'rotate-180': showCategories }"
                   fill="none" stroke="currentColor" viewBox="0 0 24 24"
                 >
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                 </svg>
               </button>
-              
+
               <!-- Categories Dropdown -->
               <div v-if="showCategories" class="ml-8 mt-2 space-y-1">
-                <router-link 
-                  v-for="category in categories" 
+                <router-link
+                  v-for="category in categories"
                   :key="category.id"
                   :to="`/category/${category.id}`"
                   @click="$emit('close')"
@@ -103,8 +103,8 @@
             <!-- User-specific links -->
             <template v-if="authStore.isAuthenticated">
               <li>
-                <router-link 
-                  to="/wishlist" 
+                <router-link
+                  to="/wishlist"
                   @click="$emit('close')"
                   class="flex items-center px-3 py-2 text-gray-700 hover:text-primary-600 hover:bg-primary-50 rounded-md transition-colors"
                   :class="{ 'text-primary-600 bg-primary-50': $route.name === 'wishlist' }"
@@ -115,10 +115,10 @@
                   Wishlist
                 </router-link>
               </li>
-              
+
               <li>
-                <router-link 
-                  to="/orders" 
+                <router-link
+                  to="/orders"
                   @click="$emit('close')"
                   class="flex items-center px-3 py-2 text-gray-700 hover:text-primary-600 hover:bg-primary-50 rounded-md transition-colors"
                   :class="{ 'text-primary-600 bg-primary-50': $route.name === 'orders' }"
@@ -129,10 +129,10 @@
                   Orders
                 </router-link>
               </li>
-              
+
               <li>
-                <router-link 
-                  to="/profile" 
+                <router-link
+                  to="/profile"
                   @click="$emit('close')"
                   class="flex items-center px-3 py-2 text-gray-700 hover:text-primary-600 hover:bg-primary-50 rounded-md transition-colors"
                   :class="{ 'text-primary-600 bg-primary-50': $route.name === 'profile' }"
@@ -147,10 +147,11 @@
           </ul>
         </nav>
 
-        <!-- Cart -->
-        <div class="border-t border-gray-200 p-4">
-          <router-link 
-            to="/cart" 
+        <!-- Bottom Section: Cart & Auth (Always visible on mobile) -->
+        <div class="border-t border-gray-200 p-4 space-y-3">
+          <!-- Cart Section -->
+          <router-link
+            to="/cart"
             @click="$emit('close')"
             class="flex items-center justify-between w-full px-4 py-3 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors"
           >
@@ -164,24 +165,33 @@
               {{ cartStore.cartItemCount }}
             </span>
           </router-link>
-        </div>
 
-        <!-- Auth Links -->
-        <div v-if="!authStore.isAuthenticated" class="border-t border-gray-200 p-4 space-y-2">
-          <router-link 
-            to="/auth/login" 
-            @click="$emit('close')"
-            class="block w-full px-4 py-2 text-center text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+          <!-- Auth Section -->
+          <div v-if="!authStore.isAuthenticated" class="space-y-2">
+            <router-link
+              to="/auth/login"
+              @click="$emit('close')"
+              class="block w-full px-4 py-3 text-center text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+            >
+              Login
+            </router-link>
+            <router-link
+              to="/auth/register"
+              @click="$emit('close')"
+              class="block w-full px-4 py-3 text-center bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors"
+            >
+              Register
+            </router-link>
+          </div>
+
+          <!-- Logout button for authenticated users -->
+          <button
+            v-if="authStore.isAuthenticated"
+            @click="logout"
+            class="block w-full px-4 py-3 text-center text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
           >
-            Login
-          </router-link>
-          <router-link 
-            to="/auth/register" 
-            @click="$emit('close')"
-            class="block w-full px-4 py-2 text-center bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors"
-          >
-            Register
-          </router-link>
+            Logout
+          </button>
         </div>
       </div>
     </div>
@@ -202,10 +212,20 @@ const cartStore = useCartStore()
 const productStore = useProductStore()
 
 const showCategories = ref(false)
-
 const categories = computed(() => productStore.categories)
 
 const toggleCategories = () => {
   showCategories.value = !showCategories.value
+}
+
+const logout = async () => {
+  try {
+    await authStore.logout()
+    // Close sidebar after logout
+    const event = new CustomEvent('close-mobile-menu')
+    window.dispatchEvent(event)
+  } catch (error) {
+    console.error('Logout failed:', error)
+  }
 }
 </script>

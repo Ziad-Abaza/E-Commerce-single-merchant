@@ -20,8 +20,8 @@ class OrderItemResource extends JsonResource
             'documents_url' => $this->getDocumentsUrl(),
             'notes_url' => $this->getNotesUrl(),
             'attachments_url' => $this->getAttachmentsUrl(),
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
+            'created_at' => $this->created_at?->toDateTimeString(),
+            'updated_at' => $this->updated_at?->toDateTimeString(),
         ];
     }
-} 
+}

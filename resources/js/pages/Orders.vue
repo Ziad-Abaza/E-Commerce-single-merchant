@@ -36,7 +36,7 @@
             </div>
             <div class="text-right">
               <div class="text-lg font-medium text-gray-900">${{ order.total.toFixed(2) }}</div>
-              <span 
+              <span
                 class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
                 :class="getStatusColor(order.status)"
               >
@@ -105,22 +105,22 @@
                 <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">
                   Order #{{ selectedOrder.order_number }}
                 </h3>
-                
+
                 <!-- Order Details -->
                 <div class="space-y-4">
                   <div>
                     <h4 class="font-medium text-gray-900">Shipping Address</h4>
                     <p class="text-sm text-gray-600">{{ selectedOrder.shipping_address }}</p>
                   </div>
-                  
+
                   <div>
                     <h4 class="font-medium text-gray-900">Payment Method</h4>
                     <p class="text-sm text-gray-600">{{ selectedOrder.payment_method }}</p>
                   </div>
-                  
+
                   <div>
                     <h4 class="font-medium text-gray-900">Order Status</h4>
-                    <span 
+                    <span
                       class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
                       :class="getStatusColor(selectedOrder.status)"
                     >
@@ -131,7 +131,7 @@
               </div>
             </div>
           </div>
-          
+
           <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
             <button
               @click="closeOrderDetails"
@@ -208,7 +208,7 @@ const reorder = async (order) => {
         price: item.price
       })
     }
-    
+
     toast.success('Items added to cart!')
     // Navigate to cart
     // router.push('/cart')
@@ -219,12 +219,12 @@ const reorder = async (order) => {
 
 const loadOrders = async () => {
   loading.value = true
-  
+
   try {
     // This would be an actual API call
     // For now, we'll use mock data
     await new Promise(resolve => setTimeout(resolve, 1000))
-    
+
     orders.value = [
       {
         id: 1,

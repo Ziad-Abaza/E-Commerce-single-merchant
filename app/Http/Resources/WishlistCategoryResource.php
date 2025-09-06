@@ -27,8 +27,8 @@ class WishlistCategoryResource extends JsonResource
             'products' => $this->whenLoaded('products', function () {
                 return ProductResource::collection($this->products);
             }),
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
+            'created_at' => $this->created_at?->toDateTimeString(),
+            'updated_at' => $this->updated_at?->toDateTimeString(),
         ];
     }
-} 
+}

@@ -17,7 +17,7 @@ class PaymentResource extends JsonResource
             'transaction_id' => $this->transaction_id,
             'gateway_response' => $this->gateway_response,
             'status' => $this->status,
-            'paid_at' => $this->paid_at,
+            'paid_at' => $this->paid_at?->toDateTimeString(),
             'receipt_url' => $this->getReceiptUrl(),
             'proof_of_payment_url' => $this->getProofOfPaymentUrl(),
             'document_url' => $this->getDocumentUrl(),
@@ -34,8 +34,8 @@ class PaymentResource extends JsonResource
             'user' => $this->whenLoaded('user', function () {
                 return new UserResource($this->user);
             }),
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
+            'created_at' => $this->created_at?->toDateTimeString(),
+            'updated_at' => $this->updated_at?->toDateTimeString(),
         ];
     }
-} 
+}

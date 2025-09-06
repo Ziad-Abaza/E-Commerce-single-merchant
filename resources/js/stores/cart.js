@@ -1,5 +1,7 @@
+// src/stores/cart.js
 import { defineStore } from 'pinia'
 import axios from '../bootstrap'
+import { useAuthStore } from './auth'
 import { useToast } from 'vue-toastification'
 
 export const useCartStore = defineStore('cart', {
@@ -8,121 +10,170 @@ export const useCartStore = defineStore('cart', {
     loading: false,
     error: null,
     total: 0,
-    itemCount: 0
+    itemCount: 0,
+    subtotal: 0,
+    shipping: 0,
+    tax: 0,
+    summary: {
+      total_items: 0,
+      subtotal: 0,
+      total: 0
+    }
   }),
 
   getters: {
-    cartTotal: (state) => {
-      return state.items.reduce((total, item) => {
-        return total + (item.price * item.quantity)
-      }, 0)
+    /**
+     * Get cart total
+     */
+    cartTotal: (state) => state.summary.total || 0,
+
+    /**
+     * Get cart item count
+     */
+    cartItemCount: (state) => state.summary.total_items || 0,
+
+    /**
+     * Get item by ID
+     */
+    getItemById: (state) => (itemId) => {
+      return state.items.find(item => item.id === itemId)
     },
 
-    cartItemCount: (state) => {
-      return state.items.reduce((count, item) => {
-        return count + item.quantity
-      }, 0)
+    /**
+     * Check if product is in cart
+     */
+    isInCart: (state) => (productDetailId) => {
+      return state.items.some(item => item.product_detail_id === productDetailId)
     },
 
-    getItemById: (state) => (productId) => {
-      return state.items.find(item => item.product_id === productId)
+    /**
+     * Get item by product detail ID
+     */
+    getItemByProductDetailId: (state) => (productDetailId) => {
+      return state.items.find(item => item.product_detail_id === productDetailId)
     },
 
-    isInCart: (state) => (productId) => {
-      return state.items.some(item => item.product_id === productId)
+    /**
+     * Calculate shipping cost
+     */
+    shippingCost: (state) => {
+      return state.summary.subtotal >= 50 ? 0 : 9.99
+    },
+
+    /**
+     * Calculate tax (8%)
+     */
+    taxAmount: (state) => {
+      return state.summary.subtotal * 0.08
+    },
+
+    /**
+     * Calculate grand total
+     */
+    grandTotal: (state) => {
+      return state.summary.subtotal + state.shippingCost + state.taxAmount
     }
   },
 
   actions: {
+    /**
+     * Load cart for authenticated user
+     */
     async loadCart() {
       this.loading = true
       this.error = null
 
       try {
         const response = await axios.get('/carts')
-        this.items = response.data.data
-        this.updateTotals()
-        return { success: true, data: response.data }
+
+        if (response.data.data) {
+          this.items = response.data.data.items || []
+          this.summary = response.data.data.summary || {
+            total_items: 0,
+            subtotal: 0,
+            total: 0
+          }
+
+          // Update local storage for persistence
+          this.saveToLocalStorage()
+        }
+
+        return { success: true,data:  response.data }
       } catch (error) {
         this.error = error.response?.data?.message || 'Failed to load cart'
+        this.handleError(this.error)
         return { success: false, error: this.error }
       } finally {
         this.loading = false
       }
     },
 
-    async addToCart(productId, quantity = 1, productDetails = {}) {
+    /**
+     * Add item to cart
+     */
+    async addToCart(productDetailId, quantity = 1) {
       this.loading = true
       this.error = null
 
       try {
+        const authStore = useAuthStore()
+
         const response = await axios.post('/carts', {
-          product_id: productId,
-          quantity,
-          ...productDetails
+          user_id: authStore.user?.id,
+          product_detail_id: productDetailId,
+          quantity: quantity
         })
 
-        const newItem = response.data.data
-
-        // Check if item already exists in cart
-        const existingItem = this.items.find(item => item.product_id === productId)
-
-        if (existingItem) {
-          // Update existing item
-          existingItem.quantity += quantity
-          existingItem.price = newItem.price
-        } else {
-          // Add new item
-          this.items.push(newItem)
-        }
-
-        this.updateTotals()
+        // Reload cart to get updated state
+        await this.loadCart()
 
         const toast = useToast()
         toast.success('Product added to cart!')
 
-        return { success: true, data: response.data }
+        return { success: true,data: response.data }
       } catch (error) {
         this.error = error.response?.data?.message || 'Failed to add to cart'
-        const toast = useToast()
-        toast.error(this.error)
+        this.handleError(this.error)
         return { success: false, error: this.error }
       } finally {
         this.loading = false
       }
     },
 
+    /**
+     * Update cart item quantity
+     */
     async updateCartItem(itemId, quantity) {
       this.loading = true
       this.error = null
 
       try {
-        const response = await axios.post(`/carts/${itemId}`, {
-          quantity
-        })
+        if (quantity <= 0) {
+          // Remove item if quantity is 0 or less
+          await this.removeFromCart(itemId)
+        } else {
+          // Update quantity
+          await axios.post(`/carts/${itemId}`, {
+            quantity: quantity
+          })
 
-        const updatedItem = response.data.data
-        const itemIndex = this.items.findIndex(item => item.id === itemId)
-
-        if (itemIndex !== -1) {
-          if (quantity <= 0) {
-            this.items.splice(itemIndex, 1)
-          } else {
-            this.items[itemIndex] = updatedItem
-          }
+          // Reload cart to get updated state
+          await this.loadCart()
         }
 
-        this.updateTotals()
-
-        return { success: true, data: response.data }
+        return { success: true }
       } catch (error) {
         this.error = error.response?.data?.message || 'Failed to update cart item'
+        this.handleError(this.error)
         return { success: false, error: this.error }
       } finally {
         this.loading = false
       }
     },
 
+    /**
+     * Remove item from cart
+     */
     async removeFromCart(itemId) {
       this.loading = true
       this.error = null
@@ -130,12 +181,8 @@ export const useCartStore = defineStore('cart', {
       try {
         await axios.delete(`/carts/${itemId}`)
 
-        const itemIndex = this.items.findIndex(item => item.id === itemId)
-        if (itemIndex !== -1) {
-          this.items.splice(itemIndex, 1)
-        }
-
-        this.updateTotals()
+        // Reload cart to get updated state
+        await this.loadCart()
 
         const toast = useToast()
         toast.success('Item removed from cart')
@@ -143,24 +190,32 @@ export const useCartStore = defineStore('cart', {
         return { success: true }
       } catch (error) {
         this.error = error.response?.data?.message || 'Failed to remove from cart'
+        this.handleError(this.error)
         return { success: false, error: this.error }
       } finally {
         this.loading = false
       }
     },
 
+    /**
+     * Clear all items from cart
+     */
     async clearCart() {
       this.loading = true
       this.error = null
 
       try {
-        // Remove all items one by one
-        for (const item of this.items) {
-          await axios.delete(`/carts/${item.id}`)
-        }
+        await axios.delete('/carts/clear')
 
         this.items = []
-        this.updateTotals()
+        this.summary = {
+          total_items: 0,
+          subtotal: 0,
+          total: 0
+        }
+
+        // Clear local storage
+        localStorage.removeItem('cart_items')
 
         const toast = useToast()
         toast.success('Cart cleared')
@@ -168,88 +223,77 @@ export const useCartStore = defineStore('cart', {
         return { success: true }
       } catch (error) {
         this.error = error.response?.data?.message || 'Failed to clear cart'
+        this.handleError(this.error)
         return { success: false, error: this.error }
       } finally {
         this.loading = false
       }
     },
 
-    updateTotals() {
-      this.total = this.cartTotal
-      this.itemCount = this.cartItemCount
+    /**
+     * Save cart to local storage
+     */
+    saveToLocalStorage() {
+      localStorage.setItem('cart_items', JSON.stringify({
+        items: this.items,
+        summary: this.summary
+      }))
     },
 
-    // Local cart operations (for guest users)
-    addToLocalCart(product, quantity = 1) {
-      const existingItem = this.items.find(item => item.product_id === product.id)
-
-      if (existingItem) {
-        existingItem.quantity += quantity
-      } else {
-        this.items.push({
-          id: Date.now(), // Temporary ID for local storage
-          product_id: product.id,
-          product: product,
-          quantity,
-          price: product.price
-        })
-      }
-
-      this.updateTotals()
-      this.saveToLocalStorage()
-
-      const toast = useToast()
-      toast.success('Product added to cart!')
-    },
-
-    removeFromLocalCart(productId) {
-      const itemIndex = this.items.findIndex(item => item.product_id === productId)
-      if (itemIndex !== -1) {
-        this.items.splice(itemIndex, 1)
-        this.updateTotals()
-        this.saveToLocalStorage()
-
-        const toast = useToast()
-        toast.success('Item removed from cart')
-      }
-    },
-
-    updateLocalCartItem(productId, quantity) {
-      const item = this.items.find(item => item.product_id === productId)
-      if (item) {
-        if (quantity <= 0) {
-          this.removeFromLocalCart(productId)
-        } else {
-          item.quantity = quantity
-          this.updateTotals()
-          this.saveToLocalStorage()
+    /**
+     * Load cart from local storage
+     */
+    loadFromLocalStorage() {
+      const savedCart = localStorage.getItem('cart_items')
+      if (savedCart) {
+        try {
+          const cartData = JSON.parse(savedCart)
+          this.items = cartData.items || []
+          this.summary = cartData.summary || {
+            total_items: 0,
+            subtotal: 0,
+            total: 0
+          }
+        } catch (e) {
+          console.error('Failed to parse cart from local storage', e)
+          this.items = []
+          this.summary = {
+            total_items: 0,
+            subtotal: 0,
+            total: 0
+          }
         }
       }
     },
 
-    clearLocalCart() {
-      this.items = []
-      this.updateTotals()
-      this.saveToLocalStorage()
-
+    /**
+     * Handle errors with toast notifications
+     */
+    handleError(message) {
       const toast = useToast()
-      toast.success('Cart cleared')
+      toast.error(message || 'An error occurred')
     },
 
-    saveToLocalStorage() {
-      localStorage.setItem('cart_items', JSON.stringify(this.items))
-    },
-
-    loadFromLocalStorage() {
-      const savedItems = localStorage.getItem('cart_items')
-      if (savedItems) {
-        this.items = JSON.parse(savedItems)
-        this.updateTotals()
-      }
-    },
-
+    /**
+     * Clear error state
+     */
     clearError() {
       this.error = null
+    },
+
+    /**
+     * Initialize cart
+     */
+    async initializeCart() {
+      const authStore = useAuthStore()
+
+      if (authStore.isAuthenticated) {
+        // Load from API for authenticated users
+        await this.loadCart()
+      } else {
+        // Load from local storage for guest users
+        this.loadFromLocalStorage()
+      }
     }
   }
 })

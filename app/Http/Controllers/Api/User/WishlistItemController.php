@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\User;
 
 use App\Http\Controllers\Controller;
 use App\Models\WishlistItem;
@@ -10,6 +10,7 @@ use App\Http\Requests\WishlistItemUpdateRequest;
 use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class WishlistItemController extends Controller
 {
@@ -19,7 +20,22 @@ class WishlistItemController extends Controller
     public function index(Request $request)
     {
         try {
-            $query = WishlistItem::with(['category.user', 'product']);
+            // Always filter by authenticated user unless admin
+            $userId = Auth::id();
+
+            if (!$userId) {
+                return response()->json([
+                    'message' => 'User not authenticated',
+                    'data' => null,
+                    'errors' => ['auth' => ['User must be logged in']],
+                    'code' => 401,
+                ], 401);
+            }
+
+            $query = WishlistItem::with(['category.user', 'product'])
+                ->whereHas('category', function ($q) use ($userId) {
+                    $q->where('user_id', $userId);
+                });
 
             // Filter by wishlist category if specified
             if ($request->has('wishlist_category_id')) {
@@ -31,14 +47,7 @@ class WishlistItemController extends Controller
                 $query->where('product_id', $request->product_id);
             }
 
-            // Filter by user through wishlist category
-            if ($request->has('user_id')) {
-                $query->whereHas('category', function ($q) use ($request) {
-                    $q->where('user_id', $request->user_id);
-                });
-            }
-
-            $wishlistItems = $query->orderBy('created_at', 'desc')->paginate(15);
+            $wishlistItems = $query->orderBy('created_at', 'desc')->paginate($request->per_page ?? 15);
 
             return response()->json([
                 'message' => 'Wishlist items retrieved successfully.',
@@ -68,7 +77,22 @@ class WishlistItemController extends Controller
     public function show($id)
     {
         try {
-            $wishlistItem = WishlistItem::with(['category.user', 'product'])->findOrFail($id);
+            $userId = Auth::id();
+
+            if (!$userId) {
+                return response()->json([
+                    'message' => 'User not authenticated',
+                    'data' => null,
+                    'errors' => ['auth' => ['User must be logged in']],
+                    'code' => 401,
+                ], 401);
+            }
+
+            $wishlistItem = WishlistItem::with(['category.user', 'product'])
+                ->whereHas('category', function ($q) use ($userId) {
+                    $q->where('user_id', $userId);
+                })
+                ->findOrFail($id);
 
             return response()->json([
                 'message' => 'Wishlist item retrieved successfully.',
@@ -99,9 +123,34 @@ class WishlistItemController extends Controller
     public function store(WishlistItemStoreRequest $request)
     {
         try {
+            $userId = Auth::id();
+
+            if (!$userId) {
+                return response()->json([
+                    'message' => 'User not authenticated',
+                    'data' => null,
+                    'errors' => ['auth' => ['User must be logged in']],
+                    'code' => 401,
+                ], 401);
+            }
+
             DB::beginTransaction();
 
             $data = $request->validated();
+
+            // Verify category belongs to user
+            $category = \App\Models\WishlistCategory::where('id', $data['wishlist_category_id'])
+                ->where('user_id', $userId)
+                ->first();
+
+            if (!$category) {
+                return response()->json([
+                    'message' => 'Invalid wishlist category',
+                    'data' => null,
+                    'errors' => ['wishlist_category' => ['Category does not belong to you']],
+                    'code' => 403,
+                ], 403);
+            }
 
             // Check if the product is already in the wishlist category
             $existingItem = WishlistItem::where('wishlist_category_id', $data['wishlist_category_id'])
@@ -111,10 +160,10 @@ class WishlistItemController extends Controller
             if ($existingItem) {
                 return response()->json([
                     'message' => 'Product is already in this wishlist category.',
-                    'data' => null,
-                    'errors' => ['wishlist_item' => ['Product already exists in this wishlist category.']],
-                    'code' => 409,
-                ], 409);
+                    'data' => new WishlistItemResource($existingItem->load(['category.user', 'product'])),
+                    'errors' => null,
+                    'code' => 200,
+                ], 200);
             }
 
             $wishlistItem = WishlistItem::create($data);
@@ -144,11 +193,40 @@ class WishlistItemController extends Controller
     public function update(WishlistItemUpdateRequest $request, $id)
     {
         try {
-            $wishlistItem = WishlistItem::findOrFail($id);
+            $userId = Auth::id();
+
+            if (!$userId) {
+                return response()->json([
+                    'message' => 'User not authenticated',
+                    'data' => null,
+                    'errors' => ['auth' => ['User must be logged in']],
+                    'code' => 401,
+                ], 401);
+            }
+
+            $wishlistItem = WishlistItem::whereHas('category', function ($q) use ($userId) {
+                $q->where('user_id', $userId);
+            })->findOrFail($id);
 
             DB::beginTransaction();
 
             $data = $request->validated();
+
+            // If changing category, verify it belongs to user
+            if (isset($data['wishlist_category_id'])) {
+                $category = \App\Models\WishlistCategory::where('id', $data['wishlist_category_id'])
+                    ->where('user_id', $userId)
+                    ->first();
+
+                if (!$category) {
+                    return response()->json([
+                        'message' => 'Invalid wishlist category',
+                        'data' => null,
+                        'errors' => ['wishlist_category' => ['Category does not belong to you']],
+                        'code' => 403,
+                    ], 403);
+                }
+            }
 
             // Check if the product is already in another wishlist category
             if (isset($data['wishlist_category_id']) && isset($data['product_id'])) {
@@ -160,10 +238,10 @@ class WishlistItemController extends Controller
                 if ($existingItem) {
                     return response()->json([
                         'message' => 'Product is already in this wishlist category.',
-                        'data' => null,
-                        'errors' => ['wishlist_item' => ['Product already exists in this wishlist category.']],
-                        'code' => 409,
-                    ], 409);
+                        'data' => new WishlistItemResource($existingItem->load(['category.user', 'product'])),
+                        'errors' => null,
+                        'code' => 200,
+                    ], 200);
                 }
             }
 
@@ -201,7 +279,21 @@ class WishlistItemController extends Controller
     public function destroy($id)
     {
         try {
-            $wishlistItem = WishlistItem::findOrFail($id);
+            $userId = Auth::id();
+
+            if (!$userId) {
+                return response()->json([
+                    'message' => 'User not authenticated',
+                    'data' => null,
+                    'errors' => ['auth' => ['User must be logged in']],
+                    'code' => 401,
+                ], 401);
+            }
+
+            $wishlistItem = WishlistItem::whereHas('category', function ($q) use ($userId) {
+                $q->where('user_id', $userId);
+            })->findOrFail($id);
+
             $wishlistItem->delete();
 
             return response()->json([
@@ -230,16 +322,43 @@ class WishlistItemController extends Controller
     /**
      * Move wishlist item to another category.
      */
-    public function moveToCategory(Request $request, $id)
+    public function move(Request $request, $id)
     {
         try {
-            $wishlistItem = WishlistItem::findOrFail($id);
+            $userId = Auth::id();
+
+            if (!$userId) {
+                return response()->json([
+                    'message' => 'User not authenticated',
+                    'data' => null,
+                    'errors' => ['auth' => ['User must be logged in']],
+                    'code' => 401,
+                ], 401);
+            }
+
+            $wishlistItem = WishlistItem::whereHas('category', function ($q) use ($userId) {
+                $q->where('user_id', $userId);
+            })->findOrFail($id);
 
             $request->validate([
                 'wishlist_category_id' => 'required|exists:wishlist_categories,id',
             ]);
 
             $newCategoryId = $request->wishlist_category_id;
+
+            // Verify new category belongs to user
+            $newCategory = \App\Models\WishlistCategory::where('id', $newCategoryId)
+                ->where('user_id', $userId)
+                ->first();
+
+            if (!$newCategory) {
+                return response()->json([
+                    'message' => 'Invalid wishlist category',
+                    'data' => null,
+                    'errors' => ['wishlist_category' => ['Category does not belong to you']],
+                    'code' => 403,
+                ], 403);
+            }
 
             // Check if the product is already in the target category
             $existingItem = WishlistItem::where('wishlist_category_id', $newCategoryId)
@@ -250,10 +369,10 @@ class WishlistItemController extends Controller
             if ($existingItem) {
                 return response()->json([
                     'message' => 'Product is already in the target wishlist category.',
-                    'data' => null,
-                    'errors' => ['wishlist_item' => ['Product already exists in the target wishlist category.']],
-                    'code' => 409,
-                ], 409);
+                    'data' => new WishlistItemResource($existingItem->load(['category.user', 'product'])),
+                    'errors' => null,
+                    'code' => 200,
+                ], 200);
             }
 
             DB::beginTransaction();
@@ -287,27 +406,44 @@ class WishlistItemController extends Controller
     }
 
     /**
-     * Get user's wishlist items.
+     * Check if product is in wishlist
      */
-    public function getUserWishlistItems($userId)
+    public function checkProductInWishlist(Request $request)
     {
         try {
-            $wishlistItems = WishlistItem::with(['category.user', 'product'])
+            $userId = Auth::id();
+
+            if (!$userId) {
+                return response()->json([
+                    'message' => 'User not authenticated',
+                    'data' => null,
+                    'errors' => ['auth' => ['User must be logged in']],
+                    'code' => 401,
+                ], 401);
+            }
+
+            $request->validate([
+                'product_id' => 'required|exists:products,id',
+            ]);
+
+            $wishlistItem = WishlistItem::where('product_id', $request->product_id)
                 ->whereHas('category', function ($q) use ($userId) {
                     $q->where('user_id', $userId);
                 })
-                ->orderBy('created_at', 'desc')
-                ->get();
+                ->first();
 
             return response()->json([
-                'message' => 'User wishlist items retrieved successfully.',
-                'data' => WishlistItemResource::collection($wishlistItems),
+                'message' => 'Product wishlist status retrieved successfully.',
+                'data' => [
+                    'in_wishlist' => $wishlistItem ? true : false,
+                    'wishlist_item' => $wishlistItem ? new WishlistItemResource($wishlistItem->load(['category.user', 'product'])) : null
+                ],
                 'errors' => null,
                 'code' => 200,
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
-                'message' => 'Failed to retrieve user wishlist items.',
+                'message' => 'Failed to check product wishlist status.',
                 'data' => null,
                 'errors' => ['server' => [$e->getMessage()]],
                 'code' => 500,

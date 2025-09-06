@@ -23,7 +23,7 @@
       <div class="lg:order-2">
         <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <h2 class="text-lg font-medium text-gray-900 mb-4">Order Summary</h2>
-          
+
           <!-- Cart Items -->
           <div class="space-y-4 mb-6">
             <div v-for="item in cartStore.items" :key="item.id" class="flex items-center space-x-4">
@@ -70,7 +70,7 @@
           <!-- Shipping Information -->
           <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <h2 class="text-lg font-medium text-gray-900 mb-4">Shipping Information</h2>
-            
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label for="first_name" class="block text-sm font-medium text-gray-700">First Name</label>
@@ -142,7 +142,7 @@
           <!-- Payment Information -->
           <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <h2 class="text-lg font-medium text-gray-900 mb-4">Payment Information</h2>
-            
+
             <div>
               <label for="card_number" class="block text-sm font-medium text-gray-700">Card Number</label>
               <input
@@ -244,27 +244,27 @@ const totalAmount = computed(() => {
 
 const handleSubmit = async () => {
   loading.value = true
-  
+
   try {
     // This would integrate with a payment processor like Stripe
     // For now, we'll simulate a successful payment
-    
+
     const orderData = {
       items: cartStore.items,
       shipping: form.shipping,
       payment: form.payment,
       total: totalAmount.value
     }
-    
+
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 2000))
-    
+
     // Clear cart after successful order
     await cartStore.clearCart()
-    
+
     toast.success('Order placed successfully!')
     router.push('/orders')
-    
+
   } catch (error) {
     toast.error('Failed to process order. Please try again.')
   } finally {

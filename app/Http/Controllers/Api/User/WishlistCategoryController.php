@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\User;
 
 use App\Http\Controllers\Controller;
 use App\Models\WishlistCategory;
@@ -10,6 +10,7 @@ use App\Http\Requests\WishlistCategoryUpdateRequest;
 use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class WishlistCategoryController extends Controller
 {
@@ -19,19 +20,28 @@ class WishlistCategoryController extends Controller
     public function index(Request $request)
     {
         try {
-            $query = WishlistCategory::with(['user', 'items.product']);
+            $userId = Auth::id();
 
-            // Filter by user if specified
-            if ($request->has('user_id')) {
-                $query->where('user_id', $request->user_id);
+            if (!$userId) {
+                return response()->json([
+                    'message' => 'User not authenticated',
+                    'data' => null,
+                    'errors' => ['auth' => ['User must be logged in']],
+                    'code' => 401,
+                ], 401);
             }
+
+            $query = WishlistCategory::with(['user', 'items.product'])
+                ->where('user_id', $userId);
 
             // Filter by default status if specified
             if ($request->has('is_default')) {
                 $query->where('is_default', $request->boolean('is_default'));
             }
 
-            $wishlistCategories = $query->orderBy('created_at', 'desc')->paginate(15);
+            $wishlistCategories = $query->orderBy('is_default', 'desc')
+                ->orderBy('created_at', 'desc')
+                ->paginate($request->per_page ?? 15);
 
             return response()->json([
                 'message' => 'Wishlist categories retrieved successfully.',
@@ -61,7 +71,20 @@ class WishlistCategoryController extends Controller
     public function show($id)
     {
         try {
-            $wishlistCategory = WishlistCategory::with(['user', 'items.product'])->findOrFail($id);
+            $userId = Auth::id();
+
+            if (!$userId) {
+                return response()->json([
+                    'message' => 'User not authenticated',
+                    'data' => null,
+                    'errors' => ['auth' => ['User must be logged in']],
+                    'code' => 401,
+                ], 401);
+            }
+
+            $wishlistCategory = WishlistCategory::with(['user', 'items.product'])
+                ->where('user_id', $userId)
+                ->findOrFail($id);
 
             return response()->json([
                 'message' => 'Wishlist category retrieved successfully.',
@@ -92,16 +115,37 @@ class WishlistCategoryController extends Controller
     public function store(WishlistCategoryStoreRequest $request)
     {
         try {
+            $userId = Auth::id();
+
+            if (!$userId) {
+                return response()->json([
+                    'message' => 'User not authenticated',
+                    'data' => null,
+                    'errors' => ['auth' => ['User must be logged in']],
+                    'code' => 401,
+                ], 401);
+            }
+
             DB::beginTransaction();
 
             $data = $request->validated();
+
+            // Override user_id with authenticated user
+            $data['user_id'] = $userId;
+
+            // If setting as default, unset other default categories
+            if ($data['is_default'] ?? false) {
+                WishlistCategory::where('user_id', $userId)
+                    ->where('is_default', true)
+                    ->update(['is_default' => false]);
+            }
+
             $wishlistCategory = WishlistCategory::create($data);
 
             // Handle file uploads
             if ($request->hasFile('icon')) {
                 $wishlistCategory->setIcon($request->file('icon'));
             }
-
             if ($request->hasFile('image')) {
                 $wishlistCategory->setImage($request->file('image'));
             }
@@ -131,18 +175,36 @@ class WishlistCategoryController extends Controller
     public function update(WishlistCategoryUpdateRequest $request, $id)
     {
         try {
-            $wishlistCategory = WishlistCategory::findOrFail($id);
+            $userId = Auth::id();
+
+            if (!$userId) {
+                return response()->json([
+                    'message' => 'User not authenticated',
+                    'data' => null,
+                    'errors' => ['auth' => ['User must be logged in']],
+                    'code' => 401,
+                ], 401);
+            }
+
+            $wishlistCategory = WishlistCategory::where('user_id', $userId)->findOrFail($id);
 
             DB::beginTransaction();
 
             $data = $request->validated();
+
+            // If setting as default, unset other default categories
+            if (($data['is_default'] ?? false) && !$wishlistCategory->is_default) {
+                WishlistCategory::where('user_id', $userId)
+                    ->where('is_default', true)
+                    ->update(['is_default' => false]);
+            }
+
             $wishlistCategory->update($data);
 
             // Handle file uploads
             if ($request->hasFile('icon')) {
                 $wishlistCategory->setIcon($request->file('icon'));
             }
-
             if ($request->hasFile('image')) {
                 $wishlistCategory->setImage($request->file('image'));
             }
@@ -179,10 +241,21 @@ class WishlistCategoryController extends Controller
     public function destroy($id)
     {
         try {
-            $wishlistCategory = WishlistCategory::findOrFail($id);
+            $userId = Auth::id();
+
+            if (!$userId) {
+                return response()->json([
+                    'message' => 'User not authenticated',
+                    'data' => null,
+                    'errors' => ['auth' => ['User must be logged in']],
+                    'code' => 401,
+                ], 401);
+            }
+
+            $wishlistCategory = WishlistCategory::where('user_id', $userId)->findOrFail($id);
 
             // Check if it's a default category
-            if ($wishlistCategory->isDefault()) {
+            if ($wishlistCategory->is_default) {
                 return response()->json([
                     'message' => 'Default wishlist categories cannot be deleted.',
                     'data' => null,
@@ -191,19 +264,15 @@ class WishlistCategoryController extends Controller
                 ], 403);
             }
 
-            // Check if category has items
-            if ($wishlistCategory->items()->count() > 0) {
-                return response()->json([
-                    'message' => 'Cannot delete wishlist category with items.',
-                    'data' => null,
-                    'errors' => ['wishlist_category' => ['Please remove all items first.']],
-                    'code' => 400,
-                ], 400);
-            }
-
             DB::beginTransaction();
 
+            // Delete all items in this category
+            $wishlistCategory->items()->delete();
+
+            // Delete category
             $wishlistCategory->delete();
+
+            // Clean up media
             $wishlistCategory->setIcon(null);
             $wishlistCategory->setImage(null);
 
@@ -234,26 +303,45 @@ class WishlistCategoryController extends Controller
     }
 
     /**
-     * Get user's wishlist categories.
+     * Get default category for user
      */
-    public function getUserWishlistCategories($userId)
+    public function getDefaultCategory()
     {
         try {
-            $wishlistCategories = WishlistCategory::with(['user', 'items.product'])
+            $userId = Auth::id();
+
+            if (!$userId) {
+                return response()->json([
+                    'message' => 'User not authenticated',
+                    'data' => null,
+                    'errors' => ['auth' => ['User must be logged in']],
+                    'code' => 401,
+                ], 401);
+            }
+
+            $defaultCategory = WishlistCategory::with(['user', 'items.product'])
                 ->where('user_id', $userId)
-                ->orderBy('is_default', 'desc')
-                ->orderBy('created_at', 'desc')
-                ->get();
+                ->where('is_default', true)
+                ->first();
+
+            // Create default category if it doesn't exist
+            if (!$defaultCategory) {
+                $defaultCategory = WishlistCategory::create([
+                    'user_id' => $userId,
+                    'name' => 'Favorites',
+                    'is_default' => true
+                ]);
+            }
 
             return response()->json([
-                'message' => 'User wishlist categories retrieved successfully.',
-                'data' => WishlistCategoryResource::collection($wishlistCategories),
+                'message' => 'Default wishlist category retrieved successfully.',
+                'data' => new WishlistCategoryResource($defaultCategory),
                 'errors' => null,
                 'code' => 200,
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
-                'message' => 'Failed to retrieve user wishlist categories.',
+                'message' => 'Failed to retrieve default wishlist category.',
                 'data' => null,
                 'errors' => ['server' => [$e->getMessage()]],
                 'code' => 500,

@@ -27,7 +27,7 @@
                 class="w-full h-96 object-cover object-center rounded-lg"
               >
             </div>
-            
+
             <!-- Thumbnail Images -->
             <div v-if="productStore.currentProduct.images && productStore.currentProduct.images.length > 1" class="grid grid-cols-4 gap-2">
               <img
@@ -264,16 +264,16 @@ const decreaseQuantity = () => {
 
 const addToCart = async () => {
   if (isAddingToCart.value) return
-  
+
   isAddingToCart.value = true
-  
+
   try {
     const result = await cartStore.addToCart(productStore.currentProduct.id, quantity.value, {
       price: price.value,
       product_name: productStore.currentProduct.name,
       product_image: productStore.currentProduct.image
     })
-    
+
     if (result.success) {
       toast.success('Product added to cart!')
     }
@@ -292,7 +292,7 @@ const toggleWishlist = () => {
 onMounted(async () => {
   const productId = route.params.id
   await productStore.getProduct(productId)
-  
+
   if (productStore.currentProduct?.image) {
     selectedImage.value = productStore.currentProduct.image
   }

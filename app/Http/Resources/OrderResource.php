@@ -23,8 +23,8 @@ class OrderResource extends JsonResource
             'notes' => $this->notes,
             'payment_method' => $this->payment_method,
             'payment_status' => $this->payment_status,
-            'delivered_at' => $this->delivered_at,
-            'cancelled_at' => $this->cancelled_at,
+            'delivered_at' => $this->delivered_at?->toDateTimeString(),
+            'cancelled_at' => $this->cancelled_at?->toDateTimeString(),
             'receipt_url' => $this->getReceiptUrl(),
             'invoice_url' => $this->getInvoiceUrl(),
             'attachment_url' => $this->getAttachmentUrl(),
@@ -43,8 +43,8 @@ class OrderResource extends JsonResource
             'payment' => $this->whenLoaded('payment', function () {
                 return new PaymentResource($this->payment);
             }),
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
+            'created_at' => $this->created_at?->toDateTimeString(),
+            'updated_at' => $this->updated_at?->toDateTimeString(),
         ];
     }
-} 
+}

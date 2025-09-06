@@ -190,6 +190,14 @@ class ProductDetail extends Model implements HasMedia
     }
 
     /**
+     * Check if out of stock
+     */
+    public function isOutOfStock(): bool
+    {
+        return $this->stock <= 0;
+    }
+
+    /**
      * Check if has discount
      */
     public function hasDiscount(): bool

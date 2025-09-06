@@ -22,8 +22,8 @@ class UserResource extends JsonResource
             'address' => $this->address,
             'is_active' => $this->is_active,
             'avatar_url' => $this->getAvatarUrl(),
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
+            'created_at' => $this->created_at?->toDateTimeString(),
+            'updated_at' => $this->updated_at?->toDateTimeString(),
         ];
     }
-} 
+}

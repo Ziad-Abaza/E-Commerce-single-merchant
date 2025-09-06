@@ -17,12 +17,14 @@ return new class extends Migration
             $table->string('name', 100);
             $table->boolean('is_default')->default(false);
             $table->timestamps();
-            $table->unique(['user_id', 'is_default'], 'unique_default_wishlist')
-                ->where('is_default = 1');
+
+            $table->unique(['user_id'], 'unique_default_wishlist')
+                ->where('is_default', 1);
 
             $table->index('user_id');
         });
     }
+
 
     /**
      * Reverse the migrations.

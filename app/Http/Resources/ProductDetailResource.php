@@ -47,8 +47,8 @@ class ProductDetailResource extends JsonResource
             'main_image' => $this->getMainImageUrl(),
             'images_url' => $this->getImagesUrl(),
 
-            'created_at' => $this->created_at->toISOString(),
-            'updated_at' => $this->updated_at->toISOString(),
+            'created_at' => $this->created_at?->toDateTimeString(),
+            'updated_at' => $this->updated_at?->toDateTimeString(),
         ];
     }
 }

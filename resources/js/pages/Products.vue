@@ -8,20 +8,56 @@
       </div>
 
       <div class="flex flex-col lg:flex-row gap-8">
-        <!-- Sidebar Filters -->
-        <div class="lg:w-64 flex-shrink-0">
-          <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <h3 class="text-lg font-semibold text-gray-900 mb-4">Filters</h3>
-            
+        <!-- Mobile Filter Button -->
+        <div class="lg:hidden">
+          <button
+            @click="showFilters = !showFilters"
+            class="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg shadow-sm text-gray-700 font-medium flex items-center justify-center"
+          >
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+            </svg>
+            Filters
+          </button>
+        </div>
+
+        <!-- Filters Sidebar (Desktop) / Modal (Mobile) -->
+        <div
+          class="lg:w-64 lg:flex-shrink-0 transition-all duration-300"
+          :class="{
+            'fixed inset-0 z-50 bg-black bg-opacity-50': !isDesktop,
+            'hidden': !showFilters && !isDesktop,
+            'block': isDesktop
+          }"
+        >
+          <div
+            class="bg-white rounded-lg shadow-lg border border-gray-200 p-6 w-full lg:w-auto lg:static lg:rounded-lg lg:shadow-sm"
+            :class="!isDesktop ? 'absolute top-0 right-0 bottom-0 w-80 overflow-y-auto' : ''"
+          >
+            <!-- Close button for mobile -->
+            <div class="lg:hidden flex justify-end mb-4">
+              <button
+                @click="showFilters = false"
+                class="p-2 rounded-full hover:bg-gray-100"
+              >
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <h3 class="text-lg font-semibold text-gray-900 mb-6">Filters</h3>
+
             <!-- Categories -->
             <div class="mb-6">
               <h4 class="text-sm font-medium text-gray-900 mb-3">Categories</h4>
-              <div class="space-y-2">
+              <div class="space-y-2 max-h-64 overflow-y-auto pr-2">
                 <label class="flex items-center">
                   <input
                     v-model="filters.category"
                     type="radio"
                     :value="null"
+                    @change="applyFilters"
                     class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300"
                   >
                   <span class="ml-2 text-sm text-gray-700">All Categories</span>
@@ -35,6 +71,7 @@
                     v-model="filters.category"
                     type="radio"
                     :value="category.id"
+                    @change="applyFilters"
                     class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300"
                   >
                   <span class="ml-2 text-sm text-gray-700">{{ category.name }}</span>
@@ -52,6 +89,7 @@
                     v-model.number="filters.minPrice"
                     type="number"
                     placeholder="0"
+                    @change="applyFilters"
                     class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-primary-500 focus:border-primary-500"
                   >
                 </div>
@@ -61,6 +99,7 @@
                     v-model.number="filters.maxPrice"
                     type="number"
                     placeholder="1000"
+                    @change="applyFilters"
                     class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-primary-500 focus:border-primary-500"
                   >
                 </div>
@@ -72,6 +111,7 @@
               <h4 class="text-sm font-medium text-gray-900 mb-3">Sort By</h4>
               <select
                 v-model="filters.sort"
+                @change="applyFilters"
                 class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-primary-500 focus:border-primary-500"
               >
                 <option value="created_at">Newest First</option>
@@ -82,13 +122,24 @@
               </select>
             </div>
 
-            <!-- Clear Filters -->
-            <button
-              @click="clearFilters"
-              class="w-full px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-primary-500"
-            >
-              Clear Filters
-            </button>
+            <!-- Action Buttons -->
+            <div class="flex flex-col space-y-3">
+              <button
+                @click="clearFilters"
+                class="w-full px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-primary-500"
+              >
+                Clear Filters
+              </button>
+
+              <!-- Apply button for mobile -->
+              <button
+                v-if="!isDesktop"
+                @click="showFilters = false"
+                class="w-full px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500"
+              >
+                Apply Filters
+              </button>
+            </div>
           </div>
         </div>
 
@@ -184,7 +235,7 @@
               >
                 Previous
               </button>
-              
+
               <button
                 v-for="page in visiblePages"
                 :key="page"
@@ -198,7 +249,7 @@
               >
                 {{ page }}
               </button>
-              
+
               <button
                 @click="goToPage(productStore.pagination.currentPage + 1)"
                 :disabled="productStore.pagination.currentPage === productStore.pagination.lastPage"
@@ -215,14 +266,27 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useProductStore } from '../stores/products'
 import ProductCard from '../components/common/ProductCard.vue'
 import ProductListItem from '../components/common/ProductListItem.vue'
 
 const productStore = useProductStore()
-
 const viewMode = ref('grid')
+const showFilters = ref(false)
+
+// Detect if desktop
+const isDesktop = ref(window.innerWidth >= 1024)
+
+// Update isDesktop on resize
+const handleResize = () => {
+  isDesktop.value = window.innerWidth >= 1024
+  if (isDesktop.value) {
+    showFilters.value = true
+  }
+}
+
+// Local filters (synced with store)
 const filters = ref({
   category: null,
   minPrice: null,
@@ -230,39 +294,48 @@ const filters = ref({
   sort: 'created_at'
 })
 
+// Computed property for pagination
 const visiblePages = computed(() => {
   const current = productStore.pagination.currentPage
   const last = productStore.pagination.lastPage
   const pages = []
-  
+
   // Show up to 5 pages around current page
   const start = Math.max(1, current - 2)
   const end = Math.min(last, current + 2)
-  
+
   for (let i = start; i <= end; i++) {
     pages.push(i)
   }
-  
+
   return pages
 })
 
-const loadProducts = async () => {
-  const params = {
-    page: productStore.pagination.currentPage,
-    per_page: 12,
-    ...filters.value
-  }
-  
-  // Remove null values
-  Object.keys(params).forEach(key => {
-    if (params[key] === null || params[key] === '') {
-      delete params[key]
-    }
-  })
-  
-  await productStore.loadProducts(params)
+// Initialize filters from store
+onMounted(() => {
+clearFilters();
+  filters.value = { ...productStore.filters }
+  loadProducts()
+  window.addEventListener('resize', handleResize)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', handleResize)
+})
+
+// Watch for local filter changes and sync with store
+const applyFilters = () => {
+  productStore.setFilters(filters.value)
+  productStore.resetPagination()
+  loadProducts()
 }
 
+// Load products with current filters
+const loadProducts = async () => {
+  await productStore.loadProducts()
+}
+
+// Clear all filters
 const clearFilters = () => {
   filters.value = {
     category: null,
@@ -271,22 +344,33 @@ const clearFilters = () => {
     sort: 'created_at'
   }
   productStore.clearFilters()
+  loadProducts()
 }
 
+// Go to specific page
 const goToPage = (page) => {
   if (page >= 1 && page <= productStore.pagination.lastPage) {
     productStore.pagination.currentPage = page
     loadProducts()
   }
 }
-
-// Watch for filter changes
-watch(filters, () => {
-  productStore.pagination.currentPage = 1
-  loadProducts()
-}, { deep: true })
-
-onMounted(() => {
-  loadProducts()
-})
 </script>
+
+<style scoped>
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.max-h-64::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.max-h-64 {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+</style>

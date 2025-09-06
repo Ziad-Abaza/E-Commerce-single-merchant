@@ -1,242 +1,273 @@
-import { defineStore } from 'pinia'
-import axios from '../bootstrap'
+// src/stores/products.js
+import { defineStore } from "pinia";
+import axios from "../bootstrap";
 
-export const useProductStore = defineStore('products', {
-  state: () => ({
-    products: [],
-    categories: [],
-    featuredProducts: [],
-    latestProducts: [],
-    currentProduct: null,
-    searchResults: [],
-    filters: {
-      category: null,
-      minPrice: null,
-      maxPrice: null,
-      sort: 'created_at',
-      search: ''
-    },
-    pagination: {
-      currentPage: 1,
-      lastPage: 1,
-      perPage: 12,
-      total: 0
-    },
-    loading: false,
-    error: null
-  }),
+export const useProductStore = defineStore("products", {
+    state: () => ({
+        // Core product data
+        products: [],
+        featuredProducts: [],
+        latestProducts: [],
+        currentProduct: null,
+        categories: [],
 
-  getters: {
-    getProductById: (state) => (id) => {
-      return state.products.find(product => product.id === id)
-    },
+        // Search & filtering
+        searchResults: [],
+        filters: {
+            category: null,
+            minPrice: null,
+            maxPrice: null,
+            sort: "created_at",
+            search: "",
+            type: "all", // 'all', 'featured', 'latest', 'category', 'search'
+        },
 
-    getCategoryById: (state) => (id) => {
-      return state.categories.find(category => category.id === id)
-    },
+        // Pagination state
+        pagination: {
+            currentPage: 1,
+            lastPage: 1,
+            perPage: 12,
+            total: 0,
+        },
 
-    filteredProducts: (state) => {
-      let filtered = [...state.products]
+        // UI state
+        loading: false,
+        error: null,
+    }),
 
-      if (state.filters.category) {
-        filtered = filtered.filter(product =>
-          product.categories.some(cat => cat.id === state.filters.category)
-        )
-      }
+    getters: {
+        /**
+         * Get product by ID from main products list
+         */
+        getProductById: (state) => (id) => {
+            return state.products.find((product) => product.id === id);
+        },
 
-      if (state.filters.minPrice) {
-        filtered = filtered.filter(product => product.price >= state.filters.minPrice)
-      }
+        /**
+         * Get category by ID
+         */
+        getCategoryById: (state) => (id) => {
+            return state.categories.find((category) => category.id === id);
+        },
 
-      if (state.filters.maxPrice) {
-        filtered = filtered.filter(product => product.price <= state.filters.maxPrice)
-      }
+        /**
+         * Get featured product by ID
+         */
+        getFeaturedProductById: (state) => (id) => {
+            return state.featuredProducts.find((product) => product.id === id);
+        },
 
-      if (state.filters.search) {
-        const search = state.filters.search.toLowerCase()
-        filtered = filtered.filter(product =>
-          product.name.toLowerCase().includes(search) ||
-          product.description.toLowerCase().includes(search)
-        )
-      }
-
-      // Apply sorting
-      switch (state.filters.sort) {
-        case 'name':
-          filtered.sort((a, b) => a.name.localeCompare(b.name))
-          break
-        case 'price_asc':
-          filtered.sort((a, b) => a.price - b.price)
-          break
-        case 'price_desc':
-          filtered.sort((a, b) => b.price - a.price)
-          break
-        case 'rating':
-          filtered.sort((a, b) => (b.average_rating || 0) - (a.average_rating || 0))
-          break
-        case 'created_at':
-        default:
-          filtered.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
-          break
-      }
-
-      return filtered
-    }
-  },
-
-  actions: {
-    async loadProducts(params = {}) {
-      this.loading = true
-      this.error = null
-
-      try {
-        const response = await axios.get('/public/products', { params })
-        this.products = response.data.data
-        this.pagination = response.data.pagination
-        return { success: true, data: response.data }
-      } catch (error) {
-        this.error = error.response?.data?.message || 'Failed to load products'
-        return { success: false, error: this.error }
-      } finally {
-        this.loading = false
-      }
+        /**
+         * Get latest product by ID
+         */
+        getLatestProductById: (state) => (id) => {
+            return state.latestProducts.find((product) => product.id === id);
+        },
     },
 
-    async loadFeaturedProducts() {
-      this.loading = true
-      this.error = null
+    actions: {
+        /**
+         * Load products based on type and filters
+         * @param {Object} params - Additional query parameters
+         * @returns {Object} - API response
+         */
+        async loadProducts(params = {}) {
+            this.loading = true;
+            this.error = null;
 
-      try {
-        const response = await axios.get('/public/featured-products')
-        this.featuredProducts = response.data.data
-        return { success: true, data: response.data }
-      } catch (error) {
-        this.error = error.response?.data?.message || 'Failed to load featured products'
-        return { success: false, error: this.error }
-      } finally {
-        this.loading = false
-      }
+            try {
+                const queryParams = {};
+
+                if (Object.keys(params).length > 0) {
+                    Object.assign(queryParams, params);
+                }
+
+                if (this.filters.type && this.filters.type !== "all") {
+                    queryParams.type = this.filters.type;
+                }
+                if (this.filters.category) {
+                    queryParams.category_id = this.filters.category;
+                }
+                if (this.filters.minPrice) {
+                    queryParams.min_price = this.filters.minPrice;
+                }
+                if (this.filters.maxPrice) {
+                    queryParams.max_price = this.filters.maxPrice;
+                }
+                if (this.filters.search) {
+                    queryParams.search = this.filters.search;
+                }
+                if (this.filters.sort && this.filters.sort !== "created_at") {
+                    queryParams.sort = this.filters.sort;
+                }
+                if (this.pagination.currentPage !== 1) {
+                    queryParams.page = this.pagination.currentPage;
+                }
+                if (this.pagination.perPage !== 12) {
+                    queryParams.per_page = this.pagination.perPage;
+                }
+
+                const response = await axios.get("/public/products", {
+                    params:
+                        Object.keys(queryParams).length > 0
+                            ? queryParams
+                            : undefined,
+                });
+
+                // Update state based on product type
+                switch (this.filters.type) {
+                    case "featured":
+                        this.featuredProducts = response.data.data;
+                        break;
+                    case "latest":
+                        this.latestProducts = response.data.data;
+                        break;
+                    case "search":
+                        this.searchResults = response.data.data;
+                        break;
+                    default:
+                        this.products = response.data.data;
+                        break;
+                }
+
+                // Always update pagination
+                this.pagination = {
+                    currentPage: response.data.pagination.current_page,
+                    lastPage: response.data.pagination.last_page,
+                    perPage: response.data.pagination.per_page,
+                    total: response.data.pagination.total,
+                };
+
+                return { success: true, data: response.data };
+            } catch (error) {
+                this.error =
+                    error.response?.data?.message || "Failed to load products";
+                return { success: false, error: this.error };
+            } finally {
+                this.loading = false;
+            }
+        },
+        /**
+         * Load featured products
+         * @returns {Object} - API response
+         */
+        async loadFeaturedProducts() {
+            this.filters.type = "featured";
+            return await this.loadProducts({ per_page: 8 });
+        },
+
+        /**
+         * Load latest products
+         * @returns {Object} - API response
+         */
+        async loadLatestProducts() {
+            this.filters.type = "latest";
+            return await this.loadProducts({ per_page: 12 });
+        },
+
+        /**
+         * Load categories (separate endpoint, unchanged)
+         * @returns {Object} - API response
+         */
+        async loadCategories() {
+            this.loading = true;
+            this.error = null;
+
+            try {
+                const response = await axios.get("/public/categories");
+                this.categories = response.data.data;
+                return { success: true, data: response.data };
+            } catch (error) {
+                this.error =
+                    error.response?.data?.message ||
+                    "Failed to load categories";
+                return { success: false, error: this.error };
+            } finally {
+                this.loading = false;
+            }
+        },
+
+        /**
+         * Load single product by ID
+         * @param {number} id - Product ID
+         * @returns {Object} - API response
+         */
+        async getProduct(id) {
+            this.loading = true;
+            this.error = null;
+
+            try {
+                const response = await axios.get(`/public/products/${id}`);
+                this.currentProduct = response.data.data;
+                return { success: true, data: response.data };
+            } catch (error) {
+                this.error =
+                    error.response?.data?.message || "Failed to load product";
+                return { success: false, error: this.error };
+            } finally {
+                this.loading = false;
+            }
+        },
+
+        /**
+         * Search products
+         * @param {string} query - Search query
+         * @param {Object} filters - Additional filters
+         * @returns {Object} - API response
+         */
+        async searchProducts(query, filters = {}) {
+            this.filters.type = "search";
+            this.filters.search = query;
+            this.filters = { ...this.filters, ...filters };
+            return await this.loadProducts();
+        },
+
+        /**
+         * Load products by category
+         * @param {number} categoryId - Category ID
+         * @param {Object} params - Additional parameters
+         * @returns {Object} - API response
+         */
+        async getProductsByCategory(categoryId, params = {}) {
+            this.filters.type = "category";
+            this.filters.category = categoryId;
+            return await this.loadProducts(params);
+        },
+
+        /**
+         * Update filters
+         * @param {Object} filters - New filter values
+         */
+        setFilters(filters) {
+            this.filters = { ...this.filters, ...filters };
+        },
+
+        /**
+         * Clear all filters
+         */
+        clearFilters() {
+            this.filters = {
+                category: null,
+                minPrice: null,
+                maxPrice: null,
+                sort: "created_at",
+                search: "",
+                type: "all",
+            };
+        },
+
+        /**
+         * Clear error state
+         */
+        clearError() {
+            this.error = null;
+        },
+
+        /**
+         * Reset pagination to first page
+         */
+        resetPagination() {
+            this.pagination.currentPage = 1;
+        },
     },
-
-    async loadLatestProducts() {
-      this.loading = true
-      this.error = null
-
-      try {
-        const response = await axios.get('/public/latest-products')
-        this.latestProducts = response.data.data
-        return { success: true, data: response.data }
-      } catch (error) {
-        this.error = error.response?.data?.message || 'Failed to load latest products'
-        return { success: false, error: this.error }
-      } finally {
-        this.loading = false
-      }
-    },
-
-    async loadCategories() {
-      this.loading = true
-      this.error = null
-
-      try {
-        const response = await axios.get('/public/categories')
-        this.categories = response.data.data
-        return { success: true, data: response.data }
-      } catch (error) {
-        this.error = error.response?.data?.message || 'Failed to load categories'
-        return { success: false, error: this.error }
-      } finally {
-        this.loading = false
-      }
-    },
-
-    async getProduct(id) {
-      this.loading = true
-      this.error = null
-
-      try {
-        const response = await axios.get(`/public/products/${id}`)
-        this.currentProduct = response.data.data
-        return { success: true, data: response.data }
-      } catch (error) {
-        this.error = error.response?.data?.message || 'Failed to load product'
-        return { success: false, error: this.error }
-      } finally {
-        this.loading = false
-      }
-    },
-
-    async getRelatedProducts(id) {
-      this.loading = true
-      this.error = null
-
-      try {
-        const response = await axios.get(`/public/products/${id}/related`)
-        return { success: true, data: response.data }
-      } catch (error) {
-        this.error = error.response?.data?.message || 'Failed to load related products'
-        return { success: false, error: this.error }
-      } finally {
-        this.loading = false
-      }
-    },
-
-    async searchProducts(query, filters = {}) {
-      this.loading = true
-      this.error = null
-
-      try {
-        const params = {
-          query,
-          ...filters,
-          ...this.filters
-        }
-
-        const response = await axios.get('/public/search', { params })
-        this.searchResults = response.data.data
-        this.pagination = response.data.pagination
-        return { success: true, data: response.data }
-      } catch (error) {
-        this.error = error.response?.data?.message || 'Search failed'
-        return { success: false, error: this.error }
-      } finally {
-        this.loading = false
-      }
-    },
-
-    async getProductsByCategory(categoryId, params = {}) {
-      this.loading = true
-      this.error = null
-
-      try {
-        const response = await axios.get(`/public/products/category/${categoryId}`, { params })
-        this.products = response.data.data
-        this.pagination = response.data.pagination
-        return { success: true, data: response.data }
-      } catch (error) {
-        this.error = error.response?.data?.message || 'Failed to load category products'
-        return { success: false, error: this.error }
-      } finally {
-        this.loading = false
-      }
-    },
-
-    setFilters(filters) {
-      this.filters = { ...this.filters, ...filters }
-    },
-
-    clearFilters() {
-      this.filters = {
-        category: null,
-        minPrice: null,
-        maxPrice: null,
-        sort: 'created_at',
-        search: ''
-      }
-    },
-
-    clearError() {
-      this.error = null
-    }
-  }
-})
+});

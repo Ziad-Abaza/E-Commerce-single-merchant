@@ -31,10 +31,10 @@ Route::middleware('auth:sanctum')->prefix('dashboard')->name('dashboard.')->grou
         ->controller(\App\Http\Controllers\Dashboard\UserController::class)
         ->group(function () {
             Route::get('/', 'index')->name('index');
-            Route::get('/{id}', 'show')->name('show')->where('id', '[0-9]+');
+            Route::get('/{id}', 'show')->name('show');
             Route::post('/', 'store')->name('store');
-            Route::post('/{id}', 'update')->name('update')->where('id', '[0-9]+');
-            Route::delete('/{id}', 'destroy')->name('destroy')->where('id', '[0-9]+');
+            Route::post('/{id}', 'update')->name('update');
+            Route::delete('/{id}', 'destroy')->name('destroy');
         });
 
     Route::middleware(['can:manage_roles'])
@@ -45,9 +45,9 @@ Route::middleware('auth:sanctum')->prefix('dashboard')->name('dashboard.')->grou
             Route::get('/', 'index')->name('index');
             Route::get('/permissions', 'permissions')->name('permissions');
             Route::post('/', 'store')->name('store');
-            Route::get('/{id}', 'show')->name('show')->where('id', '[0-9]+');
-            Route::post('/{id}', 'update')->name('update')->where('id', '[0-9]+');
-            Route::delete('/{id}', 'destroy')->name('destroy')->where('id', '[0-9]+');
+            Route::get('/{id}', 'show')->name('show');
+            Route::post('/{id}', 'update')->name('update');
+            Route::delete('/{id}', 'destroy')->name('destroy');
         });
 
     // Products Management
@@ -57,10 +57,10 @@ Route::middleware('auth:sanctum')->prefix('dashboard')->name('dashboard.')->grou
         ->controller(\App\Http\Controllers\Dashboard\ProductController::class)
         ->group(function () {
             Route::get('/', 'index')->name('index');
-            Route::get('/{id}', 'show')->name('show')->where('id', '[0-9]+');
+            Route::get('/{id}', 'show')->name('show');
             Route::post('/', 'store')->name('store');
-            Route::post('/{id}', 'update')->name('update')->where('id', '[0-9]+');
-            Route::delete('/{id}', 'destroy')->name('destroy')->where('id', '[0-9]+');
+            Route::post('/{id}', 'update')->name('update');
+            Route::delete('/{id}', 'destroy')->name('destroy');
         });
 
     // Product Details Management
@@ -70,10 +70,10 @@ Route::middleware('auth:sanctum')->prefix('dashboard')->name('dashboard.')->grou
         ->controller(\App\Http\Controllers\Dashboard\ProductDetailController::class)
         ->group(function () {
             Route::get('/', 'index')->name('index');
-            Route::get('/{id}', 'show')->name('show')->where('id', '[0-9]+');
+            Route::get('/{id}', 'show')->name('show');
             Route::post('/', 'store')->name('store');
-            Route::post('/{id}', 'update')->name('update')->where('id', '[0-9]+');
-            Route::delete('/{id}', 'destroy')->name('destroy')->where('id', '[0-9]+');
+            Route::post('/{id}', 'update')->name('update');
+            Route::delete('/{id}', 'destroy')->name('destroy');
         });
 
     // Categories Management
@@ -83,10 +83,10 @@ Route::middleware('auth:sanctum')->prefix('dashboard')->name('dashboard.')->grou
         ->controller(\App\Http\Controllers\Dashboard\CategoryController::class)
         ->group(function () {
             Route::get('/', 'index')->name('index');
-            Route::get('/{id}', 'show')->name('show')->where('id', '[0-9]+');
+            Route::get('/{id}', 'show')->name('show');
             Route::post('/', 'store')->name('store');
-            Route::post('/{id}', 'update')->name('update')->where('id', '[0-9]+');
-            Route::delete('/{id}', 'destroy')->name('destroy')->where('id', '[0-9]+');
+            Route::post('/{id}', 'update')->name('update');
+            Route::delete('/{id}', 'destroy')->name('destroy');
         });
 
     // Orders Management
@@ -98,12 +98,12 @@ Route::middleware('auth:sanctum')->prefix('dashboard')->name('dashboard.')->grou
             Route::get('/', 'index')->name('index');
             Route::get('/statistics', 'statistics')->name('statistics');
             Route::get('/status/{status}', 'byStatus')->name('by-status')->where('status', '[a-zA-Z0-9_-]+');
-            Route::get('/{id}', 'show')->name('show')->where('id', '[0-9]+');
-            Route::post('/{id}', 'update')->name('update')->where('id', '[0-9]+');
-            Route::post('/{id}/status', 'updateStatus')->name('update-status')->where('id', '[0-9]+');
-            Route::post('/{id}/cancel', 'cancel')->name('cancel')->where('id', '[0-9]+');
-            Route::get('/{id}/items', 'orderItems')->name('items')->where('id', '[0-9]+');
-            Route::get('/{id}/history', 'history')->name('history')->where('id', '[0-9]+');
+            Route::get('/{id}', 'show')->name('show');
+            Route::post('/{id}', 'update')->name('update');
+            Route::post('/{id}/status', 'updateStatus')->name('update-status');
+            Route::post('/{id}/cancel', 'cancel')->name('cancel');
+            Route::get('/{id}/items', 'orderItems')->name('items');
+            Route::get('/{id}/history', 'history')->name('history');
         });
 
     // Payments Management
@@ -117,10 +117,10 @@ Route::middleware('auth:sanctum')->prefix('dashboard')->name('dashboard.')->grou
             Route::get('/status/{status}', 'byStatus')->name('by-status')->where('status', '[a-zA-Z0-9_-]+');
             Route::get('/failed', 'failedPayments')->name('failed');
             Route::get('/revenue-analytics', 'revenueAnalytics')->name('revenue-analytics');
-            Route::get('/{id}', 'show')->name('show')->where('id', '[0-9]+');
-            Route::post('/{id}', 'update')->name('update')->where('id', '[0-9]+');
-            Route::post('/{id}/status', 'updateStatus')->name('update-status')->where('id', '[0-9]+');
-            Route::post('/{id}/refund', 'refund')->name('refund')->where('id', '[0-9]+');
+            Route::get('/{id}', 'show')->name('show');
+            Route::post('/{id}', 'update')->name('update');
+            Route::post('/{id}/status', 'updateStatus')->name('update-status');
+            Route::post('/{id}/refund', 'refund')->name('refund');
         });
 
     // Reviews Management
@@ -134,13 +134,13 @@ Route::middleware('auth:sanctum')->prefix('dashboard')->name('dashboard.')->grou
             Route::get('/pending', 'pending')->name('pending');
             Route::get('/product/{productId}', 'byProduct')->name('by-product')->where('productId', '[0-9]+');
             Route::get('/rating/{rating}', 'byRating')->name('by-rating')->where('rating', '[1-5]');
-            Route::get('/{id}', 'show')->name('show')->where('id', '[0-9]+');
-            Route::post('/{id}', 'update')->name('update')->where('id', '[0-9]+');
-            Route::post('/{id}/approve', 'approve')->name('approve')->where('id', '[0-9]+');
-            Route::post('/{id}/reject', 'reject')->name('reject')->where('id', '[0-9]+');
+            Route::get('/{id}', 'show')->name('show');
+            Route::post('/{id}', 'update')->name('update');
+            Route::post('/{id}/approve', 'approve')->name('approve');
+            Route::post('/{id}/reject', 'reject')->name('reject');
             Route::post('/bulk-approve', 'bulkApprove')->name('bulk-approve');
             Route::post('/bulk-reject', 'bulkReject')->name('bulk-reject');
-            Route::delete('/{id}', 'destroy')->name('destroy')->where('id', '[0-9]+');
+            Route::delete('/{id}', 'destroy')->name('destroy');
         });
 
 });

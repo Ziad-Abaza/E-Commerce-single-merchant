@@ -24,8 +24,8 @@ class CategoryResource extends JsonResource
             'sort_order' => $this->sort_order,
             'thumbnail_url' => $this->getThumbnailUrl(),
             'icon_url' => $this->getIconUrl(),
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
+            'created_at' => $this->created_at?->toDateTimeString(),
+            'updated_at' => $this->updated_at?->toDateTimeString(),
         ];
     }
 }

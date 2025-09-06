@@ -27,8 +27,8 @@ class WishlistItemResource extends JsonResource
             'user' => $this->whenLoaded('user', function () {
                 return new UserResource($this->user);
             }),
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
+            'created_at' => $this->created_at?->toDateTimeString(),
+            'updated_at' => $this->updated_at?->toDateTimeString(),
         ];
     }
-} 
+}

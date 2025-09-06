@@ -25,8 +25,9 @@ class ProductResource extends JsonResource
             'is_active' => $this->is_active,
             'main_image_url' => $this->getMainImageUrl(),
             'gallery_images' => $this->getImagesUrl(),
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
+            'created_at' => $this->created_at?->toDateTimeString(),
+            'updated_at' => $this->updated_at?->toDateTimeString(),
+            'price' => $this->details->min('final_price'),
         ];
     }
 }
