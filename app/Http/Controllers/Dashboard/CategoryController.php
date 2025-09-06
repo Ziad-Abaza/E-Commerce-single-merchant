@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Dashboard;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Http\Resources\CategoryResource;
+use App\Http\Requests\CategoryStoreRequest;
+use App\Http\Requests\CategoryUpdateRequest;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -43,21 +45,12 @@ class CategoryController extends Controller
         }
     }
 
-    public function store(Request $request)
+    public function store(CategoryStoreRequest $request)
     {
         try {
-            $data = $request->validate([
-                'name' => 'required|string|max:255',
-                'slug' => 'required|string|max:255|unique:categories,slug',
-                'parent_id' => 'nullable|exists:categories,id',
-                'description' => 'nullable|string',
-                'is_active' => 'boolean',
-                'sort_order' => 'nullable|integer',
-                'thumbnail' => 'nullable|image|max:8192',
-                'icon' => 'nullable|image|max:8192',
-            ]);
-
+            $data = $request->validated();
             $data['is_active'] = $data['is_active'] ?? true;
+            
             DB::beginTransaction();
             $category = Category::create($data);
             DB::commit();
@@ -75,13 +68,6 @@ class CategoryController extends Controller
                 'errors' => null,
                 'code' => 201,
             ], 201);
-        } catch (ValidationException $e) {
-            return response()->json([
-                'message' => 'Validation failed.',
-                'data' => null,
-                'errors' => $e->errors(),
-                'code' => 422,
-            ], 422);
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json([
@@ -93,20 +79,12 @@ class CategoryController extends Controller
         }
     }
 
-    public function update(Request $request, $id)
+    public function update(CategoryUpdateRequest $request, $id)
     {
         try {
             $category = Category::findOrFail($id);
-            $data = $request->validate([
-                'name' => 'sometimes|required|string|max:255',
-                'slug' => 'sometimes|required|string|max:255|unique:categories,slug,' . $id,
-                'parent_id' => 'nullable|exists:categories,id',
-                'description' => 'nullable|string',
-                'is_active' => 'nullable|boolean',
-                'sort_order' => 'nullable|integer',
-                'thumbnail' => 'nullable|image|max:8192',
-                'icon' => 'nullable|image|max:8192',
-            ]);
+            $data = $request->validated();
+            
             DB::beginTransaction();
             $category->update($data);
             DB::commit();
@@ -131,13 +109,6 @@ class CategoryController extends Controller
                 'errors' => ['category' => ['Category could not be found.']],
                 'code' => 404,
             ], 404);
-        } catch (ValidationException $e) {
-            return response()->json([
-                'message' => 'Validation failed.',
-                'data' => null,
-                'errors' => $e->errors(),
-                'code' => 422,
-            ], 422);
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json([

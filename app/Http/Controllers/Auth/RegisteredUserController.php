@@ -50,7 +50,7 @@ class RegisteredUserController extends Controller
 
         return response()->json([
             'message' => 'User registered successfully.',
-            'user' => [
+            'data' => [
                 'id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->email,
@@ -62,6 +62,7 @@ class RegisteredUserController extends Controller
                 'updated_at' => $user->updated_at,
             ],
             'token' => $token,
+            'success' => true,
         ], 201);
     }
 }

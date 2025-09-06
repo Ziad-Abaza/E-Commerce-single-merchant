@@ -31,7 +31,7 @@ return new class extends Migration
             $table->integer('min_stock_alert')->default(5); // alert when stock is below this value
 
             $table->string('sku_variant', 100)->unique()->nullable();
-            $table->string('barcode', 100)->nullable()->index(); // barcode like EAN, UPC, etc.
+            $table->string('barcode', 100)->nullable(); // barcode like EAN, UPC, etc.
 
             $table->boolean('is_active')->default(true);
             $table->timestamps();

@@ -28,6 +28,21 @@ class OrderResource extends JsonResource
             'receipt_url' => $this->getReceiptUrl(),
             'invoice_url' => $this->getInvoiceUrl(),
             'attachment_url' => $this->getAttachmentUrl(),
+            'subtotal' => $this->getSubtotal(),
+            'final_total' => $this->getFinalTotal(),
+            'is_paid' => $this->isPaid(),
+            'is_delivered' => $this->isDelivered(),
+            'is_cancelled' => $this->isCancelled(),
+            'can_be_cancelled' => $this->canBeCancelled(),
+            'user' => $this->whenLoaded('user', function () {
+                return new UserResource($this->user);
+            }),
+            'items' => $this->whenLoaded('items', function () {
+                return OrderItemResource::collection($this->items);
+            }),
+            'payment' => $this->whenLoaded('payment', function () {
+                return new PaymentResource($this->payment);
+            }),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

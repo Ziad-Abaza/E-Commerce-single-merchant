@@ -21,6 +21,19 @@ class PaymentResource extends JsonResource
             'receipt_url' => $this->getReceiptUrl(),
             'proof_of_payment_url' => $this->getProofOfPaymentUrl(),
             'document_url' => $this->getDocumentUrl(),
+            'formatted_amount' => $this->formatted_amount,
+            'is_completed' => $this->isCompleted(),
+            'is_pending' => $this->isPending(),
+            'is_failed' => $this->isFailed(),
+            'is_refunded' => $this->isRefunded(),
+            'has_transaction_id' => $this->hasTransactionId(),
+            'has_gateway_response' => $this->hasGatewayResponse(),
+            'order' => $this->whenLoaded('order', function () {
+                return new OrderResource($this->order);
+            }),
+            'user' => $this->whenLoaded('user', function () {
+                return new UserResource($this->user);
+            }),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

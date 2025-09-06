@@ -140,7 +140,7 @@ class User extends Authenticatable implements HasMedia
      */
     public function wishlistItems()
     {
-        return $this->hasMany(WishlistItem::class);
+        return $this->hasManyThrough(WishlistItem::class, WishlistCategory::class, 'user_id', 'wishlist_category_id');
     }
 
     /**

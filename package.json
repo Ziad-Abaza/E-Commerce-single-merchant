@@ -1,0 +1,48 @@
+{
+  "name": "ecommerce-frontend",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore"
+  },
+  "dependencies": {
+    "vue": "^3.4.0",
+    "vue-router": "^4.2.5",
+    "pinia": "^2.1.7",
+    "axios": "^1.6.2",
+    "@vueuse/core": "^10.7.0",
+    "vue-toastification": "^2.0.0-rc.5",
+    "vue-loading-overlay": "^6.0.3",
+    "vue-star-rating": "^1.0.6",
+    "vue-chart-3": "^3.1.8",
+    "chart.js": "^3.9.1",
+    "date-fns": "^2.30.0",
+    "lodash-es": "^4.17.21",
+    "js-cookie": "^3.0.5",
+    "nprogress": "^0.2.0",
+    "@headlessui/vue": "^1.7.16",
+    "@heroicons/vue": "^2.0.18"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^4.5.2",
+    "vite": "^5.0.8",
+    "laravel-vite-plugin": "^1.0.0",
+    "tailwindcss": "^3.3.6",
+    "autoprefixer": "^10.4.16",
+    "postcss": "^8.4.32",
+    "@tailwindcss/forms": "^0.5.7",
+    "@tailwindcss/typography": "^0.5.10",
+    "eslint": "^8.55.0",
+    "eslint-plugin-vue": "^9.19.2",
+    "@vue/eslint-config-prettier": "^9.0.0",
+    "prettier": "^3.1.1",
+    "sass": "^1.69.5",
+    "unplugin-auto-import": "^0.17.2",
+    "unplugin-vue-components": "^0.26.0",
+    "unplugin-icons": "^0.18.0",
+    "@iconify/json": "^2.2.0"
+  }
+}

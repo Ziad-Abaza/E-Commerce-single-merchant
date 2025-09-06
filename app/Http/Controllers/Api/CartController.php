@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Cart;
 use App\Http\Resources\CartResource;
+use App\Http\Requests\CartStoreRequest;
+use App\Http\Requests\CartUpdateRequest;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -43,14 +45,10 @@ class CartController extends Controller
         }
     }
 
-    public function store(Request $request)
+    public function store(CartStoreRequest $request)
     {
         try {
-            $data = $request->validate([
-                'user_id' => 'required|exists:users,id',
-                'product_detail_id' => 'required|exists:product_details,id',
-                'quantity' => 'required|integer|min:1',
-            ]);
+            $data = $request->validated();
             DB::beginTransaction();
             $cart = Cart::create($data);
             DB::commit();
@@ -60,13 +58,6 @@ class CartController extends Controller
                 'errors' => null,
                 'code' => 201,
             ], 201);
-        } catch (ValidationException $e) {
-            return response()->json([
-                'message' => 'Validation failed.',
-                'data' => null,
-                'errors' => $e->errors(),
-                'code' => 422,
-            ], 422);
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json([
@@ -78,13 +69,11 @@ class CartController extends Controller
         }
     }
 
-    public function update(Request $request, $id)
+    public function update(CartUpdateRequest $request, $id)
     {
         try {
             $cart = Cart::findOrFail($id);
-            $data = $request->validate([
-                'quantity' => 'sometimes|required|integer|min:1',
-            ]);
+            $data = $request->validated();
             DB::beginTransaction();
             $cart->update($data);
             DB::commit();
@@ -101,13 +90,6 @@ class CartController extends Controller
                 'errors' => ['cart' => ['Cart could not be found.']],
                 'code' => 404,
             ], 404);
-        } catch (ValidationException $e) {
-            return response()->json([
-                'message' => 'Validation failed.',
-                'data' => null,
-                'errors' => $e->errors(),
-                'code' => 422,
-            ], 422);
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json([

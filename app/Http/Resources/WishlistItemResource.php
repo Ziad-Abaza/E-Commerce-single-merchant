@@ -18,6 +18,15 @@ class WishlistItemResource extends JsonResource
             'highest_price' => $this->highest_price,
             'lowest_final_price' => $this->lowest_final_price,
             'highest_final_price' => $this->highest_final_price,
+            'category' => $this->whenLoaded('category', function () {
+                return new WishlistCategoryResource($this->category);
+            }),
+            'product' => $this->whenLoaded('product', function () {
+                return new ProductResource($this->product);
+            }),
+            'user' => $this->whenLoaded('user', function () {
+                return new UserResource($this->user);
+            }),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

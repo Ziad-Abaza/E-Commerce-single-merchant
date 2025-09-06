@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Dashboard;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Http\Resources\ProductResource;
+use App\Http\Requests\ProductStoreRequest;
+use App\Http\Requests\ProductUpdateRequest;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -43,18 +45,10 @@ class ProductController extends Controller
         }
     }
 
-    public function store(Request $request)
+    public function store(ProductStoreRequest $request)
     {
         try {
-            $data = $request->validate([
-                'name' => 'required|string|max:255',
-                'slug' => 'required|string|max:255|unique:products,slug',
-                'brand' => 'nullable|string|max:255',
-                'short_description' => 'nullable|string',
-                'description' => 'nullable|string',
-                'sku' => 'required|string|max:100|unique:products,sku',
-                'is_active' => 'boolean',
-            ]);
+            $data = $request->validated();
             DB::beginTransaction();
             $product = Product::create($data);
             DB::commit();
@@ -64,13 +58,6 @@ class ProductController extends Controller
                 'errors' => null,
                 'code' => 201,
             ], 201);
-        } catch (ValidationException $e) {
-            return response()->json([
-                'message' => 'Validation failed.',
-                'data' => null,
-                'errors' => $e->errors(),
-                'code' => 422,
-            ], 422);
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json([
@@ -82,19 +69,11 @@ class ProductController extends Controller
         }
     }
 
-    public function update(Request $request, $id)
+    public function update(ProductUpdateRequest $request, $id)
     {
         try {
             $product = Product::findOrFail($id);
-            $data = $request->validate([
-                'name' => 'sometimes|required|string|max:255',
-                'slug' => 'sometimes|required|string|max:255|unique:products,slug,' . $id,
-                'brand' => 'nullable|string|max:255',
-                'short_description' => 'nullable|string',
-                'description' => 'nullable|string',
-                'sku' => 'sometimes|required|string|max:100|unique:products,sku,' . $id,
-                'is_active' => 'boolean',
-            ]);
+            $data = $request->validated();
             DB::beginTransaction();
             $product->update($data);
             DB::commit();
@@ -111,13 +90,6 @@ class ProductController extends Controller
                 'errors' => ['product' => ['Product could not be found.']],
                 'code' => 404,
             ], 404);
-        } catch (ValidationException $e) {
-            return response()->json([
-                'message' => 'Validation failed.',
-                'data' => null,
-                'errors' => $e->errors(),
-                'code' => 422,
-            ], 422);
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json([

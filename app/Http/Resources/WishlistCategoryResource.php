@@ -15,6 +15,18 @@ class WishlistCategoryResource extends JsonResource
             'is_default' => $this->is_default,
             'icon_url' => $this->getIconUrl(),
             'image_url' => $this->getImageUrl(),
+            'item_count' => $this->item_count,
+            'is_default_category' => $this->isDefault(),
+            'is_custom_category' => $this->isCustom(),
+            'user' => $this->whenLoaded('user', function () {
+                return new UserResource($this->user);
+            }),
+            'items' => $this->whenLoaded('items', function () {
+                return WishlistItemResource::collection($this->items);
+            }),
+            'products' => $this->whenLoaded('products', function () {
+                return ProductResource::collection($this->products);
+            }),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

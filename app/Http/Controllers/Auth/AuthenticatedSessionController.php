@@ -27,7 +27,7 @@ class AuthenticatedSessionController extends Controller
 
         return response()->json([
             'message' => 'Logged in successfully.',
-            'user' => [
+            'data' => [
                 'id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->email,
@@ -39,6 +39,7 @@ class AuthenticatedSessionController extends Controller
                 'avatar_url' => $user->getAvatarUrl() ?? null,
             ],
             'token' => $token,
+            'success' => true,
         ], 200);
     }
 
@@ -50,7 +51,8 @@ class AuthenticatedSessionController extends Controller
         $request->user()->currentAccessToken()->delete();
 
         return response()->json([
-            'message' => 'Logged out successfully.'
+            'message' => 'Logged out successfully.',
+            'success' => true,
         ], 200);
     }
 }

@@ -72,7 +72,7 @@ class Product extends Model
      */
     public function cartItems()
     {
-        return $this->hasMany(Cart::class, 'product_detail_id', 'id');
+        return $this->hasManyThrough(Cart::class, ProductDetail::class, 'product_id', 'product_detail_id');
     }
 
     /**

@@ -17,6 +17,12 @@ class ReviewResource extends JsonResource
             'comment' => $this->comment,
             'is_verified_purchase' => $this->is_verified_purchase,
             'is_approved' => $this->is_approved,
+            'product' => $this->whenLoaded('product', function () {
+                return new ProductResource($this->product);
+            }),
+            'user' => $this->whenLoaded('user', function () {
+                return new UserResource($this->user);
+            }),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

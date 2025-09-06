@@ -11,6 +11,8 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\DB;
 use App\Models\User;
 use App\Http\Resources\UserResource;
+use App\Http\Requests\ProfileUpdateRequest;
+use App\Http\Requests\ChangePasswordRequest;
 
 class ProfileController extends Controller
 {
@@ -57,7 +59,7 @@ class ProfileController extends Controller
     /**
      * Update the authenticated user's profile.
      */
-    public function update(Request $request)
+    public function update(ProfileUpdateRequest $request)
     {
         try {
             $user = $request->user();
@@ -71,12 +73,7 @@ class ProfileController extends Controller
                 ], 401);
             }
 
-            $data = $request->validate([
-                'name' => 'sometimes|required|string|max:255',
-                'phone' => 'nullable|string|max:20',
-                'address' => 'nullable|string|max:500',
-                'avatar' => 'nullable|image|mimes:jpg,jpeg,png,webp,gif|max:8192',
-            ]);
+            $data = $request->validated();
 
             DB::beginTransaction();
 
@@ -95,13 +92,6 @@ class ProfileController extends Controller
                 'errors' => null,
                 'code' => 200,
             ], 200);
-        } catch (ValidationException $e) {
-            return response()->json([
-                'message' => 'Validation failed.',
-                'data' => null,
-                'errors' => $e->errors(),
-                'code' => 422,
-            ], 422);
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json([
@@ -116,7 +106,7 @@ class ProfileController extends Controller
     /**
      * Change the authenticated user's password.
      */
-    public function changePassword(Request $request)
+    public function changePassword(ChangePasswordRequest $request)
     {
         try {
             $user = $request->user();
@@ -130,12 +120,9 @@ class ProfileController extends Controller
                 ], 401);
             }
 
-            $request->validate([
-                'current_password' => 'required|string',
-                'password' => 'required|string|min:8|confirmed',
-            ]);
+            $data = $request->validated();
 
-            if (!Hash::check($request->current_password, $user->password)) {
+            if (!Hash::check($data['current_password'], $user->password)) {
                 return response()->json([
                     'message' => 'Current password is incorrect.',
                     'data' => null,
@@ -145,7 +132,7 @@ class ProfileController extends Controller
             }
 
             DB::beginTransaction();
-            $user->password = Hash::make($request->password);
+            $user->password = Hash::make($data['password']);
             $user->save();
             DB::commit();
 
@@ -155,13 +142,6 @@ class ProfileController extends Controller
                 'errors' => null,
                 'code' => 200,
             ], 200);
-        } catch (ValidationException $e) {
-            return response()->json([
-                'message' => 'Validation failed.',
-                'data' => null,
-                'errors' => $e->errors(),
-                'code' => 422,
-            ], 422);
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json([
