@@ -101,7 +101,7 @@
             </li>
 
             <!-- User-specific links -->
-            <template v-if="authStore.isAuthenticated">
+            <template v-if="isAuthenticated">
               <li>
                 <router-link
                   to="/wishlist"
@@ -167,7 +167,7 @@
           </router-link>
 
           <!-- Auth Section -->
-          <div v-if="!authStore.isAuthenticated" class="space-y-2">
+          <div v-if="!isAuthenticated" class="space-y-2">
             <router-link
               to="/auth/login"
               @click="$emit('close')"
@@ -186,7 +186,7 @@
 
           <!-- Logout button for authenticated users -->
           <button
-            v-if="authStore.isAuthenticated"
+            v-if="isAuthenticated"
             @click="logout"
             class="block w-full px-4 py-3 text-center text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
           >
@@ -210,6 +210,8 @@ defineEmits(['close'])
 const authStore = useAuthStore()
 const cartStore = useCartStore()
 const productStore = useProductStore()
+
+const isAuthenticated = computed(() => authStore.isAuthenticated)
 
 const showCategories = ref(false)
 const categories = computed(() => productStore.categories)

@@ -197,8 +197,19 @@ export const useProductStore = defineStore("products", {
             this.error = null;
 
             try {
+                // Request product — no need for "include" parameter anymore
                 const response = await axios.get(`/public/products/${id}`);
-                this.currentProduct = response.data.data;
+
+                // Extract product data
+                const productData = response.data.data.product;
+
+                // Attach related products (always included by backend)
+                productData.related_products =
+                    response.data.data.related_products || [];
+
+                // Set current product
+                this.currentProduct = productData;
+
                 return { success: true, data: response.data };
             } catch (error) {
                 this.error =
@@ -208,7 +219,6 @@ export const useProductStore = defineStore("products", {
                 this.loading = false;
             }
         },
-
         /**
          * Search products
          * @param {string} query - Search query

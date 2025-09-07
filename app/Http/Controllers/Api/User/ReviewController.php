@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\User;
 
 use App\Http\Controllers\Controller;
 use App\Models\Review;
@@ -85,35 +85,57 @@ class ReviewController extends Controller
     }
 
     /**
-     * Display the specified review.
+     * Display the specified review as an array (for consistency with index endpoint)
      */
     public function show($id)
     {
         try {
             $review = Review::with(['user', 'product'])->findOrFail($id);
 
+            // Wrap single review in an array
+            $reviews = [$review];
+
             return response()->json([
                 'message' => 'Review retrieved successfully.',
-                'data' => new ReviewResource($review),
+                'data' => ReviewResource::collection($reviews),
+                'pagination' => [
+                    'current_page' => 1,
+                    'last_page' => 1,
+                    'per_page' => 1,
+                    'total' => 1,
+                ],
                 'errors' => null,
                 'code' => 200,
             ], 200);
         } catch (ModelNotFoundException $e) {
             return response()->json([
                 'message' => 'Review not found.',
-                'data' => null,
+                'data' => [],
+                'pagination' => [
+                    'current_page' => 1,
+                    'last_page' => 1,
+                    'per_page' => 0,
+                    'total' => 0,
+                ],
                 'errors' => ['review' => ['Review could not be found.']],
                 'code' => 404,
             ], 404);
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Failed to retrieve review.',
-                'data' => null,
+                'data' => [],
+                'pagination' => [
+                    'current_page' => 1,
+                    'last_page' => 1,
+                    'per_page' => 0,
+                    'total' => 0,
+                ],
                 'errors' => ['server' => [$e->getMessage()]],
                 'code' => 500,
             ], 500);
         }
     }
+
 
     /**
      * Store a newly created review.

@@ -3,18 +3,19 @@
     <div class="flex space-x-4">
       <!-- Product Image -->
       <div class="flex-shrink-0">
-        <router-link :to="`/products/${product.id}`" class="block">
-          <img
-            :src="productImage"
-            :alt="product.name"
-            class="w-24 h-24 object-cover rounded-md hover:scale-105 transition-transform duration-200"
-            @error="handleImageError"
-          />
-        </router-link>
+        <img
+          :src="productImage"
+          :alt="product.name"
+          class="w-24 h-24 object-cover rounded-md"
+          @error="handleImageError"
+        />
       </div>
 
       <!-- Product Info -->
       <div class="flex-1 min-w-0">
+        <!-- Full Row Clickable Area for Product Details -->
+        <router-link :to="`/products/${product.id}`" class="absolute inset-y-0 left-0 right-0 z-10" aria-label="View product details"></router-link>
+
         <!-- Category -->
         <div v-if="product.categories && product.categories.length > 0" class="mb-1">
           <span class="text-xs text-gray-500">{{ product.categories[0].name }}</span>
@@ -58,11 +59,11 @@
             </span>
           </div>
 
-          <div class="flex items-center space-x-2">
+          <div class="flex items-center space-x-2 relative z-20">
             <!-- Wishlist Button -->
             <button
               v-if="authStore.isAuthenticated"
-              @click="toggleWishlist"
+              @click.stop="toggleWishlist"
               class="p-2 text-gray-400 hover:text-red-500 transition-colors"
               :class="{ 'text-red-500': isInWishlist }"
             >
@@ -73,7 +74,7 @@
 
             <!-- Add to Cart Button -->
             <button
-              @click="addToCart"
+              @click.stop="addToCart"
               :disabled="cartStore.loading"
               class="bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center"
             >
@@ -97,6 +98,7 @@
 import { computed } from 'vue'
 import { useAuthStore } from '../../stores/auth'
 import { useCartStore } from '../../stores/cart'
+import { useWishlistStore } from '../../stores/wishlist'
 import { useToast } from 'vue-toastification'
 
 const props = defineProps({
@@ -108,47 +110,66 @@ const props = defineProps({
 
 const authStore = useAuthStore()
 const cartStore = useCartStore()
+const wishlistStore = useWishlistStore()
 const toast = useToast()
 
-// Compute dynamic placeholder
+// Compute product image
 const productImage = computed(() => {
   if (props.product.media?.length) return props.product.media[0].url
-  // Base64 placeholder to avoid missing image error
-  return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIwIiBoZWlnaHQ9IjMyMCIgdmlld0JveD0iMCAwIDMyMCAzMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjMyMCIgaGVpZ2h0PSIzMjAiIGZpbGw9IiNlZWUiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZG9taW5hbnQtYmFzZWxpbmU9ImNlbnRyYWwiIGRvbWluYW50LWJhc2VsaW5lPSJjZW50cmFsIiBmb250LXNpemU9IjIwIiBmaWxsPSIjY2NjIj5ObyBJbWFnZTwvdGV4dD48L3N2Zz4='
+  return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIwIiBoZWlnaHQ9IjMyMCIgdmlld0JveD0iMCAwIDMyMCAzMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjMyMCIgaGVpZ2h0PSIzMjAiIGZpbGw9IiNlZWUiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZG9taW5hbnQtYmFzZWxpbmU9ImNlbnRyYWwiIGZvbnQtc2l6ZT0iMjAiIGZpbGw9IiNjY2MiPk5vIEltYWdlPC90ZXh0Pjwvc3ZnPg=='
 })
 
+// Handle image load error
 const handleImageError = (event) => {
   event.target.src = productImage.value
 }
 
-
+// Compute display price
 const displayPrice = computed(() => {
   return props.product.sale_price || props.product.price
 })
 
+// Check if product is in wishlist
 const isInWishlist = computed(() => {
-  // This would be connected to a wishlist store when available
-  return false
+  if (!authStore.isAuthenticated) return false
+  return wishlistStore.isInWishlist(props.product.id)
 })
 
-
+// Add product to cart
 const addToCart = async () => {
   try {
-    const result = await cartStore.addToCart(props.product.id, 1, {
-      price: displayPrice.value
-    })
-
-    if (!result.success) {
-      toast.error(result.error)
-    }
+    await cartStore.addToCart(props.product.id, 1)
   } catch (error) {
-    toast.error('Failed to add product to cart')
+    toast.error('An unexpected error occurred')
   }
 }
 
-const toggleWishlist = () => {
-  // This would be connected to a wishlist store when available
-  toast.info('Wishlist functionality coming soon!')
+// Toggle wishlist status
+const toggleWishlist = async () => {
+  if (!authStore.isAuthenticated) {
+    toast.info('Please log in to use the wishlist feature.')
+    return
+  }
+
+  try {
+    if (isInWishlist.value) {
+      // Find the wishlist item ID for this product
+      const item = wishlistStore.getItemByProductId(props.product.id)
+      if (item) {
+        const result = await wishlistStore.removeFromWishlist(item.id)
+        if (result.success) {
+          toast.success('Removed from wishlist')
+        }
+      }
+    } else {
+      const result = await wishlistStore.addToWishlist(props.product.id)
+      if (result.success) {
+        toast.success('Added to wishlist')
+      }
+    }
+  } catch (error) {
+    toast.error('Failed to update wishlist')
+  }
 }
 </script>
 

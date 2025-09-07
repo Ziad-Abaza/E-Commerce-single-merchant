@@ -6,7 +6,7 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useAuthStore } from './stores/auth'
 import { useProductStore } from './stores/products'
 import { useCartStore } from './stores/cart'
@@ -22,16 +22,17 @@ const isLoading = computed(() => {
 // Initialize app data
 const initializeApp = async () => {
   try {
-    // Check if user is authenticated
+    // استرجع المستخدم من localStorage (مخزن في state تلقائياً)
+    // جرب تحدث بياناته من السيرفر
     await authStore.checkAuth()
-    
+
     // Load initial data
     await Promise.all([
       productStore.loadCategories(),
       productStore.loadFeaturedProducts(),
       productStore.loadLatestProducts()
     ])
-    
+
     // Load cart if user is authenticated
     if (authStore.isAuthenticated) {
       await cartStore.loadCart()
@@ -41,8 +42,9 @@ const initializeApp = async () => {
   }
 }
 
-// Initialize app on mount
-initializeApp()
+onMounted(() => {
+  initializeApp()
+})
 </script>
 
 <style>

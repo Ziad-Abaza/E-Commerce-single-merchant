@@ -44,7 +44,7 @@
         <div class="flex items-center space-x-4">
           <!-- Wishlist (visible on desktop only) -->
           <router-link
-            v-if="authStore.isAuthenticated"
+            v-if="isAuthenticated"
             to="/wishlist"
             class="hidden md:block p-2 text-gray-400 hover:text-primary-600 transition-colors relative"
           >
@@ -70,7 +70,7 @@
           </router-link>
 
           <!-- User Menu (hidden on mobile - moved to sidebar) -->
-          <UserMenu v-if="authStore.isAuthenticated" class="hidden md:block" />
+          <UserMenu v-if="isAuthenticated" class="hidden md:block" />
 
           <!-- Login/Register Links (hidden on mobile - moved to sidebar) -->
           <div v-else class="hidden md:flex items-center space-x-2">
@@ -116,6 +116,8 @@ const cartStore = useCartStore()
 
 // Mock wishlist count - replace with actual wishlist store when available
 const wishlistCount = computed(() => 0)
+const isAuthenticated = computed(() => authStore.isAuthenticated)
+
 
 const openMobileMenu = () => {
   // This will be handled by the parent AppLayout component

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\User;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -33,11 +33,15 @@ class ProfileController extends Controller
                 ], 401);
             }
 
+            // Load additional relations if needed
+            $user->loadCount(['orders', 'reviews', 'wishlistItems']);
+
             return response()->json([
                 'message' => 'Profile retrieved successfully.',
                 'data' => new UserResource($user),
                 'errors' => null,
                 'code' => 200,
+                'success' => true,
             ], 200);
         } catch (ModelNotFoundException $e) {
             return response()->json([
@@ -45,6 +49,7 @@ class ProfileController extends Controller
                 'data' => null,
                 'errors' => ['user' => ['User could not be found.']],
                 'code' => 404,
+                'success' => false,
             ], 404);
         } catch (\Exception $e) {
             return response()->json([
@@ -52,6 +57,7 @@ class ProfileController extends Controller
                 'data' => null,
                 'errors' => ['server' => [$e->getMessage()]],
                 'code' => 500,
+                'success' => false,
             ], 500);
         }
     }
@@ -70,16 +76,21 @@ class ProfileController extends Controller
                     'data' => null,
                     'errors' => ['auth' => ['Authentication required.']],
                     'code' => 401,
+                    'success' => false,
                 ], 401);
             }
 
             $data = $request->validated();
+
+            // Prevent email updates
+            unset($data['email']);
 
             DB::beginTransaction();
 
             $user->fill($data);
             $user->save();
 
+            // Handle avatar upload
             if ($request->hasFile('avatar')) {
                 $user->setAvatar($request->file('avatar'));
             }
@@ -88,9 +99,10 @@ class ProfileController extends Controller
 
             return response()->json([
                 'message' => 'Profile updated successfully.',
-                'data' => new UserResource($user),
+                'data' => new UserResource($user->fresh()),
                 'errors' => null,
                 'code' => 200,
+                'success' => true,
             ], 200);
         } catch (\Exception $e) {
             DB::rollBack();
@@ -99,6 +111,7 @@ class ProfileController extends Controller
                 'data' => null,
                 'errors' => ['server' => [$e->getMessage()]],
                 'code' => 500,
+                'success' => false,
             ], 500);
         }
     }
@@ -117,17 +130,31 @@ class ProfileController extends Controller
                     'data' => null,
                     'errors' => ['auth' => ['Authentication required.']],
                     'code' => 401,
+                    'success' => false,
                 ], 401);
             }
 
             $data = $request->validated();
 
+            // Verify current password
             if (!Hash::check($data['current_password'], $user->password)) {
                 return response()->json([
                     'message' => 'Current password is incorrect.',
                     'data' => null,
                     'errors' => ['current_password' => ['The provided password does not match our records.']],
                     'code' => 422,
+                    'success' => false,
+                ], 422);
+            }
+
+            // Prevent setting same password
+            if (Hash::check($data['password'], $user->password)) {
+                return response()->json([
+                    'message' => 'New password cannot be the same as current password.',
+                    'data' => null,
+                    'errors' => ['password' => ['New password must be different from current password.']],
+                    'code' => 422,
+                    'success' => false,
                 ], 422);
             }
 
@@ -141,6 +168,7 @@ class ProfileController extends Controller
                 'data' => null,
                 'errors' => null,
                 'code' => 200,
+                'success' => true,
             ], 200);
         } catch (\Exception $e) {
             DB::rollBack();
@@ -149,6 +177,51 @@ class ProfileController extends Controller
                 'data' => null,
                 'errors' => ['server' => [$e->getMessage()]],
                 'code' => 500,
+                'success' => false,
+            ], 500);
+        }
+    }
+
+    /**
+     * Get user statistics
+     */
+    public function getStats(Request $request)
+    {
+        try {
+            $user = $request->user();
+
+            if (!$user) {
+                return response()->json([
+                    'message' => 'User not authenticated.',
+                    'data' => null,
+                    'errors' => ['auth' => ['User session expired or invalid.']],
+                    'code' => 401,
+                    'success' => false,
+                ], 401);
+            }
+
+            $stats = [
+                'total_orders' => $user->orders()->count(),
+                'total_reviews' => $user->reviews()->count(),
+                'total_wishlist_items' => $user->wishlistItems()->count(),
+                'total_spent' => $user->orders()->where('status', 'completed')->sum('total_amount'),
+                'member_since' => $user->created_at->diffForHumans(),
+            ];
+
+            return response()->json([
+                'message' => 'User statistics retrieved successfully.',
+                'data' => $stats,
+                'errors' => null,
+                'code' => 200,
+                'success' => true,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Failed to retrieve user statistics.',
+                'data' => null,
+                'errors' => ['server' => [$e->getMessage()]],
+                'code' => 500,
+                'success' => false,
             ], 500);
         }
     }

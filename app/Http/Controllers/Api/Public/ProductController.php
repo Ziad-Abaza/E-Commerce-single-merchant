@@ -7,8 +7,10 @@ use App\Models\Product;
 use App\Models\Category;
 use App\Http\Resources\ProductResource;
 use App\Http\Resources\CategoryResource;
+use App\Http\Resources\ProductDetailsResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use App\Http\Resources\ReviewResource;
 
 class ProductController extends Controller
 {
@@ -159,7 +161,7 @@ class ProductController extends Controller
     }
 
     /**
-     * Display the specified product with optional includes
+     * Display the specified product with comprehensive data and related products
      *
      * @param int $id
      * @param Request $request
@@ -167,60 +169,42 @@ class ProductController extends Controller
      */
     public function show(Request $request, $id): JsonResponse
     {
-        // Build the base query
+        // Build the base query for active products
         $query = Product::where('is_active', true);
 
-        // Determine what to include based on 'include' parameter
-        $includes = [];
-        if ($request->has('include')) {
-            $requestedIncludes = explode(',', $request->include);
-            $validIncludes = ['related', 'reviews'];
-
-            foreach ($requestedIncludes as $include) {
-                if (in_array($include, $validIncludes)) {
-                    $includes[] = $include;
-                }
-            }
-        }
-
-        // Always load basic relations
+        // Always load essential relations
         $product = $query->with(['categories', 'details'])->findOrFail($id);
 
-        // Load additional relations if requested
-        if (in_array('reviews', $includes)) {
-            $product->load('reviews.user');
-        }
+        $keywords = explode(' ', $product->name);
+        $likeConditions = collect($keywords)
+            ->filter(fn($word) => strlen($word) >= 3)
+            ->map(fn($word) => "name LIKE '%" . addslashes($word) . "%'")
+            ->implode(' OR ');
+            
+        // Always fetch related products (by shared categories)
+        $relatedProducts = Product::with(['categories', 'details'])
+            ->where('is_active', true)
+            ->where('id', '!=', $id)
+            ->when($product->categories->isNotEmpty(), function ($q) use ($product) {
+                $q->whereHas('categories', function ($subQuery) use ($product) {
+                    $subQuery->whereIn('categories.id', $product->categories->pluck('id'));
+                });
+            })
+            ->when(!empty($likeConditions), function ($q) use ($likeConditions) {
+                $q->orWhereRaw("({$likeConditions})");
+            })
+            ->limit(8)
+            ->get();
 
         $response = [
             'message' => 'Product retrieved successfully.',
-            'data' => new ProductResource($product),
+            'data' => [
+                'product' => new ProductDetailsResource($product),
+                'related_products' => ProductResource::collection($relatedProducts),
+            ],
             'code' => 200,
             'success' => true,
         ];
-
-        // Add related products if requested
-        if (in_array('related', $includes)) {
-            $relatedProducts = Product::with(['categories', 'details', 'reviews'])
-                ->where('is_active', true)
-                ->where('id', '!=', $id)
-                ->whereHas('categories', function ($q) use ($product) {
-                    $q->whereIn('categories.id', $product->categories->pluck('id'));
-                })
-                ->limit(4)
-                ->get();
-
-            $response['related_products'] = ProductResource::collection($relatedProducts);
-        }
-
-        // Add reviews if requested (and not already loaded above)
-        if (in_array('reviews', $includes) && !isset($response['reviews'])) {
-            $reviews = $product->reviews()
-                ->with('user')
-                ->latest()
-                ->paginate(10);
-
-            $response['reviews'] = $reviews;
-        }
 
         return response()->json($response);
     }

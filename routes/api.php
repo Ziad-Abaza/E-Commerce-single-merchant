@@ -42,10 +42,12 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     // Profile routes
-    Route::prefix('profile')->name('profile.')->group(function () {
-        Route::get('/', [\App\Http\Controllers\Api\ProfileController::class, 'show'])->name('show');
-        Route::post('/', [\App\Http\Controllers\Api\ProfileController::class, 'update'])->name('update');
-        Route::post('/change-password', [\App\Http\Controllers\Api\ProfileController::class, 'changePassword'])->name('change-password');
+    // Profile routes
+    Route::middleware('auth:sanctum')->prefix('profile')->name('profile.')->controller(\App\Http\Controllers\Api\User\ProfileController::class)->group(function () {
+        Route::get('/', 'show')->name('show');
+        Route::post('/', 'update')->name('update');
+        Route::post('/change-password', 'changePassword')->name('change-password');
+        Route::get('/stats', 'getStats')->name('stats');
     });
 
     // Cart routes
@@ -76,7 +78,7 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     // Review routes
-    Route::prefix('reviews')->name('reviews.')->controller(\App\Http\Controllers\Api\ReviewController::class)->group(function () {
+    Route::prefix('reviews')->name('reviews.')->controller(\App\Http\Controllers\Api\User\ReviewController::class)->group(function () {
         Route::get('/', 'index')->name('index');
         Route::get('/{id}', 'show')->name('show');
         Route::post('/', 'store')->name('store');

@@ -201,19 +201,19 @@ const form = reactive({
 
 const validateForm = () => {
   errors.value = {}
-  
+
   if (!form.email) {
     errors.value.email = 'Email is required'
   } else if (!/\S+@\S+\.\S+/.test(form.email)) {
     errors.value.email = 'Email is invalid'
   }
-  
+
   if (!form.password) {
     errors.value.password = 'Password is required'
   } else if (form.password.length < 6) {
     errors.value.password = 'Password must be at least 6 characters'
   }
-  
+
   return Object.keys(errors.value).length === 0
 }
 
@@ -221,9 +221,9 @@ const handleLogin = async () => {
   if (!validateForm()) {
     return
   }
-  
+
   const result = await authStore.login(form)
-  
+
   if (result.success) {
     toast.success('Welcome back!')
     router.push('/')
