@@ -37,7 +37,7 @@
                 <p class="text-sm text-gray-500">Quantity: {{ item.quantity }}</p>
               </div>
               <div class="text-sm font-medium text-gray-900">
-                ${{ (item.price * item.quantity).toFixed(2) }}
+                {{ (item.price * item.quantity).toFixed(2) }} EGP
               </div>
             </div>
           </div>
@@ -46,19 +46,19 @@
           <div class="border-t border-gray-200 pt-4 space-y-2">
             <div class="flex justify-between text-sm">
               <span class="text-gray-600">Subtotal</span>
-              <span class="text-gray-900">${{ cartStore.cartTotal.toFixed(2) }}</span>
+              <span class="text-gray-900">{{ cartStore.cartTotal.toFixed(2) }} EGP</span>
             </div>
             <div class="flex justify-between text-sm">
               <span class="text-gray-600">Shipping</span>
-              <span class="text-gray-900">${{ shippingCost.toFixed(2) }}</span>
+              <span class="text-gray-900">{{ shippingCost.toFixed(2) }} EGP</span>
             </div>
             <div class="flex justify-between text-sm">
               <span class="text-gray-600">Tax</span>
-              <span class="text-gray-900">${{ taxAmount.toFixed(2) }}</span>
+              <span class="text-gray-900">{{ taxAmount.toFixed(2) }} EGP</span>
             </div>
             <div class="flex justify-between text-lg font-medium border-t border-gray-200 pt-2">
               <span class="text-gray-900">Total</span>
-              <span class="text-gray-900">${{ totalAmount.toFixed(2) }}</span>
+              <span class="text-gray-900">{{ totalAmount.toFixed(2) }} EGP</span>
             </div>
           </div>
         </div>
@@ -193,7 +193,7 @@
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
             </span>
-            {{ loading ? 'Processing...' : `Complete Order - $${totalAmount.toFixed(2)}` }}
+            {{ loading ? 'Processing...' : `Complete Order - ${totalAmount.toFixed(2)}` }} EGP
           </button>
         </form>
       </div>

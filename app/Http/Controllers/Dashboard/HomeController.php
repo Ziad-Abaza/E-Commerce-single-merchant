@@ -17,10 +17,40 @@ use Carbon\Carbon;
 class HomeController extends Controller
 {
     /**
-     * Get dashboard statistics
+     * Unified dashboard overview endpoint
      */
-    public function statistics(): JsonResponse
+    public function overview(Request $request): JsonResponse
     {
+        // Get period and dates for analytics (shared between sales & revenue)
+        $period = $request->input('period', '30_days');
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+
+        if (!$startDate || !$endDate) {
+            switch ($period) {
+                case '7_days':
+                    $startDate = Carbon::now()->subDays(7);
+                    $endDate = Carbon::now();
+                    break;
+                case '30_days':
+                    $startDate = Carbon::now()->subDays(30);
+                    $endDate = Carbon::now();
+                    break;
+                case '90_days':
+                    $startDate = Carbon::now()->subDays(90);
+                    $endDate = Carbon::now();
+                    break;
+                case '1_year':
+                    $startDate = Carbon::now()->subYear();
+                    $endDate = Carbon::now();
+                    break;
+                default:
+                    $startDate = Carbon::now()->subDays(30);
+                    $endDate = Carbon::now();
+            }
+        }
+
+        // 1. Statistics
         $stats = [
             'total_products' => Product::count(),
             'active_products' => Product::where('is_active', true)->count(),
@@ -34,102 +64,25 @@ class HomeController extends Controller
             'total_revenue' => Payment::where('status', 'completed')->sum('amount'),
         ];
 
-        return response()->json([
-            'message' => 'Dashboard statistics retrieved successfully.',
-            'data' => $stats,
-            'code' => 200,
-        ]);
-    }
-
-    /**
-     * Get recent orders
-     */
-    public function recentOrders(): JsonResponse
-    {
-        $orders = Order::with(['user', 'orderItems.product'])
+        // 2. Recent Orders
+        $recentOrders = Order::with(['user', 'items.product'])
             ->latest()
             ->limit(10)
             ->get();
 
-        return response()->json([
-            'message' => 'Recent orders retrieved successfully.',
-            'data' => $orders,
-            'code' => 200,
-        ]);
-    }
-
-    /**
-     * Get recent products
-     */
-    public function recentProducts(): JsonResponse
-    {
-        $products = Product::with(['categories', 'details'])
+        // 3. Recent Products
+        $recentProducts = Product::with(['categories', 'details'])
             ->latest()
             ->limit(10)
             ->get();
 
-        return response()->json([
-            'message' => 'Recent products retrieved successfully.',
-            'data' => $products,
-            'code' => 200,
-        ]);
-    }
-
-    /**
-     * Get recent reviews
-     */
-    public function recentReviews(): JsonResponse
-    {
-        $reviews = Review::with(['user', 'product'])
+        // 4. Recent Reviews
+        $recentReviews = Review::with(['user', 'product'])
             ->latest()
             ->limit(10)
             ->get();
 
-        return response()->json([
-            'message' => 'Recent reviews retrieved successfully.',
-            'data' => $reviews,
-            'code' => 200,
-        ]);
-    }
-
-    /**
-     * Get sales analytics for a specific period
-     */
-    public function salesAnalytics(Request $request): JsonResponse
-    {
-        $request->validate([
-            'period' => 'nullable|in:7_days,30_days,90_days,1_year',
-            'start_date' => 'nullable|date',
-            'end_date' => 'nullable|date|after_or_equal:start_date',
-        ]);
-
-        $period = $request->period ?? '30_days';
-        $startDate = $request->start_date;
-        $endDate = $request->end_date;
-
-        // Set date range based on period
-        if (!$startDate || !$endDate) {
-            switch ($period) {
-                case '7_days':
-                    $startDate = Carbon::now()->subDays(7);
-                    $endDate = Carbon::now();
-                    break;
-                case '30_days':
-                    $startDate = Carbon::now()->subDays(30);
-                    $endDate = Carbon::now();
-                    break;
-                case '90_days':
-                    $startDate = Carbon::now()->subDays(90);
-                    $endDate = Carbon::now();
-                    break;
-                case '1_year':
-                    $startDate = Carbon::now()->subYear();
-                    $endDate = Carbon::now();
-                    break;
-            }
-        }
-
-        // Get sales data grouped by date
+        // 5. Sales Analytics
         $salesData = Order::whereBetween('created_at', [$startDate, $endDate])
             ->where('status', 'completed')
             ->select(
@@ -141,9 +94,8 @@ class HomeController extends Controller
             ->orderBy('date')
             ->get();
 
-        // Get top selling products
         $topProducts = DB::table('order_items')
-            ->join('products', 'order_items.product_id', '=', 'products.id')
+            ->join('products', 'order_items.product_detail_id', '=', 'products.id')
             ->join('orders', 'order_items.order_id', '=', 'orders.id')
             ->whereBetween('orders.created_at', [$startDate, $endDate])
             ->where('orders.status', 'completed')
@@ -151,71 +103,28 @@ class HomeController extends Controller
                 'products.id',
                 'products.name',
                 DB::raw('SUM(order_items.quantity) as total_sold'),
-                DB::raw('SUM(order_items.quantity * order_items.price) as total_revenue')
+                DB::raw('SUM(order_items.quantity * order_items.unit_price) as total_revenue')
             )
             ->groupBy('products.id', 'products.name')
             ->orderBy('total_sold', 'desc')
             ->limit(10)
             ->get();
 
-        // Get order status distribution
         $orderStatusDistribution = Order::whereBetween('created_at', [$startDate, $endDate])
             ->select('status', DB::raw('COUNT(*) as count'))
             ->groupBy('status')
             ->get();
 
-        return response()->json([
-            'message' => 'Sales analytics retrieved successfully.',
-            'data' => [
-                'period' => $period,
-                'start_date' => $startDate->format('Y-m-d'),
-                'end_date' => $endDate->format('Y-m-d'),
-                'sales_data' => $salesData,
-                'top_products' => $topProducts,
-                'order_status_distribution' => $orderStatusDistribution,
-            ],
-            'code' => 200,
-        ]);
-    }
+        $salesAnalytics = [
+            'period' => $period,
+            'start_date' => $startDate->format('Y-m-d'),
+            'end_date' => $endDate->format('Y-m-d'),
+            'sales_data' => $salesData,
+            'top_products' => $topProducts,
+            'order_status_distribution' => $orderStatusDistribution,
+        ];
 
-    /**
-     * Get revenue analytics
-     */
-    public function revenueAnalytics(Request $request): JsonResponse
-    {
-        $request->validate([
-            'period' => 'nullable|in:7_days,30_days,90_days,1_year',
-            'start_date' => 'nullable|date',
-            'end_date' => 'nullable|date|after_or_equal:start_date',
-        ]);
-
-        $period = $request->period ?? '30_days';
-        $startDate = $request->start_date;
-        $endDate = $request->end_date;
-
-        // Set date range based on period
-        if (!$startDate || !$endDate) {
-            switch ($period) {
-                case '7_days':
-                    $startDate = Carbon::now()->subDays(7);
-                    $endDate = Carbon::now();
-                    break;
-                case '30_days':
-                    $startDate = Carbon::now()->subDays(30);
-                    $endDate = Carbon::now();
-                    break;
-                case '90_days':
-                    $startDate = Carbon::now()->subDays(90);
-                    $endDate = Carbon::now();
-                    break;
-                case '1_year':
-                    $startDate = Carbon::now()->subYear();
-                    $endDate = Carbon::now();
-                    break;
-            }
-        }
-
-        // Get revenue data grouped by date
+        // 6. Revenue Analytics
         $revenueData = Payment::whereBetween('created_at', [$startDate, $endDate])
             ->where('status', 'completed')
             ->select(
@@ -227,48 +136,35 @@ class HomeController extends Controller
             ->orderBy('date')
             ->get();
 
-        // Calculate total revenue for the period
         $totalRevenue = Payment::whereBetween('created_at', [$startDate, $endDate])
             ->where('status', 'completed')
             ->sum('amount');
 
-        // Calculate average order value
         $averageOrderValue = Order::whereBetween('created_at', [$startDate, $endDate])
             ->where('status', 'completed')
             ->avg('total_amount');
 
-        return response()->json([
-            'message' => 'Revenue analytics retrieved successfully.',
-            'data' => [
-                'period' => $period,
-                'start_date' => $startDate->format('Y-m-d'),
-                'end_date' => $endDate->format('Y-m-d'),
-                'revenue_data' => $revenueData,
-                'total_revenue' => $totalRevenue,
-                'average_order_value' => round($averageOrderValue, 2),
-            ],
-            'code' => 200,
-        ]);
-    }
+        $revenueAnalytics = [
+            'period' => $period,
+            'start_date' => $startDate->format('Y-m-d'),
+            'end_date' => $endDate->format('Y-m-d'),
+            'revenue_data' => $revenueData,
+            'total_revenue' => $totalRevenue,
+            'average_order_value' => round($averageOrderValue, 2),
+        ];
 
-    /**
-     * Get user analytics
-     */
-    public function userAnalytics(): JsonResponse
-    {
-        // Get user registration data for the last 12 months
+        // 7. User Analytics
         $userRegistrationData = User::select(
             DB::raw('YEAR(created_at) as year'),
             DB::raw('MONTH(created_at) as month'),
             DB::raw('COUNT(*) as user_count')
         )
-        ->where('created_at', '>=', Carbon::now()->subMonths(12))
-        ->groupBy('year', 'month')
-        ->orderBy('year')
-        ->orderBy('month')
-        ->get();
+            ->where('created_at', '>=', Carbon::now()->subMonths(12))
+            ->groupBy('year', 'month')
+            ->orderBy('year')
+            ->orderBy('month')
+            ->get();
 
-        // Get user role distribution
         $userRoleDistribution = User::with('roles')
             ->get()
             ->groupBy(function ($user) {
@@ -278,16 +174,26 @@ class HomeController extends Controller
                 return $users->count();
             });
 
-        // Get active users (users who made at least one order)
         $activeUsers = User::whereHas('orders')->count();
 
+        $userAnalytics = [
+            'user_registration_data' => $userRegistrationData,
+            'user_role_distribution' => $userRoleDistribution,
+            'total_users' => User::count(),
+            'active_users' => $activeUsers,
+        ];
+
+        // Return unified response
         return response()->json([
-            'message' => 'User analytics retrieved successfully.',
+            'message' => 'Dashboard overview retrieved successfully.',
             'data' => [
-                'user_registration_data' => $userRegistrationData,
-                'user_role_distribution' => $userRoleDistribution,
-                'total_users' => User::count(),
-                'active_users' => $activeUsers,
+                'statistics' => $stats,
+                'recent_orders' => $recentOrders,
+                'recent_products' => $recentProducts,
+                'recent_reviews' => $recentReviews,
+                'sales_analytics' => $salesAnalytics,
+                'revenue_analytics' => $revenueAnalytics,
+                'user_analytics' => $userAnalytics,
             ],
             'code' => 200,
         ]);

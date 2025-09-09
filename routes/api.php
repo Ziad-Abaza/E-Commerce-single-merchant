@@ -13,6 +13,12 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('public')->name('public.')->group(function () {
     // Home routes
     Route::get('/home', [\App\Http\Controllers\Api\Public\HomeController::class, 'index'])->name('home');
+    
+    // Newsletter routes
+    Route::prefix('newsletter')->name('newsletter.')->controller(\App\Http\Controllers\Api\Public\NewsletterController::class)->group(function () {
+        Route::post('/subscribe', 'subscribe')->name('subscribe');
+        Route::post('/unsubscribe', 'unsubscribe')->name('unsubscribe');
+    });
 
     // Public product routes
     Route::prefix('products')->name('products.')->controller(\App\Http\Controllers\Api\Public\ProductController::class)->group(function () {
@@ -34,9 +40,22 @@ Route::prefix('public')->name('public.')->group(function () {
 Route::middleware('auth:sanctum')->group(function () {
     // Get authenticated user
     Route::get('/user', function (Request $request) {
+        $user = $request->user();
         return response()->json([
             'message' => 'User retrieved successfully.',
-            'data' => $request->user(),
+            'data' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'phone' => $user->phone,
+                'address' => $user->address,
+                'is_active' => $user->is_active,
+                'created_at' => $user->created_at,
+                'updated_at' => $user->updated_at,
+                'avatar_url' => $user->getAvatarUrl() ?? null,
+                'roles' => $user->getRoleNames(),
+                'permissions' => $user->getAllPermissions()->pluck('name'),
+            ],
             'code' => 200,
         ]);
     });

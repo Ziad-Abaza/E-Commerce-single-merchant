@@ -53,7 +53,7 @@
           </div>
         </div>
 
-        <div v-else class="grid grid-cols-2 md:grid-cols-4 gap-6">
+        <div v-else-if="homeStore.categories.length > 0" class="grid grid-cols-2 md:grid-cols-4 gap-6">
           <router-link
             v-for="category in (homeStore.categories || []).slice(0, 8)"
             :key="category.id"
@@ -92,6 +92,14 @@
             </div>
           </router-link>
         </div>
+
+        <div v-else class="text-center py-12">
+          <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+          </svg>
+          <h3 class="mt-2 text-sm font-medium text-gray-900">No categories available</h3>
+          <p class="mt-1 text-sm text-gray-500">Categories will appear here once they are added.</p>
+        </div>
       </div>
     </section>
 
@@ -125,12 +133,20 @@
           </div>
         </div>
 
-        <div v-else class="product-grid">
+        <div v-else-if="homeStore.featuredProducts.length > 0" class="product-grid">
           <ProductCard
             v-for="product in homeStore.featuredProducts"
             :key="product.id"
             :product="product"
           />
+        </div>
+
+        <div v-else class="text-center py-12">
+          <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2M4 13h2m13-4h-2m-3-3v2m-4-2v2" />
+          </svg>
+          <h3 class="mt-2 text-sm font-medium text-gray-900">No featured products available</h3>
+          <p class="mt-1 text-sm text-gray-500">Check back later for featured items.</p>
         </div>
 
         <div class="text-center mt-12">
@@ -185,12 +201,20 @@
           </div>
         </div>
 
-        <div v-else class="product-grid">
+        <div v-else-if="homeStore.latestProducts.length > 0" class="product-grid">
           <ProductCard
             v-for="product in homeStore.latestProducts"
             :key="product.id"
             :product="product"
           />
+        </div>
+
+        <div v-else class="text-center py-12">
+          <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2M4 13h2m13-4h-2m-3-3v2m-4-2v2" />
+          </svg>
+          <h3 class="mt-2 text-sm font-medium text-gray-900">No products available</h3>
+          <p class="mt-1 text-sm text-gray-500">Check back later for new arrivals.</p>
         </div>
       </div>
     </section>
@@ -237,6 +261,7 @@ import { ref, onMounted } from "vue";
 import { useHomeStore } from "../stores/home";
 import { useToast } from "vue-toastification";
 import ProductCard from "../components/common/ProductCard.vue";
+import axios from "../bootstrap";
 
 const homeStore = useHomeStore();
 const toast = useToast();
@@ -250,13 +275,22 @@ const subscribeNewsletter = async () => {
   isSubscribing.value = true;
 
   try {
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    const response = await axios.post('/api/public/newsletter/subscribe', {
+      email: email.value
+    });
 
-    toast.success("Successfully subscribed to newsletter!");
-    email.value = "";
+    if (response.data.success) {
+      toast.success("Successfully subscribed to newsletter!");
+      email.value = "";
+    } else {
+      toast.error(response.data.message || "Failed to subscribe. Please try again.");
+    }
   } catch (error) {
-    toast.error("Failed to subscribe. Please try again.");
+    if (error.response?.status === 422) {
+      toast.error(error.response.data.message || "Invalid email address.");
+    } else {
+      toast.error("Failed to subscribe. Please try again.");
+    }
   } finally {
     isSubscribing.value = false;
   }

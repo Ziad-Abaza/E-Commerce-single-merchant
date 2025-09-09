@@ -112,12 +112,12 @@
                         >
                             <div class="flex items-baseline space-x-2">
                                 <span class="text-3xl font-bold text-gray-900">
-                                    ${{
+                                    {{
                                         formatPrice(
                                             productStore.currentProduct
                                                 .final_price,
                                         )
-                                    }}
+                                    }} EGP
                                 </span>
                                 <span
                                     v-if="
@@ -126,11 +126,11 @@
                                     "
                                     class="text-xl text-gray-500 line-through"
                                 >
-                                    ${{
+                                    {{
                                         formatPrice(
                                             productStore.currentProduct.price,
                                         )
-                                    }}
+                                    }} EGP
                                 </span>
                             </div>
                             <span
@@ -428,9 +428,9 @@
 <script setup>
 import { ref, computed, onMounted, watch } from "vue";
 import { useRoute } from "vue-router";
-import { useProductStore } from "@/stores/products";
-import { useCartStore } from "@/stores/cart";
-import { useWishlistStore } from "@/stores/wishlist";
+import { useProductStore } from "../stores/products";
+import { useCartStore } from "../stores/cart";
+import { useWishlistStore } from "../stores/wishlist";
 import { useToast } from "vue-toastification";
 import ProductSlider from "../components/common/ProductSlider.vue";
 

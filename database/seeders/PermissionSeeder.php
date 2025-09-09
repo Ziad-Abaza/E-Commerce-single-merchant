@@ -24,6 +24,7 @@ class PermissionSeeder extends Seeder
             'assign_owner',
             'assign_admin',
             'assign_superAdmin',
+            'view_dashboard',
         ];
 
         foreach ($permissions as $permission) {

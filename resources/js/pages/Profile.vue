@@ -149,12 +149,12 @@
                                             t("profile.spent")
                                         }}</span>
                                         <span class="font-medium text-gray-900"
-                                            >${{
+                                            >{{
                                                 formatPrice(
                                                     profileStore.stats
                                                         .total_spent,
                                                 )
-                                            }}</span
+                                            }} EGP</span
                                         >
                                     </div>
                                 </div>

@@ -49,6 +49,12 @@ class HomeController extends Controller
         $stats = [
             'total_products' => Product::where('is_active', true)->count(),
             'total_categories' => Category::where('is_active', true)->count(),
+            'total_orders' => \App\Models\Order::count(),
+            'total_customers' => \App\Models\User::whereHas('roles', function($q) {
+                $q->where('name', 'customer');
+            })->count(),
+            'featured_products_count' => $featuredProducts->count(),
+            'latest_products_count' => $latestProducts->count(),
         ];
 
         $data['statistics'] = $stats;
@@ -85,8 +91,8 @@ class HomeController extends Controller
             ->where('is_active', true);
 
         $query->where(function ($q) use ($request) {
-            $q->where('name', 'like', '%' . $request->search_query . '%')
-                ->orWhere('description', 'like', '%' . $request->search_query . '%');
+            $q->where('name', 'like', '%' . $request->search . '%')
+                ->orWhere('description', 'like', '%' . $request->search . '%');
         });
 
         if ($request->category_id) {

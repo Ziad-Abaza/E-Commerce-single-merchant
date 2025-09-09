@@ -60,6 +60,8 @@ class RegisteredUserController extends Controller
                 'avatar_url' => $user->getAvatarUrl() ?? null,
                 'created_at' => $user->created_at,
                 'updated_at' => $user->updated_at,
+                'roles' => $user->getRoleNames(),
+                'permissions' => $user->getAllPermissions()->pluck('name'),
             ],
             'token' => $token,
             'success' => true,

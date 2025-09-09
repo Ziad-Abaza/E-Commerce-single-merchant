@@ -21,7 +21,7 @@ class AuthenticatedSessionController extends Controller
         /**
          * @var \App\Models\User
          */
-        $user = Auth::user();
+        $user = Auth::guard('web')->user();
 
         $token = $user->createToken('auth_token')->plainTextToken;
 
@@ -37,6 +37,8 @@ class AuthenticatedSessionController extends Controller
                 'created_at' => $user->created_at,
                 'updated_at' => $user->updated_at,
                 'avatar_url' => $user->getAvatarUrl() ?? null,
+                'roles' => $user->getRoleNames(),
+                'permissions' => $user->getAllPermissions()->pluck('name'),
             ],
             'token' => $token,
             'success' => true,

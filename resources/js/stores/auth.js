@@ -5,6 +5,8 @@ export const useAuthStore = defineStore("auth", {
     state: () => ({
         user: JSON.parse(localStorage.getItem("auth_user")) || null,
         token: localStorage.getItem("auth_token"),
+        permissions: JSON.parse(localStorage.getItem("auth_permissions")) || [],
+        roles: JSON.parse(localStorage.getItem("auth_roles")) || [],
         loading: false,
         error: null,
     }),
@@ -14,6 +16,10 @@ export const useAuthStore = defineStore("auth", {
         userRole: (state) => state.user?.role || null,
         isAdmin: (state) => state.user?.role === "admin",
         isCustomer: (state) => state.user?.role === "customer",
+        hasPermission: (state) => (permission) => state.permissions.includes(permission),
+        hasRole: (state) => (role) => state.roles.includes(role),
+        hasAnyPermission: (state) => (permissions) => permissions.some(permission => state.permissions.includes(permission)),
+        hasAllPermissions: (state) => (permissions) => permissions.every(permission => state.permissions.includes(permission)),
     },
 
     actions: {
@@ -37,9 +43,13 @@ export const useAuthStore = defineStore("auth", {
                 // خزّن البيانات
                 this.token = token;
                 this.user = user;
+                this.permissions = user.permissions || [];
+                this.roles = user.roles || [];
 
                 localStorage.setItem("auth_token", token);
                 localStorage.setItem("auth_user", JSON.stringify(user));
+                localStorage.setItem("auth_permissions", JSON.stringify(this.permissions));
+                localStorage.setItem("auth_roles", JSON.stringify(this.roles));
 
                 return { success: true, data: response.data };
             } catch (error) {
@@ -61,9 +71,13 @@ export const useAuthStore = defineStore("auth", {
 
                 this.user = response.data.data;
                 this.token = response.data.token;
+                this.permissions = this.user.permissions || [];
+                this.roles = this.user.roles || [];
 
                 localStorage.setItem("auth_token", this.token);
                 localStorage.setItem("auth_user", JSON.stringify(this.user));
+                localStorage.setItem("auth_permissions", JSON.stringify(this.permissions));
+                localStorage.setItem("auth_roles", JSON.stringify(this.roles));
 
                 return { success: true, data: response.data };
             } catch (error) {
@@ -83,9 +97,13 @@ export const useAuthStore = defineStore("auth", {
                     if (response.data?.success) {
                         this.user = null;
                         this.token = null;
+                        this.permissions = [];
+                        this.roles = [];
 
                         localStorage.removeItem("auth_token");
                         localStorage.removeItem("auth_user");
+                        localStorage.removeItem("auth_permissions");
+                        localStorage.removeItem("auth_roles");
 
                         document.cookie =
                             "XSRF-TOKEN=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
@@ -98,8 +116,12 @@ export const useAuthStore = defineStore("auth", {
             } finally {
                 this.user = null;
                 this.token = null;
+                this.permissions = [];
+                this.roles = [];
                 localStorage.removeItem("auth_token");
                 localStorage.removeItem("auth_user");
+                localStorage.removeItem("auth_permissions");
+                localStorage.removeItem("auth_roles");
             }
         },
 
@@ -113,7 +135,11 @@ export const useAuthStore = defineStore("auth", {
             try {
                 const response = await axios.get("/user");
                 this.user = response.data.data;
+                this.permissions = this.user.permissions || [];
+                this.roles = this.user.roles || [];
                 localStorage.setItem("auth_user", JSON.stringify(this.user));
+                localStorage.setItem("auth_permissions", JSON.stringify(this.permissions));
+                localStorage.setItem("auth_roles", JSON.stringify(this.roles));
                 return true;
             } catch (error) {
                 this.logout();

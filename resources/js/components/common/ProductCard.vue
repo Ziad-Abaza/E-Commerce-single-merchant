@@ -21,8 +21,13 @@
         </svg>
       </button>
       <!-- Sale Badge -->
-      <div v-if="product.sale_price" class="absolute top-2 left-2 bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded">
-        Sale
+      <div v-if="product.discount_percentage > 0" class="absolute top-2 left-2 bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded">
+        -{{ product.discount_percentage }}%
+      </div>
+      
+      <!-- Stock Status -->
+      <div v-if="!product.in_stock" class="absolute top-2 left-2 bg-gray-800 text-white text-xs font-semibold px-2 py-1 rounded">
+        Out of Stock
       </div>
     </div>
 
@@ -46,13 +51,13 @@
       </p>
 
       <!-- Rating -->
-      <div v-if="product.average_rating" class="flex items-center mb-2">
+      <div v-if="product.rating > 0" class="flex items-center mb-2">
         <div class="flex items-center">
           <svg
             v-for="star in 5"
             :key="star"
             class="h-4 w-4 md:h-5 md:w-5"
-            :class="star <= Math.round(product.average_rating) ? 'text-yellow-400' : 'text-gray-300'"
+            :class="star <= Math.round(product.rating) ? 'text-yellow-400' : 'text-gray-300'"
             fill="currentColor"
             viewBox="0 0 24 24"
           >
@@ -65,16 +70,17 @@
       <!-- Price -->
       <div class="flex items-center justify-between mb-3">
         <div class="flex items-center space-x-2">
-          <span class="text-sm md:text-base font-bold text-gray-900">${{ displayPrice }}</span>
-          <span v-if="product.sale_price" class="text-xs md:text-sm text-gray-500 line-through">${{ product.price }}</span>
+          <span class="text-sm md:text-base font-bold text-gray-900">${{ product.price }}</span>
+          <span v-if="product.discount_percentage > 0" class="text-xs md:text-sm text-gray-500 line-through">${{ product.original_price }}</span>
         </div>
       </div>
 
       <!-- Add to Cart Button -->
       <button
         @click.stop="addToCart"
-        :disabled="cartStore.loading"
-        class="mt-auto w-full bg-primary-600 text-white py-2 px-4 rounded-md hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center text-sm md:text-base"
+        :disabled="cartStore.loading || !product.in_stock"
+        class="mt-auto w-full py-2 px-4 rounded-md transition-colors flex items-center justify-center text-sm md:text-base"
+        :class="product.in_stock ? 'bg-primary-600 text-white hover:bg-primary-700' : 'bg-gray-300 text-gray-500 cursor-not-allowed'"
       >
         <svg v-if="cartStore.loading" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -83,7 +89,7 @@
         <svg v-else class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m6-5v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6m8 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v4.01" />
         </svg>
-        {{ cartStore.loading ? 'Adding...' : 'Add to Cart' }}
+        {{ cartStore.loading ? 'Adding...' : (product.in_stock ? 'Add to Cart' : 'Out of Stock') }}
       </button>
     </div>
   </div>
@@ -110,8 +116,9 @@ const toast = useToast()
 
 // Compute product image
 const productImage = computed(() => {
-  if (props.product.media?.length) return props.product.media[0].url
-  return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIwIiBoZWlnaHQ9IjMyMCIgdmlld0JveD0iMCAwIDMyMCAzMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjMyMCIgaGVpZ2h0PSIzMjAiIGZpbGw9IiNlZWUiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZG9taW5hbnQtYmFzZWxpbmU9ImNlbnRyYWwiIGZvbnQtc2l6ZT0iMjAiIGZpbGw9IiNjY2MiPk5vIEltYWdlPC90ZXh0Pjwvc3ZnPg=='
+  if (props.product.main_image_url) return props.product.main_image_url
+  if (props.product.gallery_images?.length) return props.product.gallery_images[0]
+  return '/images/placeholder-product.png'
 })
 
 // Handle image load error
@@ -119,10 +126,19 @@ const handleImageError = (event) => {
   event.target.src = productImage.value
 }
 
-// Compute display price
-const displayPrice = computed(() => {
-  return props.product.sale_price || props.product.price
-})
+// Add product to cart
+const addToCart = async () => {
+  if (!props.product.in_stock) {
+    toast.warning('This product is currently out of stock')
+    return
+  }
+  
+  try {
+     await cartStore.addToCart(props.product.id, 1)
+  } catch (error) {
+    toast.error('An unexpected error occurred')
+  }
+}
 
 // Check if product is in wishlist
 const isInWishlist = computed(() => {
@@ -130,14 +146,6 @@ const isInWishlist = computed(() => {
   return wishlistStore.isInWishlist(props.product.id)
 })
 
-// Add product to cart
-const addToCart = async () => {
-  try {
-     await cartStore.addToCart(props.product.id, 1)
-  } catch (error) {
-    toast.error('An unexpected error occurred')
-  }
-}
 
 // Toggle wishlist status
 const toggleWishlist = async () => {

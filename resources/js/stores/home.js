@@ -11,6 +11,10 @@ export const useHomeStore = defineStore("home", {
         statistics: {
             total_products: 0,
             total_categories: 0,
+            total_orders: 0,
+            total_customers: 0,
+            featured_products_count: 0,
+            latest_products_count: 0,
         },
 
         // state generale

@@ -10,6 +10,7 @@ import { computed, onMounted } from 'vue'
 import { useAuthStore } from './stores/auth'
 import { useProductStore } from './stores/products'
 import { useCartStore } from './stores/cart'
+import LoadingOverlay from './components/LoadingOverlay.vue'
 
 const authStore = useAuthStore()
 const productStore = useProductStore()

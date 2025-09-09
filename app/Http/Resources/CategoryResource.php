@@ -24,6 +24,7 @@ class CategoryResource extends JsonResource
             'sort_order' => $this->sort_order,
             'thumbnail_url' => $this->getThumbnailUrl(),
             'icon_url' => $this->getIconUrl(),
+            'products_count' => $this->when(isset($this->products_count), $this->products_count),
             'created_at' => $this->created_at?->toDateTimeString(),
             'updated_at' => $this->updated_at?->toDateTimeString(),
         ];

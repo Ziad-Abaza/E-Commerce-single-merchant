@@ -24,7 +24,7 @@ class CartSeeder extends Seeder
 
         // Create cart items for some users (not all users have cart items)
         $userCount = $users->count();
-        $cartUserCount = rand(5, min(15, $userCount));
+        $cartUserCount = rand(4, min(15, $userCount));
         $usersWithCart = $users->random($cartUserCount);
 
         foreach ($usersWithCart as $user) {
@@ -40,7 +40,7 @@ class CartSeeder extends Seeder
 
         foreach ($selectedProducts as $productDetail) {
             $quantity = rand(1, 3);
-            
+
             Cart::create([
                 'user_id' => $user->id,
                 'product_detail_id' => $productDetail->id,

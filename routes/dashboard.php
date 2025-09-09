@@ -14,14 +14,7 @@ Route::middleware('auth:sanctum')->prefix('dashboard')->name('dashboard.')->grou
 
     // Dashboard Home
     Route::controller(\App\Http\Controllers\Dashboard\HomeController::class)->group(function () {
-        Route::get('/', 'statistics')->name('home');
-        Route::get('/statistics', 'statistics')->name('statistics');
-        Route::get('/recent-orders', 'recentOrders')->name('recent-orders');
-        Route::get('/recent-products', 'recentProducts')->name('recent-products');
-        Route::get('/recent-reviews', 'recentReviews')->name('recent-reviews');
-        Route::get('/sales-analytics', 'salesAnalytics')->name('sales-analytics');
-        Route::get('/revenue-analytics', 'revenueAnalytics')->name('revenue-analytics');
-        Route::get('/user-analytics', 'userAnalytics')->name('user-analytics');
+        Route::get('/overview', 'overview')->name('overview');
     });
 
     // Users Management

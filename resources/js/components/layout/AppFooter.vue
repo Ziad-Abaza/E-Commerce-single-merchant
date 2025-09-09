@@ -55,14 +55,14 @@
               </router-link>
             </li>
             <li>
-              <a href="#" class="text-gray-300 hover:text-white transition-colors">
+              <router-link to="/about" class="text-gray-300 hover:text-white transition-colors">
                 About Us
-              </a>
+              </router-link>
             </li>
             <li>
-              <a href="#" class="text-gray-300 hover:text-white transition-colors">
+              <router-link to="/contact" class="text-gray-300 hover:text-white transition-colors">
                 Contact
-              </a>
+              </router-link>
             </li>
           </ul>
         </div>

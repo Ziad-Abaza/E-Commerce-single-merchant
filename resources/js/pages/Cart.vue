@@ -102,10 +102,10 @@
                     <div class="mt-3 flex items-center space-x-4">
                       <div class="flex items-baseline">
                         <span class="text-lg font-bold text-gray-900">
-                          ${{ formatPrice(item.product_detail?.final_price || 0) }}
+                          {{ formatPrice(item.product_detail?.final_price || 0) }} EGP
                         </span>
                         <span v-if="item.product_detail?.discount > 0" class="ml-2 text-sm text-gray-500 line-through">
-                          ${{ formatPrice(item.product_detail?.price || 0) }}
+                          {{ formatPrice(item.product_detail?.price || 0) }} EGP
                         </span>
                       </div>
 
@@ -147,10 +147,10 @@
                   <!-- Item Total -->
                   <div class="text-right lg:w-24">
                     <div class="text-lg font-bold text-gray-900">
-                      ${{ formatPrice((item.product_detail?.final_price || 0) * item.quantity) }}
+                      {{ formatPrice((item.product_detail?.final_price || 0) * item.quantity) }} EGP
                     </div>
                     <div v-if="item.product_detail?.discount > 0" class="text-sm text-red-500">
-                      You save ${{ formatPrice(item.product_detail.discount * item.quantity) }}
+                      You save {{ formatPrice(item.product_detail.discount * item.quantity) }} EGP
                     </div>
                   </div>
 
@@ -209,28 +209,28 @@
               <!-- Subtotal -->
               <div class="flex justify-between">
                 <span class="text-gray-600">Subtotal</span>
-                <span class="font-medium text-gray-900">${{ formatPrice(cartStore.summary.subtotal) }}</span>
+                <span class="font-medium text-gray-900">{{ formatPrice(cartStore.summary.subtotal) }} EGP</span>
               </div>
 
               <!-- Shipping -->
               <div class="flex justify-between">
                 <span class="text-gray-600">Shipping</span>
                 <span class="font-medium text-gray-900">
-                  {{ cartStore.shippingCost === 0 ? 'Free' : `$${formatPrice(cartStore.shippingCost)}` }}
+                  {{ cartStore.shippingCost === 0 ? 'Free' : `${formatPrice(cartStore.shippingCost)}`  }} EGP
                 </span>
               </div>
 
               <!-- Tax -->
               <div class="flex justify-between">
                 <span class="text-gray-600">Tax (8%)</span>
-                <span class="font-medium text-gray-900">${{ formatPrice(cartStore.taxAmount) }}</span>
+                <span class="font-medium text-gray-900">{{ formatPrice(cartStore.taxAmount) }} EGP</span>
               </div>
 
               <!-- Total -->
               <div class="border-t border-gray-200 pt-4">
                 <div class="flex justify-between text-xl font-bold">
                   <span class="text-gray-900">Total</span>
-                  <span class="text-gray-900">${{ formatPrice(cartStore.grandTotal) }}</span>
+                  <span class="text-gray-900">{{ formatPrice(cartStore.grandTotal) }} EGP</span>
                 </div>
                 <p class="text-sm text-gray-500 mt-1">Taxes and shipping calculated at checkout</p>
               </div>

@@ -132,7 +132,7 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue'
-import { useReviewStore } from '@/stores/reviews'
+import { useReviewStore } from '../../stores/reviews'
 import StarRating from './StarRating.vue'
 
 const props = defineProps({
