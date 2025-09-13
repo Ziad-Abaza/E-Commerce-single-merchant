@@ -43,7 +43,7 @@ export const useSettingsStore = defineStore("settings", {
 
                 this.groupedSettings = response.data.data;
                 this.groups = response.data.groups;
-                
+
                 // Flatten settings for easier access
                 this.settings = Object.values(this.groupedSettings).flat();
 
@@ -67,7 +67,7 @@ export const useSettingsStore = defineStore("settings", {
 
                 // Add to local state
                 this.settings.push(response.data.data);
-                
+
                 // Update grouped settings
                 const group = response.data.data.group;
                 if (!this.groupedSettings[group]) {
@@ -244,3 +244,4 @@ export const useSettingsStore = defineStore("settings", {
         },
     },
 });
+

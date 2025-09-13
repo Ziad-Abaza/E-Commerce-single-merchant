@@ -281,6 +281,7 @@
 
 <script setup>
 import { ref, watch, computed } from 'vue';
+import { useSettingsStore } from '@/stores/dashboard/settings';
 
 const props = defineProps({
   show: {

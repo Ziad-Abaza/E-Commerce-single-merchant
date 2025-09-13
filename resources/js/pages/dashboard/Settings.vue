@@ -26,7 +26,7 @@
             </svg>
             {{ settingsStore.saving ? 'Saving...' : 'Save Changes' }}
           </button>
-          
+
           <!-- Discard Changes Button -->
           <button
             v-if="settingsStore.hasUnsavedChanges"
@@ -270,6 +270,7 @@ import SettingModal from './components/SettingModal.vue';
 import ConfirmModal from './components/ConfirmModal.vue';
 
 const settingsStore = useSettingsStore();
+
 const authStore = useAuthStore();
 
 const showCreateModal = ref(false);
