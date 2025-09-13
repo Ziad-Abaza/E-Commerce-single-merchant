@@ -21,9 +21,6 @@ class PermissionSeeder extends Seeder
             'manage_wishlist',
             'manage_roles',
             'manage_permissions',
-            'assign_owner',
-            'assign_admin',
-            'assign_superAdmin',
             'view_dashboard',
         ];
 

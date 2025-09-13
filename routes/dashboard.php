@@ -35,15 +35,14 @@ Route::middleware('auth:sanctum')->prefix('dashboard')->name('dashboard.')->grou
             Route::post('{id}/remove-role', 'removeRole')->name('removeRole');
         });
 
-    Route::middleware(['can:manage_roles'])
+    Route::middleware(['auth', 'can:manage_roles'])
         ->prefix('roles')
         ->name('roles.')
         ->controller(\App\Http\Controllers\Dashboard\RoleController::class)
         ->group(function () {
             Route::get('/', 'index')->name('index');
-            Route::get('/permissions', 'permissions')->name('permissions');
-            Route::post('/', 'store')->name('store');
             Route::get('/{id}', 'show')->name('show');
+            Route::post('/', 'store')->name('store');
             Route::post('/{id}', 'update')->name('update');
             Route::delete('/{id}', 'destroy')->name('destroy');
         });
@@ -130,17 +129,23 @@ Route::middleware('auth:sanctum')->prefix('dashboard')->name('dashboard.')->grou
         ->name('reviews.')
         ->controller(\App\Http\Controllers\Dashboard\ReviewController::class)
         ->group(function () {
+
+            // Routes without parameters first
             Route::get('/', 'index')->name('index');
-            Route::get('/statistics', 'statistics')->name('statistics');
-            Route::get('/pending', 'pending')->name('pending');
-            Route::get('/product/{productId}', 'byProduct')->name('by-product')->where('productId', '[0-9]+');
-            Route::get('/rating/{rating}', 'byRating')->name('by-rating')->where('rating', '[1-5]');
-            Route::get('/{id}', 'show')->name('show');
-            Route::post('/{id}', 'update')->name('update');
-            Route::post('/{id}/approve', 'approve')->name('approve');
-            Route::post('/{id}/reject', 'reject')->name('reject');
+            Route::post('/bulk-activate', 'bulkActivate')->name('bulk-activate');
+            Route::post('/bulk-deactivate', 'bulkDeactivate')->name('bulk-deactivate');
             Route::post('/bulk-approve', 'bulkApprove')->name('bulk-approve');
             Route::post('/bulk-reject', 'bulkReject')->name('bulk-reject');
+            Route::post('/bulk-delete', 'bulkDelete')->name('bulk-delete');
+
+            // Routes with {id} parameters
+            Route::get('/{id}', 'show')->name('show');
+            Route::post('/{id}', 'update')->name('update');
+            Route::post('/{id}/toggle-active', 'toggleActive')->name('toggle-active');
+            Route::post('/{id}/activate', 'activate')->name('activate');
+            Route::post('/{id}/deactivate', 'deactivate')->name('deactivate');
+            Route::post('/{id}/approve', 'approve')->name('approve');
+            Route::post('/{id}/reject', 'reject')->name('reject');
             Route::delete('/{id}', 'destroy')->name('destroy');
         });
 });

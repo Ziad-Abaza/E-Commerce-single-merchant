@@ -12,6 +12,8 @@ import ProductDetails from "../pages/dashboard/ProductDetails.vue";
 import Orders from "../pages/dashboard/Orders.vue";
 import Categories from "../pages/dashboard/Categories.vue";
 import Users from "../pages/dashboard/Users.vue";
+import Roles from "../pages/dashboard/Roles.vue";
+import Reviews from "../pages/dashboard/Reviews.vue";
 
 const routes = [
     {
@@ -99,6 +101,34 @@ const routes = [
                     breadcrumb: [
                         { name: "Dashboard", path: "/dashboard" },
                         { name: "Users", path: "/dashboard/users" },
+                    ],
+                },
+            },
+            {
+                path: "roles",
+                name: "dashboard.roles",
+                component: Roles,
+                meta: {
+                    title: "Roles Management",
+                    requiresAuth: true,
+                    requiresPermission: "manage_roles",
+                    breadcrumb: [
+                        { name: "Dashboard", path: "/dashboard" },
+                        { name: "Roles", path: "/dashboard/roles" },
+                    ],
+                },
+            },
+            {
+                path: "reviews",
+                name: "dashboard.reviews",
+                component: Reviews,
+                meta: {
+                    title: "Reviews Management",
+                    requiresAuth: true,
+                    requiresPermission: "manage_reviews",
+                    breadcrumb: [
+                        { name: "Dashboard", path: "/dashboard" },
+                        { name: "Reviews", path: "/dashboard/reviews" },
                     ],
                 },
             },

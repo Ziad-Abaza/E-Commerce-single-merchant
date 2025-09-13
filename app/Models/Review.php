@@ -22,7 +22,7 @@ class Review extends Model
         'title',
         'comment',
         'is_verified_purchase',
-        'is_approved',
+        'active',
     ];
 
     /**
@@ -33,7 +33,7 @@ class Review extends Model
     protected $casts = [
         'rating' => 'integer',
         'is_verified_purchase' => 'boolean',
-        'is_approved' => 'boolean',
+        'active' => 'boolean',
     ];
 
     /**
@@ -53,19 +53,37 @@ class Review extends Model
     }
 
     /**
-     * Scope a query to only include approved reviews.
+     * Scope a query to only include active reviews.
      */
-    public function scopeApproved($query)
+    public function scopeActive($query)
     {
-        return $query->where('is_approved', true);
+        return $query->where('active', true);
     }
 
     /**
-     * Scope a query to only include pending reviews.
+     * Scope a query to only include inactive reviews.
+     */
+    public function scopeInactive($query)
+    {
+        return $query->where('active', false);
+    }
+
+    /**
+     * Scope a query to only include approved reviews (alias for active).
+     * @deprecated Use scopeActive instead
+     */
+    public function scopeApproved($query)
+    {
+        return $query->where('active', true);
+    }
+
+    /**
+     * Scope a query to only include pending reviews (alias for inactive).
+     * @deprecated Use scopeInactive instead
      */
     public function scopePending($query)
     {
-        return $query->where('is_approved', false);
+        return $query->where('active', false);
     }
 
     /**
@@ -98,7 +116,7 @@ class Review extends Model
     public static function getAverageRating($productId)
     {
         return static::where('product_id', $productId)
-            ->where('is_approved', true)
+            ->where('active', true)
             ->avg('rating');
     }
 
@@ -108,7 +126,7 @@ class Review extends Model
     public static function getRatingDistribution($productId)
     {
         return static::where('product_id', $productId)
-            ->where('is_approved', true)
+            ->where('active', true)
             ->selectRaw('rating, COUNT(*) as count')
             ->groupBy('rating')
             ->orderBy('rating', 'desc')

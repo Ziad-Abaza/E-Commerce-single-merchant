@@ -14,46 +14,53 @@ use Illuminate\Support\Facades\Log;
 
 class RoleController extends Controller
 {
-    const PROTECTED_ROLES = ['owner', 'admin', 'superAdmin'];
+    const PROTECTED_ROLES = ['owner', 'admin'];
 
     /**
-     * Display a listing of the roles.
+     * Display a paginated listing of the roles with stats.
      */
-    public function index()
+    public function index(Request $request)
     {
         try {
-            $roles = Role::with('permissions')->get();
+            $perPage = $request->get('per_page', 20);
+            $roles = Role::with(['permissions' => function ($query) {
+                $query->select('permissions.id', 'permissions.name');
+            }])->orderBy('name')->paginate($perPage);
+
+            $permissions = Permission::all(['id', 'name']);
+
+            $stats = [
+                'total_roles' => Role::count(),
+                'protected_roles' => Role::whereIn('name', self::PROTECTED_ROLES)->count(),
+            ];
 
             return response()->json([
-                'message' => 'Roles list retrieved successfully.',
-                'data' => $roles,
-                'errors' => null,
-                'code' => 200,
+                'success' => true,
+                'message' => 'Roles retrieved successfully.',
+                'data' => [
+                    'roles' => $roles->items(),
+                    'permissions' => $permissions,
+                ],
+                'stats' => $stats,
+                'pagination' => [
+                    'total' => $roles->total(),
+                    'current_page' => $roles->currentPage(),
+                    'per_page' => $roles->perPage(),
+                    'last_page' => $roles->lastPage(),
+                    'from' => $roles->firstItem(),
+                    'to' => $roles->lastItem(),
+                ],
             ], 200);
         } catch (\Exception $e) {
             Log::error(__METHOD__ . ' - ' . $e->getMessage());
             return response()->json([
+                'success' => false,
                 'message' => 'Failed to retrieve roles.',
-                'data' => null,
-                'errors' => ['server' => [$e->getMessage()]],
-                'code' => 500,
+                'errors' => [
+                    'server' => [$e->getMessage()]
+                ],
             ], 500);
         }
-    }
-
-    /**
-     * Get all available permissions.
-     */
-    public function permissions()
-    {
-        $permissions = Permission::all()->pluck('name');
-
-        return response()->json([
-            'message' => 'Available permissions retrieved successfully.',
-            'data' => $permissions,
-            'errors' => null,
-            'code' => 200,
-        ], 200);
     }
 
     /**
@@ -88,7 +95,7 @@ class RoleController extends Controller
                     }
                 ],
                 'permissions' => 'nullable|array',
-                'permissions.*' => 'exists:permissions,name',
+                'permissions.*' => 'exists:permissions,id',
             ]);
 
             DB::beginTransaction();
@@ -99,8 +106,10 @@ class RoleController extends Controller
             ]);
 
             if (!empty($validated['permissions'])) {
-                $this->authorizeSensitivePermissions($user, $validated['permissions']);
-                $role->syncPermissions($validated['permissions']);
+                // Convert permission IDs to permission objects for syncing
+                $permissions = Permission::whereIn('id', $validated['permissions'])->get();
+                $this->authorizeSensitivePermissions($user, $permissions->pluck('name')->toArray());
+                $role->syncPermissions($permissions);
             }
 
             DB::commit();
@@ -112,26 +121,23 @@ class RoleController extends Controller
             ]);
 
             return response()->json([
+                'success' => true,
                 'message' => 'Role created successfully.',
                 'data' => $role->load('permissions'),
-                'errors' => null,
-                'code' => 201,
             ], 201);
         } catch (ValidationException $e) {
             return response()->json([
+                'success' => false,
                 'message' => 'Validation failed.',
-                'data' => null,
                 'errors' => $e->errors(),
-                'code' => 422,
             ], 422);
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error(__METHOD__ . ' - ' . $e->getMessage());
             return response()->json([
+                'success' => false,
                 'message' => 'Failed to create role.',
-                'data' => null,
                 'errors' => ['server' => [$e->getMessage()]],
-                'code' => 500,
             ], 500);
         }
     }
@@ -146,32 +152,28 @@ class RoleController extends Controller
 
             if ($role->name === 'owner' && !$this->userIsOwner()) {
                 return response()->json([
+                    'success' => false,
                     'message' => 'Access denied.',
-                    'data' => null,
                     'errors' => ['role' => ['You cannot view the owner role.']],
-                    'code' => 403,
                 ], 403);
             }
 
             return response()->json([
+                'success' => true,
                 'message' => 'Role retrieved successfully.',
                 'data' => $role,
-                'errors' => null,
-                'code' => 200,
             ], 200);
         } catch (ModelNotFoundException $e) {
             return response()->json([
+                'success' => false,
                 'message' => 'Role not found.',
-                'data' => null,
                 'errors' => ['role' => ['Role could not be found.']],
-                'code' => 404,
             ], 404);
         } catch (\Exception $e) {
             return response()->json([
+                'success' => false,
                 'message' => 'Failed to retrieve role.',
-                'data' => null,
                 'errors' => ['server' => [$e->getMessage()]],
-                'code' => 500,
             ], 500);
         }
     }
@@ -187,10 +189,9 @@ class RoleController extends Controller
 
             if (in_array($role->name, self::PROTECTED_ROLES) && !$user->isOwner()) {
                 return response()->json([
+                    'success' => false,
                     'message' => 'You cannot modify protected roles.',
-                    'data' => null,
                     'errors' => ['role' => ['Only the owner can modify this role.']],
-                    'code' => 403,
                 ], 403);
             }
 
@@ -212,7 +213,7 @@ class RoleController extends Controller
                     }
                 ],
                 'permissions' => 'nullable|array',
-                'permissions.*' => 'exists:permissions,name',
+                'permissions.*' => 'exists:permissions,id',
             ]);
 
             DB::beginTransaction();
@@ -220,8 +221,10 @@ class RoleController extends Controller
             $role->update(['name' => $validated['name']]);
 
             if (!empty($validated['permissions'])) {
-                $this->authorizeSensitivePermissions($user, $validated['permissions']);
-                $role->syncPermissions($validated['permissions']);
+                // Convert permission IDs to permission objects for syncing
+                $permissions = Permission::whereIn('id', $validated['permissions'])->get();
+                $this->authorizeSensitivePermissions($user, $permissions->pluck('name')->toArray());
+                $role->syncPermissions($permissions);
             }
 
             DB::commit();
@@ -233,33 +236,29 @@ class RoleController extends Controller
             ]);
 
             return response()->json([
+                'success' => true,
                 'message' => 'Role updated successfully.',
                 'data' => $role->fresh('permissions'),
-                'errors' => null,
-                'code' => 200,
             ], 200);
         } catch (ModelNotFoundException $e) {
             return response()->json([
+                'success' => false,
                 'message' => 'Role not found.',
-                'data' => null,
                 'errors' => ['role' => ['Role could not be found.']],
-                'code' => 404,
             ], 404);
         } catch (ValidationException $e) {
             return response()->json([
+                'success' => false,
                 'message' => 'Validation failed.',
-                'data' => null,
                 'errors' => $e->errors(),
-                'code' => 422,
             ], 422);
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error(__METHOD__ . ' - ' . $e->getMessage());
             return response()->json([
+                'success' => false,
                 'message' => 'Failed to update role.',
-                'data' => null,
                 'errors' => ['server' => [$e->getMessage()]],
-                'code' => 500,
             ], 500);
         }
     }
@@ -275,19 +274,17 @@ class RoleController extends Controller
 
             if (in_array($role->name, self::PROTECTED_ROLES)) {
                 return response()->json([
+                    'success' => false,
                     'message' => 'This role cannot be deleted.',
-                    'data' => null,
                     'errors' => ['role' => ['Protected roles cannot be deleted.']],
-                    'code' => 403,
                 ], 403);
             }
 
             if ($role->users()->count() > 0) {
                 return response()->json([
+                    'success' => false,
                     'message' => 'Cannot delete role with assigned users.',
-                    'data' => null,
                     'errors' => ['role' => ['Please reassign users first.']],
-                    'code' => 400,
                 ], 400);
             }
 
@@ -301,30 +298,30 @@ class RoleController extends Controller
             ]);
 
             return response()->json([
+                'success' => true,
                 'message' => 'Role deleted successfully.',
                 'data' => null,
-                'errors' => null,
-                'code' => 200,
             ], 200);
         } catch (ModelNotFoundException $e) {
             return response()->json([
+                'success' => false,
                 'message' => 'Role not found.',
-                'data' => null,
                 'errors' => ['role' => ['Role could not be found.']],
-                'code' => 404,
             ], 404);
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error(__METHOD__ . ' - ' . $e->getMessage());
             return response()->json([
+                'success' => false,
                 'message' => 'Failed to delete role.',
-                'data' => null,
                 'errors' => ['server' => [$e->getMessage()]],
-                'code' => 500,
             ], 500);
         }
     }
 
+    /**
+     * Authorize assigning sensitive permissions.
+     */
     private function authorizeSensitivePermissions($user, array $permissions)
     {
         $sensitivePermissions = [
@@ -345,14 +342,12 @@ class RoleController extends Controller
     }
 
     /**
-     * check if user has permission to assign role
+     * Check if the current user is owner.
      */
     private function userIsOwner(): bool
     {
-        $user = Auth::user();
-
         /** @var \App\Models\User $user */
-
+        $user = Auth::user();
         return $user && $user->isOwner();
     }
 }

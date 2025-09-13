@@ -133,7 +133,7 @@
             <!-- Toggle Sidebar -->
             <button
                 @click="$emit('toggle')"
-                class="group flex items-center w-full px-3 py-2 text-sm font-medium rounded-md transition-colors duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white"
+                class="group flex items-center justify-center w-full px-0 py-2 rounded-md transition-colors duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white"
                 :title="!props.isOpen ? 'Expand Sidebar' : 'Collapse Sidebar'"
             >
                 <svg
@@ -152,7 +152,7 @@
                 </svg>
                 <svg
                     v-else
-                    class="w-5 h-5"
+                    class="w-8 h-8"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -281,12 +281,11 @@ const menuSections = [
                 routeName: "dashboard.categories",
                 icon: Squares2X2Icon,
             },
-
             {
-                name: "Reports",
-                to: "/dashboard/reports",
-                routeName: "dashboard-reports",
-                icon: ChartBarIcon,
+                name: "Reviews",
+                to: "/dashboard/reviews",
+                routeName: "dashboard.reviews",
+                icon: DocumentChartBarIcon,
             },
         ],
     },

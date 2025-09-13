@@ -11,11 +11,11 @@ class RoleSeeder extends Seeder
     public function run()
     {
         $allPermissions = Permission::all();
-        
+
         // Create owner role with all permissions
         $owner = Role::firstOrCreate(['name' => 'owner']);
         $owner->syncPermissions($allPermissions);
-        
+
         // Create admin role with dashboard and management permissions
         $admin = Role::firstOrCreate(['name' => 'admin']);
         $adminPermissions = [
@@ -27,13 +27,5 @@ class RoleSeeder extends Seeder
             'manage_reviews',
         ];
         $admin->syncPermissions($adminPermissions);
-        
-        // Create customer role with basic permissions
-        $customer = Role::firstOrCreate(['name' => 'customer']);
-        $customerPermissions = [
-            'manage_cart',
-            'manage_wishlist',
-        ];
-        $customer->syncPermissions($customerPermissions);
     }
 }

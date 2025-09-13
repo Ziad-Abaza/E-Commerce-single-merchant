@@ -19,12 +19,12 @@ return new class extends Migration
             $table->string('title', 255)->nullable();
             $table->text('comment')->nullable();
             $table->boolean('is_verified_purchase')->default(false);
-            $table->boolean('is_approved')->default(false);
+            $table->boolean('active')->default(true);
             $table->timestamps();
             $table->unique(['user_id', 'product_id'], 'unique_user_product_review');
 
             $table->index('rating');
-            $table->index('is_approved');
+            $table->index('active');
         });
     }
 

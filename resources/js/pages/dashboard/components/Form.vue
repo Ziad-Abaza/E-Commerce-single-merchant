@@ -231,9 +231,9 @@ import { reactive, ref, watch } from "vue";
 import FileDropzone from "./FileDropzone.vue";
 import Select from "./Select.vue";
 import CheckboxSelect from "./CheckboxSelect.vue";
+import RichTextEditor from "./RichTextEditor.vue";
 // Note: These UI components don't exist yet - commented out for now
 // import UiToast from "@/components/ui/Toast.vue";
-// import RichTextEditor from "@/components/ui/RichTextEditor.vue";
 
 // const toastRef = ref(null); // Commented out since UiToast is not available
 

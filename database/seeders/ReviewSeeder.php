@@ -43,7 +43,7 @@ class ReviewSeeder extends Seeder
                 'title' => $reviewData['title'],
                 'comment' => $reviewData['comment'],
                 'is_verified_purchase' => rand(0, 1) == 1,
-                'is_approved' => rand(0, 10) > 1, // 90% approval rate
+                'active' => rand(0, 10) > 1, // 90% active rate
             ]);
         }
     }

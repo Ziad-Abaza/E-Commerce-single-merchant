@@ -13,7 +13,18 @@
                         :key="'headers-' + index"
                         class="px-6 py-3"
                     >
-                        {{ getHeaderLabel(header) }}
+                        <!-- Header Checkbox -->
+                        <template v-if="getHeaderObject(header)?.type === 'checkbox'">
+                            <input
+                                type="checkbox"
+                                :checked="getHeaderChecked(header)"
+                                @change="getHeaderObject(header)?.onChange"
+                                class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                            />
+                        </template>
+                        <template v-else>
+                            {{ getHeaderLabel(header) }}
+                        </template>
                     </th>
                 </tr>
             </thead>
@@ -33,8 +44,18 @@
                                 : 'px-6 py-4',
                         ]"
                     >
+                        <!-- Checkbox Cell -->
+                        <template v-if="row[headers]?.type === 'checkbox'">
+                            <input
+                                type="checkbox"
+                                :checked="row[headers].checked"
+                                @change="row[headers].onChange"
+                                class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                            />
+                        </template>
+
                         <!-- Image Cell (thumbnail + click to preview) -->
-                        <template v-if="row[headers]?.type === 'image'">
+                        <template v-else-if="row[headers]?.type === 'image'">
                             <img
                                 :src="row[headers].src"
                                 alt="Row Image"
@@ -180,11 +201,25 @@ const isActionArray = (val) => {
     );
 };
 
-// Helper to get header label
-const getHeaderLabel = (header) => {
-    const originalHeader = props.headers?.find(
+// Helper to get header object
+const getHeaderObject = (header) => {
+    return props.headers?.find(
         (h) => (typeof h === "object" && h.key === header) || h === header,
     );
+};
+
+// Helper to get header checked value (handles getter properties)
+const getHeaderChecked = (header) => {
+    const headerObj = getHeaderObject(header);
+    if (headerObj && typeof headerObj.checked === 'function') {
+        return headerObj.checked();
+    }
+    return headerObj?.checked || false;
+};
+
+// Helper to get header label
+const getHeaderLabel = (header) => {
+    const originalHeader = getHeaderObject(header);
 
     if (typeof originalHeader === "object" && originalHeader.label) {
         return originalHeader.label;
@@ -222,6 +257,7 @@ const getIconSymbol = (iconName) => {
         edit: "✏️",
         trash: "🗑️",
         eye: "👁️",
+        "eye-slash": "🙈",
         plus: "➕",
         check: "✅",
         times: "❌",
