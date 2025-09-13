@@ -148,4 +148,21 @@ Route::middleware('auth:sanctum')->prefix('dashboard')->name('dashboard.')->grou
             Route::post('/{id}/reject', 'reject')->name('reject');
             Route::delete('/{id}', 'destroy')->name('destroy');
         });
+
+    // Settings Management
+    Route::prefix('settings')
+        ->name('settings.')
+        ->controller(\App\Http\Controllers\Dashboard\SettingController::class)
+        ->group(function () {
+            // Routes without parameters first
+            Route::get('/', 'index')->name('index');
+            Route::post('/', 'store')->name('store');
+            Route::post('/bulk-update', 'bulkUpdate')->name('bulk-update');
+            Route::get('/public', 'public')->name('public');
+
+            // Routes with {setting} parameters
+            Route::get('/{setting}', 'show')->name('show');
+            Route::put('/{setting}', 'update')->name('update');
+            Route::delete('/{setting}', 'destroy')->name('destroy');
+        });
 });

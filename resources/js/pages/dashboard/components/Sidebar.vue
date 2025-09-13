@@ -96,6 +96,7 @@
 
                     <template v-for="item in section.items" :key="item.name">
                         <router-link
+                            v-if="!item.permission || authStore.hasPermission(item.permission)"
                             :to="item.to"
                             :class="[
                                 'group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors duration-200',
@@ -314,8 +315,9 @@ const menuSections = [
             {
                 name: "Settings",
                 to: "/dashboard/settings",
-                routeName: "dashboard-settings",
+                routeName: "dashboard.settings",
                 icon: Cog6ToothIcon,
+                permission: "manage_settings",
             },
         ],
     },

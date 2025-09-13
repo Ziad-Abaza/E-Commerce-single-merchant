@@ -14,6 +14,7 @@ import Categories from "../pages/dashboard/Categories.vue";
 import Users from "../pages/dashboard/Users.vue";
 import Roles from "../pages/dashboard/Roles.vue";
 import Reviews from "../pages/dashboard/Reviews.vue";
+import Settings from "../pages/dashboard/Settings.vue";
 
 const routes = [
     {
@@ -132,6 +133,20 @@ const routes = [
                     ],
                 },
             },
+            {
+                path: "settings",
+                name: "dashboard.settings",
+                component: Settings,
+                meta: {
+                    title: "Settings",
+                    requiresAuth: true,
+                    requiresPermission: "manage_settings",
+                    breadcrumb: [
+                        { name: "Dashboard", path: "/dashboard" },
+                        { name: "Settings", path: "/dashboard/settings" },
+                    ],
+                },
+            }
         ],
     },
 ];
