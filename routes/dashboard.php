@@ -24,10 +24,15 @@ Route::middleware('auth:sanctum')->prefix('dashboard')->name('dashboard.')->grou
         ->controller(\App\Http\Controllers\Dashboard\UserController::class)
         ->group(function () {
             Route::get('/', 'index')->name('index');
+            Route::get('/trashed', 'trashed')->name('trashed');
             Route::get('/{id}', 'show')->name('show');
             Route::post('/', 'store')->name('store');
             Route::post('/{id}', 'update')->name('update');
             Route::delete('/{id}', 'destroy')->name('destroy');
+            Route::post('/{id}/restore', 'restore')->name('restore');
+            Route::delete('/{id}/force', 'forceDelete')->name('forceDelete');
+            Route::post('{id}/assign-role', 'assignRole')->name('assignRole');
+            Route::post('{id}/remove-role', 'removeRole')->name('removeRole');
         });
 
     Route::middleware(['can:manage_roles'])
@@ -50,23 +55,29 @@ Route::middleware('auth:sanctum')->prefix('dashboard')->name('dashboard.')->grou
         ->controller(\App\Http\Controllers\Dashboard\ProductController::class)
         ->group(function () {
             Route::get('/', 'index')->name('index');
+            Route::get('/trash', 'trash')->name('trash');
             Route::get('/{id}', 'show')->name('show');
             Route::post('/', 'store')->name('store');
             Route::post('/{id}', 'update')->name('update');
             Route::delete('/{id}', 'destroy')->name('destroy');
+            Route::post('/{id}/restore', 'restore')->name('restore');
+            Route::delete('/{id}/force-delete', 'forceDelete')->name('force-delete');
         });
 
     // Product Details Management
     Route::middleware(['can:manage_products'])
-        ->prefix('product-details')
-        ->name('product_details.')
+        ->prefix('products/{product}/details')
+        ->name('products.details.')
         ->controller(\App\Http\Controllers\Dashboard\ProductDetailController::class)
         ->group(function () {
             Route::get('/', 'index')->name('index');
-            Route::get('/{id}', 'show')->name('show');
+            Route::get('/trash', 'trashed')->name('trash');
+            Route::get('/{detail}', 'show')->name('show');
             Route::post('/', 'store')->name('store');
-            Route::post('/{id}', 'update')->name('update');
-            Route::delete('/{id}', 'destroy')->name('destroy');
+            Route::post('/{detail}', 'update')->name('update');
+            Route::delete('/{detail}', 'destroy')->name('destroy');
+            Route::post('/{detail}/restore', 'restore')->name('restore');
+            Route::delete('/{detail}/force-delete', 'forceDestroy')->name('force-delete');
         });
 
     // Categories Management
@@ -89,14 +100,11 @@ Route::middleware('auth:sanctum')->prefix('dashboard')->name('dashboard.')->grou
         ->controller(\App\Http\Controllers\Dashboard\OrderController::class)
         ->group(function () {
             Route::get('/', 'index')->name('index');
-            Route::get('/statistics', 'statistics')->name('statistics');
-            Route::get('/status/{status}', 'byStatus')->name('by-status')->where('status', '[a-zA-Z0-9_-]+');
+            Route::post('/handle-expired', 'handleExpiredPendingOrders')->name('handleExpired');
             Route::get('/{id}', 'show')->name('show');
-            Route::post('/{id}', 'update')->name('update');
-            Route::post('/{id}/status', 'updateStatus')->name('update-status');
-            Route::post('/{id}/cancel', 'cancel')->name('cancel');
-            Route::get('/{id}/items', 'orderItems')->name('items');
-            Route::get('/{id}/history', 'history')->name('history');
+            Route::match(['post', 'patch'], '/{id}', 'update')->name('update');
+            Route::patch('/{id}/status', 'updateStatus')->name('updateStatus');
+            Route::patch('/{id}/cancel', 'cancel')->name('cancel');
         });
 
     // Payments Management
@@ -135,5 +143,4 @@ Route::middleware('auth:sanctum')->prefix('dashboard')->name('dashboard.')->grou
             Route::post('/bulk-reject', 'bulkReject')->name('bulk-reject');
             Route::delete('/{id}', 'destroy')->name('destroy');
         });
-
 });

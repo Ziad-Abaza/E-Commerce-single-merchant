@@ -21,8 +21,13 @@ class ProductDetailUpdateRequest extends FormRequest
      */
     public function rules(): array
     {
-        $productDetailId = $this->route('productDetail') ?? $this->route('id');
-        
+        $productDetailId = $this->route('detail');
+
+        if ($productDetailId instanceof \App\Models\ProductDetail) {
+            $productDetailId = $productDetailId->id;
+        }
+
+
         return [
             'size' => 'nullable|string|max:50',
             'color' => 'nullable|string|max:50',

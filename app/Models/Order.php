@@ -214,9 +214,9 @@ class Order extends Model implements HasMedia
      */
     public function getSubtotal()
     {
-        return $this->items->sum(function ($item) {
+        return round($this->items->sum(function ($item) {
             return $item->unit_price * $item->quantity;
-        });
+        }), 2);
     }
 
     /**

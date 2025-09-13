@@ -72,6 +72,32 @@
           </a>
         </template>
 
+        <!-- Status -->
+        <template v-else-if="row[header]?.type === 'status'">
+          <span :class="row[header].class">
+            {{ row[header].value }}
+          </span>
+        </template>
+
+        <!-- Roles -->
+        <template v-else-if="row[header]?.type === 'roles'">
+          <div class="flex flex-wrap gap-1">
+            <span
+              v-for="role in row[header].value"
+              :key="role.id"
+              class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300"
+            >
+              {{ role.name }}
+            </span>
+            <span
+              v-if="!row[header].value || row[header].value.length === 0"
+              class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300"
+            >
+              No roles
+            </span>
+          </div>
+        </template>
+
         <!-- Normal -->
         <template v-else>
           {{ row[header] ?? "" }}

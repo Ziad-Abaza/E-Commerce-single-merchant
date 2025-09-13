@@ -34,6 +34,11 @@ class CartController extends Controller
             $cartItems = Cart::with(['productDetail.product'])
                 ->where('user_id', $userId)
                 ->get()
+                ->filter(function ($item) {
+                    return $item->productDetail &&
+                        $item->productDetail->product &&
+                        !$item->productDetail->product->deleted_at;
+                })
                 ->map(function ($item) {
                     // Add calculated fields
                     $item->total_price = $item->productDetail->final_price * $item->quantity;

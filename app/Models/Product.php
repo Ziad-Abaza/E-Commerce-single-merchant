@@ -64,8 +64,14 @@ class Product extends Model
      */
     public function orderItems()
     {
-        return $this->hasMany(OrderItem::class);
+        return $this->hasManyThrough(
+            OrderItem::class,
+            ProductDetail::class,
+            'product_id',
+            'product_detail_id',
+        );
     }
+
 
     /**
      * Get the cart items for this product.

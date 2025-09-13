@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Dashboard;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\ProductDetail;
 use App\Http\Resources\OrderResource;
 use App\Http\Requests\OrderUpdateRequest;
 use Illuminate\Http\Request;
@@ -14,13 +15,14 @@ use Illuminate\Support\Facades\DB;
 class OrderController extends Controller
 {
     /**
-     * Display a listing of orders
+     * Display a listing of orders with filters and search
      */
     public function index(Request $request): JsonResponse
     {
         $request->validate([
             'status' => 'nullable|in:pending,processing,shipped,delivered,cancelled,refunded',
             'user_id' => 'nullable|exists:users,id',
+            'search' => 'nullable|string|max:255', // search term
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
             'per_page' => 'nullable|integer|min:1|max:100',
@@ -28,7 +30,7 @@ class OrderController extends Controller
             'order' => 'nullable|in:asc,desc',
         ]);
 
-        $query = Order::with(['user', 'orderItems.product', 'payment']);
+        $query = Order::with(['user', 'items.product', 'payment']);
 
         // Filter by status
         if ($request->status) {
@@ -48,6 +50,18 @@ class OrderController extends Controller
             $query->whereDate('created_at', '<=', $request->end_date);
         }
 
+        // Search across order_number, notes, product names
+        if ($request->search) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('order_number', 'LIKE', "%{$search}%")
+                    ->orWhere('notes', 'LIKE', "%{$search}%")
+                    ->orWhereHas('items.product', function ($sub) use ($search) {
+                        $sub->where('name', 'LIKE', "%{$search}%");
+                    });
+            });
+        }
+
         // Apply sorting
         $sortField = $request->sort ?? 'created_at';
         $sortOrder = $request->order ?? 'desc';
@@ -56,7 +70,20 @@ class OrderController extends Controller
         $perPage = $request->per_page ?? 15;
         $orders = $query->paginate($perPage);
 
+        // ====== Statistics ======
+        $stats = [
+            'total_orders'   => Order::count(),
+            'pending'        => Order::where('status', 'pending')->count(),
+            'processing'     => Order::where('status', 'processing')->count(),
+            'shipped'        => Order::where('status', 'shipped')->count(),
+            'delivered'      => Order::where('status', 'delivered')->count(),
+            'cancelled'      => Order::where('status', 'cancelled')->count(),
+            'refunded'       => Order::where('status', 'refunded')->count(),
+            'total_revenue'  => Order::where('status', 'delivered')->sum('total_amount'),
+        ];
+
         return response()->json([
+            'success' => true,
             'message' => 'Orders retrieved successfully.',
             'data' => OrderResource::collection($orders->items()),
             'pagination' => [
@@ -65,6 +92,7 @@ class OrderController extends Controller
                 'per_page' => $orders->perPage(),
                 'total' => $orders->total(),
             ],
+            'statistics' => $stats,
             'code' => 200,
         ]);
     }
@@ -74,10 +102,27 @@ class OrderController extends Controller
      */
     public function show($id): JsonResponse
     {
-        $order = Order::with(['user', 'orderItems.product', 'payment'])
-            ->findOrFail($id);
+        $order = Order::with(['user', 'items.product', 'payment'])->find($id);
+
+        if (!$order) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Order not found.',
+                'code' => 404,
+            ], 404);
+        }
+
+        // Validate order items (check if product exists or in stock)
+        foreach ($order->items as $item) {
+            if (!$item->productDetail || $item->productDetail->trashed()) {
+                $item->status = 'unavailable';
+            } elseif ($item->productDetail->isOutOfStock()) {
+                $item->status = 'out_of_stock';
+            }
+        }
 
         return response()->json([
+            'success' => true,
             'message' => 'Order retrieved successfully.',
             'data' => new OrderResource($order),
             'code' => 200,
@@ -89,20 +134,32 @@ class OrderController extends Controller
      */
     public function update(OrderUpdateRequest $request, $id): JsonResponse
     {
-        $order = Order::findOrFail($id);
+        $order = Order::find($id);
+
+        if (!$order) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Order not found.',
+                'code' => 404,
+            ], 404);
+        }
 
         $validated = $request->validated();
         $order->update($validated);
 
         return response()->json([
+            'success' => true,
             'message' => 'Order updated successfully.',
-            'data' => new OrderResource($order->fresh(['user', 'orderItems.product', 'payment'])),
+            'data' => new OrderResource($order->fresh(['user', 'items.product', 'payment'])),
             'code' => 200,
         ]);
     }
 
     /**
-     * Update order status
+     * Summary of updateStatus
+     * @param \Illuminate\Http\Request $request
+     * @param mixed $id
+     * @return JsonResponse
      */
     public function updateStatus(Request $request, $id): JsonResponse
     {
@@ -111,8 +168,36 @@ class OrderController extends Controller
             'notes' => 'nullable|string|max:1000',
         ]);
 
-        $order = Order::findOrFail($id);
-        
+        $order = Order::find($id);
+
+        if (!$order) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Order not found.',
+                'code' => 404,
+            ], 404);
+        }
+
+        // Check if products are still available before moving to "processing"
+        if ($request->status === 'processing') {
+            foreach ($order->items as $item) {
+                if (!$item->productDetail || $item->productDetail->trashed()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => "Product {$item->product_name} is no longer available.",
+                        'code' => 422,
+                    ], 422);
+                }
+                if ($item->quantity > $item->productDetail->stock) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => "Insufficient stock for {$item->product_name}.",
+                        'code' => 422,
+                    ], 422);
+                }
+            }
+        }
+
         $oldStatus = $order->status;
         $order->update([
             'status' => $request->status,
@@ -130,8 +215,9 @@ class OrderController extends Controller
             ->log('Order status updated');
 
         return response()->json([
+            'success' => true,
             'message' => 'Order status updated successfully.',
-            'data' => new OrderResource($order->fresh(['user', 'orderItems.product', 'payment'])),
+            'data' => new OrderResource($order->fresh(['user', 'items.product', 'payment'])),
             'code' => 200,
         ]);
     }
@@ -145,131 +231,69 @@ class OrderController extends Controller
             'reason' => 'nullable|string|max:1000',
         ]);
 
-        $order = Order::findOrFail($id);
+        $order = Order::find($id);
+
+        if (!$order) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Order not found.',
+                'code' => 404,
+            ], 404);
+        }
 
         if (!in_array($order->status, ['pending', 'processing'])) {
             return response()->json([
+                'success' => false,
                 'message' => 'Order cannot be cancelled in its current status.',
                 'code' => 400,
             ], 400);
         }
 
+        $oldStatus = $order->status;
         $order->update([
             'status' => 'cancelled',
             'notes' => $request->reason ?? $order->notes,
         ]);
 
-        // Log cancellation
         activity()
             ->performedOn($order)
             ->withProperties([
-                'old_status' => $order->status,
+                'old_status' => $oldStatus,
                 'new_status' => 'cancelled',
                 'reason' => $request->reason,
             ])
             ->log('Order cancelled');
 
         return response()->json([
+            'success' => true,
             'message' => 'Order cancelled successfully.',
-            'data' => new OrderResource($order->fresh(['user', 'orderItems.product', 'payment'])),
+            'data' => new OrderResource($order->fresh(['user', 'items.product', 'payment'])),
             'code' => 200,
         ]);
     }
 
     /**
-     * Get order statistics
+     * Handle expired pending orders (e.g., not paid, product deleted or out of stock)
      */
-    public function statistics(): JsonResponse
+    public function handleExpiredPendingOrders(): JsonResponse
     {
-        $stats = [
-            'total_orders' => Order::count(),
-            'pending_orders' => Order::where('status', 'pending')->count(),
-            'processing_orders' => Order::where('status', 'processing')->count(),
-            'shipped_orders' => Order::where('status', 'shipped')->count(),
-            'delivered_orders' => Order::where('status', 'delivered')->count(),
-            'cancelled_orders' => Order::where('status', 'cancelled')->count(),
-            'refunded_orders' => Order::where('status', 'refunded')->count(),
-            'total_revenue' => Order::where('status', 'delivered')->sum('total_amount'),
-            'average_order_value' => Order::where('status', 'delivered')->avg('total_amount'),
-        ];
+        $expiredOrders = Order::where('status', 'pending')
+            ->where(function ($q) {
+                $q->where('payment_status', '!=', 'paid')
+                    ->orWhereHas('items.productDetail', function ($sub) {
+                        $sub->withTrashed()->where('stock', '<=', 0);
+                    });
+            })
+            ->get();
 
-        return response()->json([
-            'message' => 'Order statistics retrieved successfully.',
-            'data' => $stats,
-            'code' => 200,
-        ]);
-    }
-
-    /**
-     * Get orders by status
-     */
-    public function byStatus($status): JsonResponse
-    {
-        $validStatuses = ['pending', 'processing', 'shipped', 'delivered', 'cancelled', 'refunded'];
-        
-        if (!in_array($status, $validStatuses)) {
-            return response()->json([
-                'message' => 'Invalid status provided.',
-                'code' => 400,
-            ], 400);
+        foreach ($expiredOrders as $order) {
+            $order->markAsCancelled();
         }
 
-        $orders = Order::with(['user', 'orderItems.product', 'payment'])
-            ->where('status', $status)
-            ->latest()
-            ->paginate(15);
-
         return response()->json([
-            'message' => "Orders with status '{$status}' retrieved successfully.",
-            'data' => OrderResource::collection($orders->items()),
-            'pagination' => [
-                'current_page' => $orders->currentPage(),
-                'last_page' => $orders->lastPage(),
-                'per_page' => $orders->perPage(),
-                'total' => $orders->total(),
-            ],
-            'code' => 200,
-        ]);
-    }
-
-    /**
-     * Get order items for a specific order
-     */
-    public function orderItems($id): JsonResponse
-    {
-        $order = Order::findOrFail($id);
-        $orderItems = $order->orderItems()->with('product')->get();
-
-        return response()->json([
-            'message' => 'Order items retrieved successfully.',
-            'data' => $orderItems,
-            'code' => 200,
-        ]);
-    }
-
-    /**
-     * Get order history/activity
-     */
-    public function history($id): JsonResponse
-    {
-        $order = Order::findOrFail($id);
-        
-        // This would require implementing activity logging
-        // For now, return basic order information
-        $history = [
-            'created_at' => $order->created_at,
-            'updated_at' => $order->updated_at,
-            'status_changes' => [
-                [
-                    'status' => $order->status,
-                    'updated_at' => $order->updated_at,
-                ]
-            ]
-        ];
-
-        return response()->json([
-            'message' => 'Order history retrieved successfully.',
-            'data' => $history,
+            'success' => true,
+            'message' => 'Expired pending orders processed successfully.',
+            'data' => OrderResource::collection($expiredOrders),
             'code' => 200,
         ]);
     }

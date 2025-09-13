@@ -1,109 +1,144 @@
-import { createRouter, createWebHistory } from 'vue-router'
-import { useAuthStore } from '../stores/auth'
+// dashboard.js
+import { createRouter, createWebHistory } from "vue-router";
+import { useAuthStore } from "../stores/auth";
 
 // Dashboard Layout
 import DashboardLayout from "../pages/dashboard/layouts/DashboardLayout.vue";
 
 // Dashboard Pages
-import Dashboard from '../pages/dashboard/Dashboard.vue'
-import Products from '../pages/dashboard/Products.vue'
-import Orders from '../pages/dashboard/Orders.vue'
-import Categories from '../pages/dashboard/Categories.vue'
+import Dashboard from "../pages/dashboard/Dashboard.vue";
+import DashboardProducts from "../pages/dashboard/Products.vue";
+import ProductDetails from "../pages/dashboard/ProductDetails.vue";
+import Orders from "../pages/dashboard/Orders.vue";
+import Categories from "../pages/dashboard/Categories.vue";
+import Users from "../pages/dashboard/Users.vue";
 
 const routes = [
     {
-        path: '/dashboard',
+        path: "/dashboard",
         component: DashboardLayout,
         meta: {
             requiresAuth: true,
-            requiresPermission: 'view_dashboard'
+            requiresPermission: "view_dashboard",
         },
         children: [
             {
-                path: '',
-                name: 'dashboard.home',
+                path: "",
+                name: "dashboard",
                 component: Dashboard,
                 meta: {
-                    title: 'Dashboard',
-                    breadcrumb: [
-                        { name: 'Dashboard', path: '/dashboard' }
-                    ]
-                }
+                    title: "Dashboard",
+                    breadcrumb: [{ name: "Dashboard", path: "/dashboard" }],
+                },
             },
             {
-                path: 'products',
-                name: 'dashboard.products',
-                component: Products,
+                path: "products",
+                name: "dashboard-products",
+                component: DashboardProducts,
                 meta: {
-                    title: 'Products Management',
-                    requiresPermission: 'manage_products',
+                    title: "Products Management",
+                    requiresPermission: "manage_products",
                     breadcrumb: [
-                        { name: 'Dashboard', path: '/dashboard' },
-                        { name: 'Products', path: '/dashboard/products' }
-                    ]
-                }
+                        { name: "Dashboard", path: "/dashboard" },
+                        { name: "Products", path: "/dashboard/products" },
+                    ],
+                },
             },
             {
-                path: 'orders',
-                name: 'dashboard.orders',
+                path: "products/:id/details",
+                name: "dashboard.products.details",
+                component: ProductDetails,
+                meta: {
+                    title: "Product Details",
+                    requiresAuth: true,
+                    requiresPermission: "manage_products",
+                    parent: "dashboard-products",
+                    breadcrumb: [
+                        { name: "Dashboard", path: "/dashboard" },
+                        { name: "Products", path: "/dashboard/products" },
+                        { name: "Details", path: "" },
+                    ],
+                },
+            },
+            {
+                path: "orders",
+                name: "dashboard.orders",
                 component: Orders,
                 meta: {
-                    title: 'Orders Management',
-                    requiresPermission: 'manage_orders',
+                    title: "Orders Management",
+                    requiresAuth: true,
+                    requiresPermission: "manage_orders",
                     breadcrumb: [
-                        { name: 'Dashboard', path: '/dashboard' },
-                        { name: 'Orders', path: '/dashboard/orders' }
-                    ]
-                }
+                        { name: "Dashboard", path: "/dashboard" },
+                        { name: "Orders", path: "/dashboard/orders" },
+                    ],
+                },
             },
             {
-                path: 'categories',
-                name: 'dashboard.categories',
+                path: "categories",
+                name: "dashboard.categories",
                 component: Categories,
                 meta: {
-                    title: 'Categories Management',
-                    requiresPermission: 'manage_categories',
+                    title: "Categories Management",
+                    requiresAuth: true,
+                    requiresPermission: "manage_categories",
                     breadcrumb: [
-                        { name: 'Dashboard', path: '/dashboard' },
-                        { name: 'Categories', path: '/dashboard/categories' }
-                    ]
-                }
-            }
-        ]
-    }
-]
+                        { name: "Dashboard", path: "/dashboard" },
+                        { name: "Categories", path: "/dashboard/categories" },
+                    ],
+                },
+            },
+            {
+                path: "users",
+                name: "dashboard.users",
+                component: Users,
+                meta: {
+                    title: "Users Management",
+                    requiresAuth: true,
+                    requiresPermission: "manage_users",
+                    breadcrumb: [
+                        { name: "Dashboard", path: "/dashboard" },
+                        { name: "Users", path: "/dashboard/users" },
+                    ],
+                },
+            },
+        ],
+    },
+];
 
 const router = createRouter({
     history: createWebHistory(),
-    routes
-})
+    routes,
+});
 
 // Dashboard-specific route guards
 router.beforeEach(async (to, from, next) => {
-    const authStore = useAuthStore()
+    const authStore = useAuthStore();
 
     // Check if route requires authentication
     if (to.meta.requiresAuth && !authStore.isAuthenticated) {
-        next({ name: 'login' })
-        return
+        next({ name: "login" });
+        return;
     }
 
     // Check if route requires specific permission
     if (to.meta.requiresPermission) {
-        const hasPermission = authStore.hasPermission(to.meta.requiresPermission)
+        const hasPermission = authStore.hasPermission(
+            to.meta.requiresPermission,
+        );
 
         if (!hasPermission) {
-            next({ name: 'home' })
-            return
+            next({ name: "home" });
+            return;
         }
     }
 
     // Set page title
     if (to.meta.title) {
-        document.title = `${to.meta.title} - E-Commerce Dashboard`
+        document.title = `${to.meta.title} - E-Commerce Dashboard`;
     }
 
-    next()
-})
+    next();
+});
 
-export default router
+export default router;

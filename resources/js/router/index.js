@@ -1,3 +1,4 @@
+// index.js
 import { createRouter, createWebHistory } from "vue-router";
 import NProgress from "nprogress";
 import "nprogress/nprogress.css";
@@ -8,7 +9,6 @@ import { useAuthStore } from "../stores/auth";
 // Import components
 import AppLayout from "../pages/dashboard/layouts/AppLayout.vue";
 import AuthLayout from "../pages/dashboard/layouts/AuthLayout.vue";
-import DashboardLayout from "../pages/dashboard/layouts/DashboardLayout.vue";
 
 // Import pages
 import Home from "../pages/Home.vue";
@@ -27,11 +27,8 @@ import About from "../pages/About.vue";
 import Contact from "../pages/Contact.vue";
 import NotFound from "../pages/NotFound.vue";
 
-// Import dashboard pages
-import Dashboard from "../pages/dashboard/Dashboard.vue";
-// import DashboardProducts from "../pages/dashboard/Products.vue";
-// import DashboardOrders from "../pages/dashboard/Orders.vue";
-// import DashboardCategories from "../pages/dashboard/Categories.vue";
+// Import dashboard router
+import dashboardRouter from "./dashboard";
 
 // Router configuration
 const routes = [
@@ -84,17 +81,6 @@ const routes = [
         ],
     },
     {
-        path: "/dashboard",
-        component: DashboardLayout,
-        meta: { requiresAuth: true, requiresPermission: 'view_dashboard' },
-        children: [
-            { path: "", name: "dashboard", component: Dashboard },
-            // { path: "products", name: "dashboard-products", component: DashboardProducts },
-            // { path: "orders", name: "dashboard-orders", component: DashboardOrders },
-            // { path: "categories", name: "dashboard-categories", component: DashboardCategories },
-        ],
-    },
-    {
         path: "/auth",
         component: AuthLayout,
         children: [
@@ -107,7 +93,7 @@ const routes = [
 
 const router = createRouter({
     history: createWebHistory(),
-    routes,
+    routes: [...routes, ...dashboardRouter.getRoutes()],
     scrollBehavior(to, from, savedPosition) {
         if (savedPosition) {
             return savedPosition;
@@ -136,7 +122,9 @@ router.beforeEach(async (to, from, next) => {
 
     // Check if route requires specific permission
     if (to.meta.requiresPermission) {
-        const hasPermission = authStore.hasPermission(to.meta.requiresPermission);
+        const hasPermission = authStore.hasPermission(
+            to.meta.requiresPermission,
+        );
 
         if (!hasPermission) {
             next({ name: "home" });
@@ -145,7 +133,10 @@ router.beforeEach(async (to, from, next) => {
     }
 
     // Check if route requires admin access (legacy support)
-    if (to.meta.requiresAdmin && (!authStore.user || authStore.user.role !== 'admin')) {
+    if (
+        to.meta.requiresAdmin &&
+        (!authStore.user || authStore.user.role !== "admin")
+    ) {
         next({ name: "home" });
         return;
     }

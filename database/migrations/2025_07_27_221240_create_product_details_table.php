@@ -34,6 +34,7 @@ return new class extends Migration
             $table->string('barcode', 100)->nullable(); // barcode like EAN, UPC, etc.
 
             $table->boolean('is_active')->default(true);
+            $table->softDeletes();
             $table->timestamps();
 
             $table->index('price');

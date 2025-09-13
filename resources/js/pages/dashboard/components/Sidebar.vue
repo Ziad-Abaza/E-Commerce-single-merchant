@@ -99,7 +99,8 @@
                             :to="item.to"
                             :class="[
                                 'group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors duration-200',
-                                $route.name === item.routeName
+                                $route.name === item.routeName ||
+                                $route.meta.parent === item.routeName
                                     ? 'bg-blue-600 text-white'
                                     : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white',
                             ]"
@@ -256,6 +257,12 @@ const menuSections = [
                 routeName: "dashboard",
                 icon: HomeIcon,
             },
+        ],
+    },
+    {
+        title: "Manage Store",
+        divider: true,
+        items: [
             {
                 name: "Products",
                 to: "/dashboard/products",
@@ -265,31 +272,38 @@ const menuSections = [
             {
                 name: "Orders",
                 to: "/dashboard/orders",
-                routeName: "dashboard-orders",
+                routeName: "dashboard.orders",
                 icon: ShoppingCartIcon,
             },
             {
                 name: "Categories",
                 to: "/dashboard/categories",
-                routeName: "dashboard-categories",
+                routeName: "dashboard.categories",
                 icon: Squares2X2Icon,
             },
-        ],
-    },
-    {
-        title: "Analytics",
-        divider: true,
-        items: [
-            {
-                name: "Analytics",
-                to: "/dashboard/analytics",
-                routeName: "dashboard-analytics",
-                icon: ChartBarIcon,
-            },
+
             {
                 name: "Reports",
                 to: "/dashboard/reports",
                 routeName: "dashboard-reports",
+                icon: ChartBarIcon,
+            },
+        ],
+    },
+    {
+        title: "Manage Users",
+        divider: true,
+        items: [
+            {
+                name: "Users",
+                to: "/dashboard/users",
+                routeName: "dashboard.users",
+                icon: UserIcon,
+            },
+            {
+                name: "Roles",
+                to: "/dashboard/roles",
+                routeName: "dashboard-roles",
                 icon: DocumentChartBarIcon,
             },
         ],
@@ -298,12 +312,6 @@ const menuSections = [
         title: "Settings",
         divider: false,
         items: [
-            {
-                name: "Users",
-                to: "/dashboard/users",
-                routeName: "dashboard-users",
-                icon: UserIcon,
-            },
             {
                 name: "Settings",
                 to: "/dashboard/settings",

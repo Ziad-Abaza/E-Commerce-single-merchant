@@ -449,7 +449,6 @@ const selectedImage = ref("");
 const isAddingToCart = ref(false);
 const isInWishlist = ref(false);
 
-// 2. الحالة الجديدة للتحكم في ظهور النموذج
 const showReviewForm = ref(false);
 
 // Computed: Max quantity based on stock
@@ -557,13 +556,6 @@ const closeReviewForm = () => {
 };
 
 const handleReviewSubmitted = (newReview) => {
-    // يمكن هنا تحديث قائمة التقييمات يدويًا إذا لزم الأمر،
-    // لكن مخزن Pinia مصمم عادةً ليقوم بذلك تلقائيًا عند إضافة/تعديل التقييم.
-    // كإجراء احترازي، يمكن إعادة تحميل التقييمات.
-    // const reviewStore = useReviewStore();
-    // await reviewStore.loadReviews(productStore.currentProduct.id, 1);
-
-    // إغلاق النموذج بعد الإرسال الناجح
     closeReviewForm();
 };
 
