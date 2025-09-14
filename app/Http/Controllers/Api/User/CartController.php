@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Support\Facades\Log;
 
 class CartController extends Controller
 {
@@ -177,6 +178,7 @@ class CartController extends Controller
                 ], 200);
             }
         } catch (ModelNotFoundException $e) {
+            Log::info('Cart item not found', ['id' => $id]);
             return response()->json([
                 'message' => 'Cart item not found.',
                 'data' => null,
@@ -185,6 +187,7 @@ class CartController extends Controller
             ], 404);
         } catch (\Exception $e) {
             DB::rollBack();
+            Log::info('Failed to update cart item', ['id' => $id]);
             return response()->json([
                 'message' => 'Failed to update cart item.',
                 'data' => null,

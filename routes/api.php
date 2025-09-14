@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('public')->name('public.')->group(function () {
     // Home routes
     Route::get('/home', [\App\Http\Controllers\Api\Public\HomeController::class, 'index'])->name('home');
-    
+
     // Settings routes
     Route::get('/settings', [\App\Http\Controllers\Api\SettingController::class, 'index'])->name('settings.index');
 
@@ -75,10 +75,10 @@ Route::middleware('auth:sanctum')->group(function () {
     // Cart routes
     Route::prefix('carts')->name('carts.')->controller(\App\Http\Controllers\Api\User\CartController::class)->group(function () {
         Route::get('/', 'index')->name('index');
+        Route::delete('/clear', 'clear')->name('clear');
         Route::post('/', 'store')->name('store');
         Route::post('/{id}', 'update')->name('update');
         Route::delete('/{id}', 'destroy')->name('destroy');
-        Route::delete('/clear', 'clear')->name('clear');
     });
 
     // Order routes
