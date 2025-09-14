@@ -303,7 +303,7 @@ const menuSections = [
             {
                 name: "Roles",
                 to: "/dashboard/roles",
-                routeName: "dashboard-roles",
+                routeName: "dashboard.roles",
                 icon: DocumentChartBarIcon,
             },
         ],
