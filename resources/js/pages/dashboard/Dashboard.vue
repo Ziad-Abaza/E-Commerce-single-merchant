@@ -151,7 +151,7 @@
             <div>
               <p class="text-blue-100 text-xs font-medium">Total Revenue</p>
               <p class="text-lg font-bold mt-1">
-                {{ formatNumber(dashboardStore.statistics.total_revenue) }} EGP
+                {{ formatNumber(dashboardStore.statistics.total_revenue) }} {{ siteStore.settings.currency }}
               </p>
             </div>
             <div class="p-2 bg-blue-400/20 rounded-lg">
@@ -280,7 +280,7 @@
                   </div>
                   <div class="text-right ml-2 flex-shrink-0">
                     <p class="font-bold text-gray-900 dark:text-white text-sm">
-                      {{ order.total_amount }} EGP
+                      {{ order.total_amount }} {{ siteStore.settings.currency }}
                     </p>
                     <span
                       class="inline-block px-2 py-0.5 text-xs font-medium rounded-full mt-1 whitespace-nowrap"
@@ -449,7 +449,7 @@
             >
               <p class="text-green-100 text-xs font-medium">Total Revenue</p>
               <p class="text-lg font-bold mt-1">
-                {{ formatNumber(dashboardStore.revenueAnalytics.total_revenue) }} EGP
+                {{ formatNumber(dashboardStore.revenueAnalytics.total_revenue) }} {{ siteStore.settings.currency }}
               </p>
             </div>
 
@@ -459,7 +459,7 @@
             >
               <p class="text-gray-500 dark:text-gray-400 text-xs font-medium">Avg Order Value</p>
               <p class="text-lg font-bold text-gray-900 dark:text-white mt-1">
-                {{ formatNumber(dashboardStore.revenueAnalytics.average_order_value) }} EGP
+                {{ formatNumber(dashboardStore.revenueAnalytics.average_order_value) }} {{ siteStore.settings.currency }}
               </p>
             </div>
 
@@ -578,7 +578,9 @@ import { ref, onMounted, watch } from "vue";
 import { useDashboardStore } from "@/stores/dashboard/overview";
 import { useTheme } from "@/composables/useTheme";
 import { useRouter } from 'vue-router';
+import { useSiteStore } from "@/stores/site";
 
+const siteStore = useSiteStore();
 const dashboardStore = useDashboardStore();
 const { isDark } = useTheme();
 const router = useRouter();

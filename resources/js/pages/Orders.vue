@@ -35,7 +35,7 @@
               <p class="text-sm text-gray-500">Placed on {{ formatDate(order.created_at) }}</p>
             </div>
             <div class="text-right">
-              <div class="text-lg font-medium text-gray-900">{{ order.total.toFixed(2) }} EGP</div>
+              <div class="text-lg font-medium text-gray-900">{{ order.total.toFixed(2) }} {{ siteStore.settings.currency }}</div>
               <span
                 class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
                 :class="getStatusColor(order.status)"
@@ -58,10 +58,10 @@
               <div class="flex-1 min-w-0">
                 <h4 class="text-sm font-medium text-gray-900 truncate">{{ item.product?.name }}</h4>
                 <p class="text-sm text-gray-500">Quantity: {{ item.quantity }}</p>
-                <p class="text-sm text-gray-500">Price: {{ item.price.toFixed(2) }} EGP</p>
+                <p class="text-sm text-gray-500">Price: {{ item.price.toFixed(2) }} {{ siteStore.settings.currency }}</p>
               </div>
               <div class="text-sm font-medium text-gray-900">
-                {{ (item.price * item.quantity).toFixed(2) }} EGP
+                {{ (item.price * item.quantity).toFixed(2) }} {{ siteStore.settings.currency }}
               </div>
             </div>
           </div>
@@ -150,7 +150,9 @@
 import { ref, onMounted } from 'vue'
 import { useToast } from 'vue-toastification'
 import { useCartStore } from '../stores/cart'
+import { useSiteStore } from "../stores/site";
 
+const siteStore = useSiteStore();
 const toast = useToast()
 const cartStore = useCartStore()
 

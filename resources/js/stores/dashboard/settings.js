@@ -22,10 +22,14 @@ export const useSettingsStore = defineStore("settings", {
             return state.settings.find((setting) => setting.key === key);
         },
 
-        getSettingValue: (state) => (key, defaultValue = null) => {
-            const setting = state.settings.find((setting) => setting.key === key);
-            return setting ? setting.typed_value : defaultValue;
-        },
+        getSettingValue:
+            (state) =>
+            (key, defaultValue = null) => {
+                const setting = state.settings.find(
+                    (setting) => setting.key === key,
+                );
+                return setting ? setting.typed_value : defaultValue;
+            },
 
         hasUnsavedChanges: (state) => {
             return state.settings.some((setting) => setting._isDirty);
@@ -39,7 +43,9 @@ export const useSettingsStore = defineStore("settings", {
 
             try {
                 const params = group ? { group } : {};
-                const response = await axios.get("/dashboard/settings", { params });
+                const response = await axios.get("/dashboard/settings", {
+                    params,
+                });
 
                 this.groupedSettings = response.data.data;
                 this.groups = response.data.groups;
@@ -63,7 +69,13 @@ export const useSettingsStore = defineStore("settings", {
             this.error = null;
 
             try {
-                const response = await axios.post("/dashboard/settings", settingData);
+                const normalizedData = this.normalizeSettingData(settingData);
+                console.log(normalizedData);
+                const response = await axios.post(
+                    "/dashboard/settings",
+                    normalizedData,
+                    { headers: { "Content-Type": "multipart/form-data" } },
+                );
 
                 // Add to local state
                 this.settings.push(response.data.data);
@@ -96,7 +108,12 @@ export const useSettingsStore = defineStore("settings", {
             this.error = null;
 
             try {
-                const response = await axios.put(`/dashboard/settings/${id}`, settingData);
+                const normalizedData = this.normalizeSettingData(settingData);
+                const response = await axios.post(
+                    `/dashboard/settings/${id}`,
+                    normalizedData,
+                    { headers: { "Content-Type": "multipart/form-data" } },
+                );
 
                 // Update in local state
                 const index = this.settings.findIndex((s) => s.id === id);
@@ -107,9 +124,12 @@ export const useSettingsStore = defineStore("settings", {
 
                 // Update in grouped settings
                 Object.keys(this.groupedSettings).forEach((group) => {
-                    const groupIndex = this.groupedSettings[group].findIndex((s) => s.id === id);
+                    const groupIndex = this.groupedSettings[group].findIndex(
+                        (s) => s.id === id,
+                    );
                     if (groupIndex !== -1) {
-                        this.groupedSettings[group][groupIndex] = response.data.data;
+                        this.groupedSettings[group][groupIndex] =
+                            response.data.data;
                     }
                 });
 
@@ -136,9 +156,9 @@ export const useSettingsStore = defineStore("settings", {
 
                 // Remove from grouped settings
                 Object.keys(this.groupedSettings).forEach((group) => {
-                    this.groupedSettings[group] = this.groupedSettings[group].filter(
-                        (s) => s.id !== id
-                    );
+                    this.groupedSettings[group] = this.groupedSettings[
+                        group
+                    ].filter((s) => s.id !== id);
                 });
 
                 return true;
@@ -157,13 +177,18 @@ export const useSettingsStore = defineStore("settings", {
             this.error = null;
 
             try {
-                const response = await axios.post("/dashboard/settings/bulk-update", {
-                    settings: settingsData,
-                });
+                const response = await axios.post(
+                    "/dashboard/settings/bulk-update",
+                    {
+                        settings: settingsData,
+                    },
+                );
 
                 // Update local state
                 response.data.data.forEach((updatedSetting) => {
-                    const index = this.settings.findIndex((s) => s.id === updatedSetting.id);
+                    const index = this.settings.findIndex(
+                        (s) => s.id === updatedSetting.id,
+                    );
                     if (index !== -1) {
                         this.settings[index] = updatedSetting;
                         this.settings[index]._isDirty = false;
@@ -172,8 +197,12 @@ export const useSettingsStore = defineStore("settings", {
 
                 // Update grouped settings
                 Object.keys(this.groupedSettings).forEach((group) => {
-                    this.groupedSettings[group] = this.groupedSettings[group].map((setting) => {
-                        const updated = response.data.data.find((s) => s.id === setting.id);
+                    this.groupedSettings[group] = this.groupedSettings[
+                        group
+                    ].map((setting) => {
+                        const updated = response.data.data.find(
+                            (s) => s.id === setting.id,
+                        );
                         return updated || setting;
                     });
                 });
@@ -182,13 +211,27 @@ export const useSettingsStore = defineStore("settings", {
             } catch (err) {
                 this.error =
                     err.response?.data?.message || "Failed to update settings";
-                console.error("[Settings Store] Error bulk updating settings:", err);
+                console.error(
+                    "[Settings Store] Error bulk updating settings:",
+                    err,
+                );
                 throw err;
             } finally {
                 this.saving = false;
             }
         },
 
+        normalizeSettingData(data) {
+    return {
+        ...data,
+        options: Array.isArray(data.options)
+            ? data.options
+            : data.options
+              ? JSON.parse(data.options)
+              : [],
+        is_public: data.is_public ? 1 : 0, // بدل Boolean(...)
+    };
+},
         updateSettingValue(key, value) {
             const setting = this.settings.find((s) => s.key === key);
             if (setting) {
@@ -238,7 +281,10 @@ export const useSettingsStore = defineStore("settings", {
                 const response = await axios.get("/dashboard/settings/public");
                 return response.data.data;
             } catch (err) {
-                console.error("[Settings Store] Error fetching public settings:", err);
+                console.error(
+                    "[Settings Store] Error fetching public settings:",
+                    err,
+                );
                 throw err;
             }
         },

@@ -22,15 +22,44 @@ class SettingController extends Controller
         });
 
         $defaults = [
-            'site_name' => 'E-Commerce',
+            // General Settings
+            'site_name' => 'E-Commerce Store',
             'site_description' => 'Your one-stop shop for quality products',
-            'contact_email' => 'support@store.com',
+            'maintenance_mode' => false,
+            'address' => 'EGYPT, Alexandria, al-Ajami',
+            'business_hours' => 'Mon-Fri: 9am-5pm',
+
+            // Contact Settings
+            'contact_email' => 'contact@example.com',
+            'contact_phone' => '+1 (234) 567-8900',
+            'whatsapp_number' => '+1 (234) 567-8900',
+            'facebook_url' => 'https://www.facebook.com/example',
+            'twitter_url' => 'https://twitter.com/example',
+            'instagram_url' => 'https://www.instagram.com/example',
+            'youtube_url' => 'https://www.youtube.com/channel/example',
+            'tiktok_url' => 'https://www.tiktok.com/@example',
+
+            // Appearance Settings
             'theme_color' => 'blue',
-            'logo_url' => '/images/logo.png',
-            'products_per_page' => 15,
-            'currency' => 'EGP',
-            'free_shipping_threshold' => 0,
+            'logo_url' => '/images/default-logo.webp',
+            'products_per_page' => 12,
+
+            // Email Settings
+            'smtp_host' => 'smtp.gmail.com',
+            'smtp_port' => 587,
+            'email_notifications' => true,
+
+            // Payment Settings
+            'currency' => 'USD',
+            'tax_rate' => 0.10,
+            'free_shipping_threshold' => 100,
+
+            // Security Settings
+            'max_login_attempts' => 5,
+            'session_timeout' => 120,
+            'require_email_verification' => true,
         ];
+
 
         $finalSettings = array_merge($defaults, $formattedSettings->toArray());
 

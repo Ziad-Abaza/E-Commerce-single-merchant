@@ -536,7 +536,9 @@ import Select from './components/Select.vue';
 import Table from './components/Table.vue';
 import Pagination from './components/Pagination.vue';
 import ConfirmModal from './components/ConfirmModal.vue';
+import { useSiteStore } from "@/stores/site";
 
+const siteStore = useSiteStore();
 const ordersStore = useOrdersStore();
 const authStore = useAuthStore();
 
@@ -655,10 +657,10 @@ function getPaymentStatusClass(status) {
   }
 }
 function formatCurrency(amount) {
-  if (amount == null) return "0 EGP"
+  if (amount == null) return "0" + " " + siteStore.settings.currency
   return new Intl.NumberFormat("en-EG", {
     style: "currency",
-    currency: "EGP",
+    currency: siteStore.settings.currency,
   }).format(amount)
 }
 

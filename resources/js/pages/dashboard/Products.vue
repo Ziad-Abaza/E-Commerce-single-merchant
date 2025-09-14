@@ -541,7 +541,9 @@ import Form from "./components/Form.vue";
 import DetailsModal from "./components/DetailsModal.vue";
 import ConfirmModal from "./components/ConfirmModal.vue";
 import LoadingOverlay from "./components/LoadingOverlay.vue";
+import { useSiteStore } from "@/stores/site";
 
+const siteStore = useSiteStore();
 const productsStore = useProductsStore();
 const authStore = useAuthStore();
 const router = useRouter();
@@ -622,7 +624,7 @@ const tableRows = computed(() => {
         sku: product.sku || "N/A",
         brand: product.brand || "No Brand",
         price: product.price
-            ? `${parseFloat(product.price).toFixed(2)} EGP`
+            ? `${parseFloat(product.price).toFixed(2)} ${siteStore.settings.currency}`
             : "N/A",
         stock_quantity:
             product.stock_quantity !== undefined ? product.stock_quantity : 0,

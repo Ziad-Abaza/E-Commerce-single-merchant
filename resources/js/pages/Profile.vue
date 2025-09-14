@@ -154,7 +154,7 @@
                                                     profileStore.stats
                                                         .total_spent,
                                                 )
-                                            }} EGP</span
+                                            }} {{ siteStore.settings.currency }}</span
                                         >
                                     </div>
                                 </div>
@@ -737,7 +737,9 @@
 import { ref, onMounted, computed } from "vue";
 import { useProfileStore } from "../stores/profile";
 import { useAuthStore } from "../stores/auth";
+import { useSiteStore } from "../stores/site";
 
+const siteStore = useSiteStore();
 const profileStore = useProfileStore();
 const authStore = useAuthStore();
 

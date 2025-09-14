@@ -117,7 +117,7 @@
                                             productStore.currentProduct
                                                 .final_price,
                                         )
-                                    }} EGP
+                                    }} {{ siteStore.settings.currency }}
                                 </span>
                                 <span
                                     v-if="
@@ -130,7 +130,7 @@
                                         formatPrice(
                                             productStore.currentProduct.price,
                                         )
-                                    }} EGP
+                                    }} {{ siteStore.settings.currency }}
                                 </span>
                             </div>
                             <span
@@ -433,11 +433,12 @@ import { useCartStore } from "../stores/cart";
 import { useWishlistStore } from "../stores/wishlist";
 import { useToast } from "vue-toastification";
 import ProductSlider from "../components/common/ProductSlider.vue";
+import { useSiteStore } from "../stores/site";
 
-// 1. استيراد مكونات التقييمات
 import ReviewList from "../components/common/ReviewList.vue";
 import ReviewForm from "../components/common/ReviewForm.vue";
 
+const siteStore = useSiteStore();
 const route = useRoute();
 const productStore = useProductStore();
 const cartStore = useCartStore();
@@ -546,7 +547,6 @@ const toggleWishlist = async () => {
     }
 };
 
-// 3. وظائف التحكم في نموذج التقييم
 const openReviewForm = () => {
     showReviewForm.value = true;
 };

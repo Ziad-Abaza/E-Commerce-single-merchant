@@ -289,13 +289,13 @@
       <!-- Price -->
       <div class="mt-2 flex flex-wrap items-center gap-x-2">
         <span class="text-lg font-bold text-gray-900">
-          {{ formatPrice(item.lowest_final_price) }} EGP
+          {{ formatPrice(item.lowest_final_price) }} {{ siteStore.settings.currency }}
         </span>
         <span v-if="item.has_product_discount" class="text-sm text-gray-500 line-through">
-          {{ formatPrice(item.lowest_price) }} EGP
+          {{ formatPrice(item.lowest_price) }} {{ siteStore.settings.currency }}
         </span>
         <span v-if="item.has_product_discount" class="text-xs text-green-600 font-medium">
-          Save {{ formatPrice(item.lowest_price - item.lowest_final_price) }} EGP
+          Save {{ formatPrice(item.lowest_price - item.lowest_final_price) }} {{ siteStore.settings.currency }}
         </span>
       </div>
     </div>
@@ -634,7 +634,9 @@ import { ref, onMounted, computed } from 'vue'
 import { useWishlistStore } from '../stores/wishlist'
 import { useCartStore } from '../stores/cart'
 import { useToast } from 'vue-toastification'
+import { useSiteStore } from "../stores/site";
 
+const siteStore = useSiteStore();
 const wishlistStore = useWishlistStore()
 const cartStore = useCartStore()
 const toast = useToast()

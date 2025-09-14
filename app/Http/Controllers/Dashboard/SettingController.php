@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
 
 class SettingController extends Controller
 {
@@ -58,13 +59,20 @@ class SettingController extends Controller
         if ($validator->fails()) {
             return response()->json([
                 'success' => false,
-                'message' => 'Validation failed',
                 'errors' => $validator->errors(),
             ], 422);
         }
 
         try {
-            $setting = Setting::create($request->all());
+            $data = $request->except('value');
+
+            if (in_array($request->type, ['image', 'file']) && $request->hasFile('value')) {
+                $data['value'] = $request->file('value');
+            } else {
+                $data['value'] = $request->input('value');
+            }
+
+            $setting = Setting::create($data);
 
             return response()->json([
                 'success' => true,
@@ -97,14 +105,14 @@ class SettingController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'key' => 'required|string|max:255|unique:settings,key,' . $setting->id,
-            'value' => 'nullable',
             'type' => 'required|in:text,number,boolean,json,file,image,select,textarea',
             'group' => 'required|string|max:50',
             'label' => 'required|string|max:255',
             'description' => 'nullable|string',
             'options' => 'nullable|array',
-            'is_public' => 'boolean',
-            'sort_order' => 'integer|min:0',
+            'is_public' => 'nullable|boolean',
+            'sort_order' => 'nullable|integer|min:0',
+            'file' => 'nullable|file|max:5120', // Max 5MB
         ]);
 
         if ($validator->fails()) {
@@ -116,7 +124,28 @@ class SettingController extends Controller
         }
 
         try {
-            $setting->update($request->all());
+            $data = [
+                'key' => $request->input('key'),
+                'type' => $request->input('type'),
+                'group' => $request->input('group'),
+                'label' => $request->input('label'),
+                'description' => $request->input('description', $setting->description),
+                'options' => $request->input('options', $setting->options),
+                'is_public' => $request->boolean('is_public', $setting->is_public),
+                'sort_order' => $request->input('sort_order', $setting->sort_order ?? 0),
+            ];
+
+            // Handle file upload if present
+            if ($request->hasFile('file')) {
+                $data['value'] = $request->file('file');
+            } else if ($request->has('value')) {
+                $data['value'] = $request->input('value');
+            } else {
+                $data['value'] = $setting->value;
+            }
+
+            // Update the setting
+            $setting->update($data);
 
             return response()->json([
                 'success' => true,
@@ -124,6 +153,9 @@ class SettingController extends Controller
                 'data' => $setting->fresh(),
             ]);
         } catch (\Exception $e) {
+            Log::error('Error updating setting: ' . $e->getMessage());
+            Log::error($e->getTraceAsString());
+
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to update setting: ' . $e->getMessage(),

@@ -421,7 +421,9 @@ import Form from "./components/Form.vue";
 import DetailsModal from "./components/DetailsModal.vue";
 import ConfirmModal from "./components/ConfirmModal.vue";
 import VariantDisplay from "./components/VariantDisplay.vue";
+import { useSiteStore } from "@/stores/site";
 
+const siteStore = useSiteStore();
 const productDetailsStore = useProductDetailsStore();
 const productsStore = useProductsStore();
 const route = useRoute();
@@ -488,7 +490,7 @@ const tableRows = computed(() => {
             },
         },
         sku_variant: detail.sku_variant || "N/A",
-        price: `${parseFloat(detail.price).toFixed(2)} EGP`,
+        price: `${parseFloat(detail.price).toFixed(2)} ${siteStore.settings.currency}`,
         stock: detail.stock,
         status: detail.is_active ? "Active" : "Inactive",
         actions: [
@@ -519,7 +521,7 @@ const trashedRows = computed(() => {
         id: detail.id,
         variant: `${detail.color || "N/A"} / ${detail.size || "N/A"}`,
         sku_variant: detail.sku_variant || "N/A",
-        price: `${parseFloat(detail.price).toFixed(2)} EGP`,
+        price: `${parseFloat(detail.price).toFixed(2)} ${siteStore.settings.currency}`,
         stock: detail.stock,
         status: "Deleted",
         actions: [

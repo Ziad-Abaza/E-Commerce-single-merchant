@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Facades\Storage;
 
 class Setting extends Model
 {
@@ -21,6 +22,10 @@ class Setting extends Model
         'sort_order',
     ];
 
+    protected $appends = ['typed_value', 'file_url'];
+
+    protected $hidden = ['created_at', 'updated_at'];
+
     protected $casts = [
         'options' => 'array',
         'is_public' => 'boolean',
@@ -35,9 +40,26 @@ class Setting extends Model
         return match ($this->type) {
             'boolean' => (bool) $this->value,
             'number' => is_numeric($this->value) ? (float) $this->value : 0,
-            'json' => json_decode($this->value, true),
+            'json' => $this->value ? (is_string($this->value) ? json_decode($this->value, true) : $this->value) : null,
+            'image', 'file' => $this->getFileUrlAttribute(),
             default => $this->value,
         };
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getFileUrlAttribute()
+    {
+        if (!$this->value) return null;
+
+        if (filter_var($this->value, FILTER_VALIDATE_URL)) {
+            return $this->value;
+        }
+
+        /** @var \Illuminate\Filesystem\FilesystemAdapter $disk */
+        $disk = Storage::disk('public');
+        return $disk->url($this->value);
     }
 
     /**
@@ -45,13 +67,26 @@ class Setting extends Model
      */
     public function setValueAttribute($value)
     {
-        $this->attributes['value'] = match ($this->type) {
-            'boolean' => $value ? '1' : '0',
-            'json' => is_array($value) ? json_encode($value) : $value,
-            default => $value,
-        };
-    }
+        if (in_array($this->type, ['image', 'file']) && $value instanceof \Illuminate\Http\UploadedFile) {
+            // Delete old file if exists
+            if ($this->value && Storage::disk('public')->exists($this->value)) {
+                Storage::disk('public')->delete($this->value);
+            }
 
+            $filename = 'setting_' . $this->key . '_' . time() . '.' . $value->getClientOriginalExtension();
+            $path = $value->storeAs('settings', $filename, 'public');
+            $this->attributes['value'] = $path;
+        } elseif (in_array($this->type, ['image', 'file']) && is_string($value) && str_starts_with($value, 'http')) {
+            // If it's already a URL, don't modify it
+            $this->attributes['value'] = $value;
+        } else {
+            $this->attributes['value'] = match ($this->type) {
+                'boolean' => $value ? '1' : '0',
+                'json' => is_array($value) || is_object($value) ? json_encode($value) : $value,
+                default => $value,
+            };
+        }
+    }
     /**
      * Scope to get settings by group
      */
