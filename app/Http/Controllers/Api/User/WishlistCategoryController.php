@@ -133,11 +133,12 @@ class WishlistCategoryController extends Controller
             // Override user_id with authenticated user
             $data['user_id'] = $userId;
 
-            // If setting as default, unset other default categories
-            if ($data['is_default'] ?? false) {
+            if (!empty($data['is_default'])) {
                 WishlistCategory::where('user_id', $userId)
                     ->where('is_default', true)
                     ->update(['is_default' => false]);
+            } else {
+                $data['is_default'] = false;
             }
 
             $wishlistCategory = WishlistCategory::create($data);
@@ -192,16 +193,20 @@ class WishlistCategoryController extends Controller
 
             $data = $request->validated();
 
-            // If setting as default, unset other default categories
-            if (($data['is_default'] ?? false) && !$wishlistCategory->is_default) {
+            if (!empty($data['is_default']) && !$wishlistCategory->is_default) {
                 WishlistCategory::where('user_id', $userId)
                     ->where('is_default', true)
                     ->update(['is_default' => false]);
+            } elseif (!isset($data['is_default'])) {
+                $data['is_default'] = $wishlistCategory->is_default;
+            }
+
+            if ($wishlistCategory->name === 'Favorites') {
+                unset($data['name']);
             }
 
             $wishlistCategory->update($data);
 
-            // Handle file uploads
             if ($request->hasFile('icon')) {
                 $wishlistCategory->setIcon($request->file('icon'));
             }
@@ -254,6 +259,15 @@ class WishlistCategoryController extends Controller
 
             $wishlistCategory = WishlistCategory::where('user_id', $userId)->findOrFail($id);
 
+            if ($wishlistCategory->name === 'Favorites') {
+                return response()->json([
+                    'message' => 'The "Favorites" category cannot be deleted.',
+                    'data' => null,
+                    'errors' => ['wishlist_category' => ['Favorites category is protected.']],
+                    'code' => 403,
+                ], 403);
+            }
+
             // Check if it's a default category
             if ($wishlistCategory->is_default) {
                 return response()->json([
@@ -273,8 +287,8 @@ class WishlistCategoryController extends Controller
             $wishlistCategory->delete();
 
             // Clean up media
-            $wishlistCategory->setIcon(null);
-            $wishlistCategory->setImage(null);
+            $wishlistCategory->clearMediaCollection('icon');
+            $wishlistCategory->clearMediaCollection('image');
 
             DB::commit();
 

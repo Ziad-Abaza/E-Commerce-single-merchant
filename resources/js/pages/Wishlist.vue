@@ -700,7 +700,7 @@ const addCategory = async () => {
     showAddCategoryModal.value = false
     newCategoryName.value = ''
     isDefaultCategory.value = false
-    toast.success('Category created successfully')
+    // toast.success('Category created successfully')
   }
 }
 
@@ -730,7 +730,7 @@ const updateCategory = async () => {
     editingCategory.value = null
     editCategoryName.value = ''
     editIsDefault.value = false
-    toast.success('Category updated successfully')
+    // toast.success('Category updated successfully')
   }
 }
 
@@ -747,7 +747,6 @@ const deleteCategory = async (categoryId) => {
     if (wishlistStore.selectedCategory?.id === categoryId) {
       wishlistStore.clearSelectedCategory()
     }
-    toast.success('Category deleted successfully')
   }
 }
 
@@ -758,7 +757,7 @@ const removeFromWishlist = async (itemId) => {
   }
 
   await wishlistStore.removeFromWishlist(itemId)
-  toast.success('Item removed from wishlist')
+//   toast.success('Item removed from wishlist')
 }
 
 // Add item to cart
@@ -766,10 +765,10 @@ const addToCart = async (productId) => {
   try {
     const result = await cartStore.addToCart(productId, 1)
     if (result.success) {
-      toast.success('Product added to cart')
+    //   toast.success('Product added to cart')
     }
   } catch (error) {
-    toast.error('Failed to add to cart')
+    // toast.error('Failed to add to cart')
   }
 }
 
@@ -795,9 +794,9 @@ const confirmMoveItems = async () => {
     await Promise.all(promises)
     showMoveItemsModal.value = false
     selectedMoveCategory.value = null
-    toast.success('Items moved successfully')
+    // toast.success('Items moved successfully')
   } catch (error) {
-    toast.error('Failed to move items')
+    // toast.error('Failed to move items')
   }
 }
 
@@ -825,9 +824,9 @@ const confirmMoveItem = async () => {
     currentItemToMove.value = null
     currentItemCategory.value = null
     selectedMoveItemCategory.value = null
-    toast.success('Item moved successfully')
+    // toast.success('Item moved successfully')
   } catch (error) {
-    toast.error('Failed to move item')
+    // toast.error('Failed to move item')
   }
 }
 
@@ -850,9 +849,9 @@ const clearCategory = async () => {
     )
 
     await Promise.all(promises)
-    toast.success('Category cleared successfully')
+    // toast.success('Category cleared successfully')
   } catch (error) {
-    toast.error('Failed to clear category')
+    // toast.error('Failed to clear category')
   }
 }
 </script>

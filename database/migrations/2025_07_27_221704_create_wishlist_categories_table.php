@@ -18,9 +18,7 @@ return new class extends Migration
             $table->boolean('is_default')->default(false);
             $table->timestamps();
 
-            $table->unique(['user_id'], 'unique_default_wishlist')
-                ->where('is_default', 1);
-
+            // $table->unique(['user_id', 'is_default'], 'unique_default_wishlist');
             $table->index('user_id');
         });
     }

@@ -198,12 +198,20 @@ export const useWishlistStore = defineStore('wishlist', {
     async createDefaultCategory() {
       this.loading = true
       this.error = null
+      const authStore = useAuthStore();
+
+      if (!authStore.isAuthenticated) {
+        throw new Error(
+          "User must be authenticated to create a category",
+        );
+      }
 
       try {
-        const response = await axios.post('/wishlist-categories', {
-          name: 'Favorites',
-          is_default: true
-        })
+        const response = await axios.post("/wishlist-categories", {
+            name: "Favorites",
+            user_id: userId,
+            is_default: true,
+        });
 
         this.categories.push(response.data.data)
 
@@ -223,14 +231,22 @@ export const useWishlistStore = defineStore('wishlist', {
     async createCategory(name, isDefault = false) {
       this.loading = true
       this.error = null
+      const authStore = useAuthStore();
+
+      if (!authStore.isAuthenticated) {
+        throw new Error(
+          "User must be authenticated to create a category",
+        );
+      }
 
       try {
         // If setting as default, unset other defaults
         if (isDefault) {
-          await axios.post('/wishlist-categories', {
-            name,
-            is_default: true
-          })
+          await axios.post("/wishlist-categories", {
+              name,
+              user_id: userId,
+              is_default: true,
+          });
 
           // Update other categories to not be default
           this.categories.forEach(cat => {
@@ -239,10 +255,11 @@ export const useWishlistStore = defineStore('wishlist', {
             }
           })
         } else {
-          await axios.post('/wishlist-categories', {
-            name,
-            is_default: false
-          })
+          await axios.post("/wishlist-categories", {
+              name,
+              user_id: userId,
+              is_default: false,
+          });
         }
 
         // Reload categories
@@ -255,6 +272,7 @@ export const useWishlistStore = defineStore('wishlist', {
       } catch (error) {
         this.error = error.response?.data?.message || 'Failed to create category'
         this.handleError(this.error)
+        console.log(this.error)
         return { success: false, error: this.error }
       } finally {
         this.loading = false
