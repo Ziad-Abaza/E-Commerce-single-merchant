@@ -103,6 +103,7 @@ class SettingController extends Controller
      */
     public function update(Request $request, Setting $setting)
     {
+        Log::info('request', $request->all());
         $validator = Validator::make($request->all(), [
             'key' => 'required|string|max:255|unique:settings,key,' . $setting->id,
             'type' => 'required|in:text,number,boolean,json,file,image,select,textarea',

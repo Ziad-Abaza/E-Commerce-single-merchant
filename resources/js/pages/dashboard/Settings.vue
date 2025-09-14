@@ -558,7 +558,7 @@ const handleFileUpload = async (setting, event) => {
         formData.append("group", setting.group);
         formData.append("label", setting.label);
         formData.append("description", setting.description || "");
-        formData.append("is_public", setting.is_public ? true : false);
+        formData.append("is_public", setting.is_public ? 1 : 0);
         formData.append("sort_order", setting.sort_order?.toString() || "0");
         if (Array.isArray(setting.options)) {
             setting.options.forEach((option, index) => {
@@ -569,10 +569,12 @@ const handleFileUpload = async (setting, event) => {
             formData.append("options", []);
         }
 
-        formData.append("_method", "PUT");
+        formData.append("_method", "POST");
 
         // Show loading state
         const loadingToast = toast.loading("Uploading file...");
+
+        const requestData =settingsStore.normalizeSettingData(formData)
 
         // Upload the file
         const response = await axios.post(
@@ -603,13 +605,6 @@ const handleFileUpload = async (setting, event) => {
 
         // Update the settings store
         settingsStore.updateSettingValue(setting.key, setting.value);
-
-        toast.success("File uploaded successfully!", {
-            id: loadingToast,
-            autoClose: 3000,
-            closeOnClick: true,
-            pauseOnHover: true,
-        });
     } catch (error) {
         console.error("Error uploading file:", error);
 

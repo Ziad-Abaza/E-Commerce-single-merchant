@@ -109,6 +109,7 @@ export const useSettingsStore = defineStore("settings", {
 
             try {
                 const normalizedData = this.normalizeSettingData(settingData);
+                console.log("Normalized Data:", normalizedData);
                 const response = await axios.post(
                     `/dashboard/settings/${id}`,
                     normalizedData,
@@ -222,16 +223,16 @@ export const useSettingsStore = defineStore("settings", {
         },
 
         normalizeSettingData(data) {
-    return {
-        ...data,
-        options: Array.isArray(data.options)
-            ? data.options
-            : data.options
-              ? JSON.parse(data.options)
-              : [],
-        is_public: data.is_public ? 1 : 0, // بدل Boolean(...)
-    };
-},
+            return {
+                ...data,
+                options: Array.isArray(data.options)
+                    ? data.options
+                    : data.options
+                      ? JSON.parse(data.options)
+                      : [],
+                is_public: data.is_public ? 1 : 0,
+            };
+        },
         updateSettingValue(key, value) {
             const setting = this.settings.find((s) => s.key === key);
             if (setting) {

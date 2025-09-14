@@ -161,13 +161,13 @@ Route::middleware('auth:sanctum')->prefix('dashboard')->name('dashboard.')->grou
             Route::get('/', 'index')->name('index');
             Route::post('/', 'store')->name('store');
             Route::post('/bulk-update', 'bulkUpdate')->name('bulk-update');
-            
+
             // Public settings
             Route::get('/public', 'public')->name('public');
-            
+
             // Routes with {setting} parameter
             Route::get('/{setting}', 'show')->name('show');
-            Route::match(['post', 'put', 'patch'], '/{setting}', 'update')->name('update');
+            Route::match(['post', 'patch'], '/{setting}', 'update')->name('update');
             Route::delete('/{setting}', 'destroy')->name('destroy');
         });
 });
