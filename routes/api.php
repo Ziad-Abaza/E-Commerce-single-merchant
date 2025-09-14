@@ -14,6 +14,9 @@ Route::prefix('public')->name('public.')->group(function () {
     // Home routes
     Route::get('/home', [\App\Http\Controllers\Api\Public\HomeController::class, 'index'])->name('home');
     
+    // Settings routes
+    Route::get('/settings', [\App\Http\Controllers\Api\SettingController::class, 'index'])->name('settings.index');
+
     // Newsletter routes
     Route::prefix('newsletter')->name('newsletter.')->controller(\App\Http\Controllers\Api\Public\NewsletterController::class)->group(function () {
         Route::post('/subscribe', 'subscribe')->name('subscribe');

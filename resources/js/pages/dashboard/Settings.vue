@@ -270,7 +270,6 @@ import SettingModal from './components/SettingModal.vue';
 import ConfirmModal from './components/ConfirmModal.vue';
 
 const settingsStore = useSettingsStore();
-
 const authStore = useAuthStore();
 
 const showCreateModal = ref(false);
@@ -357,8 +356,6 @@ const handleSaveSetting = async (settingData) => {
 const handleFileUpload = (setting, event) => {
   const file = event.target.files[0];
   if (file) {
-    // In a real app, you'd upload the file and get a URL
-    // For now, just store the filename
     setting.value = file.name;
     markDirty(setting);
   }

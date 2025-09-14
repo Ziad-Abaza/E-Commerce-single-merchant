@@ -9,12 +9,14 @@
 import { computed, onMounted } from 'vue'
 import { useAuthStore } from './stores/auth'
 import { useProductStore } from './stores/products'
+import { useSiteStore } from './stores/site'
 import { useCartStore } from './stores/cart'
 import LoadingOverlay from './components/LoadingOverlay.vue'
 
 const authStore = useAuthStore()
 const productStore = useProductStore()
 const cartStore = useCartStore()
+const siteStore = useSiteStore()
 
 const isLoading = computed(() => {
   return authStore.loading || productStore.loading || cartStore.loading
@@ -23,8 +25,7 @@ const isLoading = computed(() => {
 // Initialize app data
 const initializeApp = async () => {
   try {
-    // استرجع المستخدم من localStorage (مخزن في state تلقائياً)
-    // جرب تحدث بياناته من السيرفر
+    await siteStore.fetchSettings()
     await authStore.checkAuth()
 
     // Load initial data

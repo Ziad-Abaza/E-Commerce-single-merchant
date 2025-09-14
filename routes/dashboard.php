@@ -2,6 +2,8 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Dashboard\SettingController as SiteSettingController;
+
 
 
 /*
@@ -152,7 +154,7 @@ Route::middleware('auth:sanctum')->prefix('dashboard')->name('dashboard.')->grou
     // Settings Management
     Route::prefix('settings')
         ->name('settings.')
-        ->controller(\App\Http\Controllers\Dashboard\SettingController::class)
+        ->controller(SiteSettingController::class)
         ->group(function () {
             // Routes without parameters first
             Route::get('/', 'index')->name('index');

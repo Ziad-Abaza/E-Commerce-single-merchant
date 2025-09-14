@@ -10,7 +10,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
               </svg>
             </div>
-            <span class="text-xl font-bold text-gray-900">E-Commerce</span>
+            <span class="text-xl font-bold text-gray-900">{{ siteStore.settings.site_name }}</span>
           </router-link>
         </div>
 
@@ -48,19 +48,6 @@
             :class="{ 'text-primary-600 bg-primary-50': $route.name === 'contact' }"
           >
             Contact
-          </router-link>
-
-          <!-- Dashboard Link (permission-based) -->
-          <router-link
-            v-if="authStore.hasPermission('view_dashboard')"
-            to="/dashboard"
-            class="text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center space-x-1"
-            :class="{ 'text-primary-600 bg-primary-50': $route.path.startsWith('/dashboard') }"
-          >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-            </svg>
-            <span>Dashboard</span>
           </router-link>
         </nav>
 
@@ -136,10 +123,12 @@
 import { computed } from 'vue'
 import { useAuthStore } from '../../stores/auth'
 import { useCartStore } from '../../stores/cart'
+import { useSiteStore } from '../../stores/site'
 import CategoriesDropdown from '../common/CategoriesDropdown.vue'
 import SearchBar from '../common/SearchBar.vue'
 import UserMenu from '../common/UserMenu.vue'
 
+const siteStore = useSiteStore()
 const authStore = useAuthStore()
 const cartStore = useCartStore()
 

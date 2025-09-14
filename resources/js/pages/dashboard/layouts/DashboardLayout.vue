@@ -135,12 +135,13 @@
 
 <script setup>
 import { ref, computed, onMounted } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { useTheme } from "@/composables/useTheme.js";
 import Sidebar from "../components/Sidebar.vue";
 import UserMenu from "../components/UserMenu.vue";
 
 const route = useRoute();
+const router = useRouter();
 const sidebarOpen = ref(true);
 const isMobile = ref(false);
 
