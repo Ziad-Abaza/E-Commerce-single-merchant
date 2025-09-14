@@ -17,13 +17,18 @@ class WishlistCategorySeeder extends Seeder
         $users = User::all();
 
         foreach ($users as $user) {
-            if (!$user->wishlistCategories()->default()->exists()) {
-                WishlistCategory::create([
+            // The model's booted method will handle creating the default 'Favorites' category
+            // if it doesn't exist when we save any wishlist category for the user
+            WishlistCategory::firstOrCreate(
+                [
                     'user_id' => $user->id,
-                    'name' => 'Favorites',
                     'is_default' => true,
-                ]);
-            }
+                    'name' => 'Favorites'
+                ],
+                [
+                    'is_default' => true
+                ]
+            );
         }
     }
 }

@@ -10,6 +10,29 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class WishlistCategory extends Model implements HasMedia
 {
+    /**
+     * The "booting" method of the model.
+     */
+    protected static function booted()
+    {
+        // Ensure each user has a default 'Favorites' category
+        static::saved(function ($model) {
+            if (!static::where('user_id', $model->user_id)->default()->exists()) {
+                static::create([
+                    'user_id' => $model->user_id,
+                    'name' => 'Favorites',
+                    'is_default' => true,
+                ]);
+            }
+        });
+
+        // Prevent deletion of default 'Favorites' category
+        static::deleting(function ($model) {
+            if ($model->is_default && $model->name === 'Favorites') {
+                return false;
+            }
+        });
+    }
     use HasFactory, InteractsWithMedia;
 
     /**
