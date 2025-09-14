@@ -50,22 +50,6 @@
           >
             All Products
           </router-link>
-
-          <router-link
-            to="/about"
-            class="text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
-            :class="{ 'text-primary-600 bg-primary-50': $route.name === 'about' }"
-          >
-            About Us
-          </router-link>
-
-          <router-link
-            to="/contact"
-            class="text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
-            :class="{ 'text-primary-600 bg-primary-50': $route.name === 'contact' }"
-          >
-            Contact
-          </router-link>
         </nav>
 
         <!-- Search Bar (hidden on mobile) -->

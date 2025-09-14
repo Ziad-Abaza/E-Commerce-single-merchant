@@ -33,8 +33,8 @@ class ProductResource extends JsonResource
             'rating' => $this->reviews->avg('rating') ?? 0,
             'reviews_count' => $this->reviews->count() ?? 0,
             'categories' => CategoryResource::collection($this->whenLoaded('categories')),
-            'in_stock' => $this->details->sum('stock_quantity') > 0,
-            'stock_quantity' => $this->details->sum('stock_quantity') ?? 0,
+            'in_stock' => $this->details->sum('stock') > 0,
+            'stock_quantity' => $this->details->sum('stock') ?? 0,
         ];
     }
 
@@ -45,11 +45,11 @@ class ProductResource extends JsonResource
     {
         $originalPrice = $this->details->min('price') ?? 0;
         $finalPrice = $this->details->min('final_price') ?? 0;
-        
+
         if ($originalPrice > 0 && $finalPrice < $originalPrice) {
             return round((($originalPrice - $finalPrice) / $originalPrice) * 100);
         }
-        
+
         return 0;
     }
 }
