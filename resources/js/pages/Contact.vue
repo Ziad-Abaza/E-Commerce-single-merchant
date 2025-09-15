@@ -316,8 +316,8 @@ import { useToast } from 'vue-toastification'
 import Breadcrumb from '../components/common/Breadcrumb.vue'
 import { useSiteStore } from "../stores/site";
 
-const toast = useToast()
 const siteStore = useSiteStore();
+const toast = useToast()
 
 const form = ref({
   firstName: '',

@@ -147,6 +147,58 @@ class SettingSeeder extends Seeder
                 'sort_order' => 2,
             ],
 
+            // About Settings
+            [
+                'key' => 'who_we_are',
+                'value' => 'We are a leading e-commerce store committed to providing quality products and excellent customer service. Our goal is to make your shopping experience simple, enjoyable, and secure.',
+                'type' => 'textarea',
+                'group' => 'about',
+                'label' => 'Who We Are',
+                'description' => 'A short paragraph describing your business, shown in About Us section',
+                'is_public' => true,
+                'sort_order' => 1,
+            ],
+            [
+                'key' => 'our_story',
+                'value' => 'Our journey started with a simple idea: to bring quality products closer to everyone, making online shopping accessible and trustworthy.',
+                'type' => 'textarea',
+                'group' => 'about',
+                'label' => 'Our Story',
+                'description' => 'Tell the story of how your business started',
+                'is_public' => true,
+                'sort_order' => 2,
+            ],
+            [
+                'key' => 'our_commitment',
+                'value' => 'We are committed to offering only the best quality, excellent customer support, and continuous improvement in everything we do.',
+                'type' => 'textarea',
+                'group' => 'about',
+                'label' => 'Our Commitment',
+                'description' => 'Describe your company’s mission and commitments',
+                'is_public' => true,
+                'sort_order' => 3,
+            ],
+            [
+                'key' => 'why_choose_us',
+                'value' => 'We provide high-quality products, fast shipping, and dedicated customer service to ensure your satisfaction.',
+                'type' => 'textarea',
+                'group' => 'about',
+                'label' => 'Why Choose Us',
+                'description' => 'Explain why customers should choose your business over competitors',
+                'is_public' => true,
+                'sort_order' => 4,
+            ],
+            [
+                'key' => 'about_image',
+                'value' => '/images/about-default.webp',
+                'type' => 'image',
+                'group' => 'about',
+                'label' => 'About Image',
+                'description' => 'Image displayed in the About Us section',
+                'is_public' => true,
+                'sort_order' => 5,
+            ],
+
             // Payment Settings
             [
                 'key' => 'currency',

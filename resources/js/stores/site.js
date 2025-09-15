@@ -11,6 +11,7 @@ export const useSiteStore = defineStore("site", {
             maintenance_mode: false,
             address: "EGYPT, Alexandria, al-Ajami",
             business_hours: "Mon-Fri: 9am-5pm",
+            who_we_are: "We are a leading e-commerce store committed to providing quality products and excellent customer service. Our goal is to make your shopping experience simple, enjoyable, and secure.",
 
             // Contact Settings
             contact_email: "contact@example.com",
