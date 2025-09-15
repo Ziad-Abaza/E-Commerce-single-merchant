@@ -111,21 +111,21 @@ Route::middleware('auth:sanctum')->group(function () {
     // Wishlist routes
     Route::prefix('wishlist-categories')->name('wishlist-categories.')->controller(\App\Http\Controllers\Api\User\WishlistCategoryController::class)->group(function () {
         Route::get('/', 'index')->name('index');
+        Route::get('/default', 'getDefaultCategory')->name('default');
         Route::post('/', 'store')->name('store');
         Route::get('/{id}', 'show')->name('show');
         Route::post('/{id}', 'update')->name('update');
         Route::delete('/{id}', 'destroy')->name('destroy');
-        Route::get('/default', 'getDefaultCategory')->name('default');
     });
 
     Route::prefix('wishlist-items')->name('wishlist-items.')->controller(\App\Http\Controllers\Api\User\WishlistItemController::class)->group(function () {
         Route::get('/', 'index')->name('index');
+        Route::get('/check', 'checkProductInWishlist')->name('check');
         Route::post('/', 'store')->name('store');
         Route::get('/{id}', 'show')->name('show');
         Route::post('/{id}', 'update')->name('update');
         Route::delete('/{id}', 'destroy')->name('destroy');
         Route::post('/{id}/move', 'move')->name('move');
-        Route::get('/check', 'checkProductInWishlist')->name('check');
     });
 });
 

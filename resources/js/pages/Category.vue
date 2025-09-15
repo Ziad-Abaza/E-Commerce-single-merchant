@@ -31,7 +31,7 @@
           </li>
         </ol>
       </nav>
-      
+
       <h1 class="text-3xl font-bold text-gray-900">{{ category.name }}</h1>
       <p v-if="category.description" class="mt-2 text-gray-600">{{ category.description }}</p>
     </div>
@@ -130,19 +130,19 @@
           >
             Previous
           </button>
-          
+
           <button
             v-for="page in visiblePages"
             :key="page"
             @click="changePage(page)"
-            :class="page === productStore.pagination.currentPage 
-              ? 'bg-primary-600 text-white' 
+            :class="page === productStore.pagination.currentPage
+              ? 'bg-primary-600 text-white'
               : 'text-gray-700 bg-white hover:bg-gray-50'"
             class="px-3 py-2 text-sm font-medium border border-gray-300 rounded-md"
           >
             {{ page }}
           </button>
-          
+
           <button
             @click="changePage(productStore.pagination.currentPage + 1)"
             :disabled="productStore.pagination.currentPage === productStore.pagination.lastPage"
@@ -177,36 +177,36 @@ const visiblePages = computed(() => {
   const current = productStore.pagination.currentPage
   const last = productStore.pagination.lastPage
   const pages = []
-  
+
   const start = Math.max(1, current - 2)
   const end = Math.min(last, current + 2)
-  
+
   for (let i = start; i <= end; i++) {
     pages.push(i)
   }
-  
+
   return pages
 })
 
 const loadProducts = async () => {
   if (!categoryId.value) return
-  
+
   const params = {
     sort: sortBy.value,
     page: productStore.pagination.currentPage
   }
-  
+
   await productStore.getProductsByCategory(categoryId.value, params)
 }
 
 const changePage = async (page) => {
   if (page < 1 || page > productStore.pagination.lastPage) return
-  
+
   const params = {
     sort: sortBy.value,
     page
   }
-  
+
   await productStore.getProductsByCategory(categoryId.value, params)
 }
 
@@ -218,7 +218,7 @@ watch(() => route.params.id, () => {
 onMounted(async () => {
   // Load categories first
   await productStore.loadCategories()
-  
+
   // Load products for the category
   await loadProducts()
 })

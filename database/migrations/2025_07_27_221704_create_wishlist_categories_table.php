@@ -17,7 +17,6 @@ return new class extends Migration
             $table->string('name', 100);
             $table->boolean('is_default')->default(false);
             $table->timestamps();
-
             // $table->unique(['user_id', 'is_default'], 'unique_default_wishlist');
             $table->index('user_id');
         });

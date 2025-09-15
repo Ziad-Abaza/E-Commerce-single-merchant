@@ -3,19 +3,18 @@
     <div class="flex space-x-4">
       <!-- Product Image -->
       <div class="flex-shrink-0">
-        <img
-          :src="productImage"
-          :alt="product.name"
-          class="w-24 h-24 object-cover rounded-md"
-          @error="handleImageError"
-        />
+        <router-link :to="`/products/${product.id}`">
+          <img
+            :src="productImage"
+            :alt="product.name"
+            class="w-24 h-24 object-cover rounded-md"
+            @error="handleImageError"
+          />
+        </router-link>
       </div>
 
       <!-- Product Info -->
-      <div class="flex-1 min-w-0">
-        <!-- Full Row Clickable Area for Product Details -->
-        <router-link :to="`/products/${product.id}`" class="absolute inset-y-0 left-0 right-0 z-10" aria-label="View product details"></router-link>
-
+      <div class="flex-1 min-w-0 relative">
         <!-- Category -->
         <div v-if="product.categories && product.categories.length > 0" class="mb-1">
           <span class="text-xs text-gray-500">{{ product.categories[0].name }}</span>
@@ -34,13 +33,13 @@
         </p>
 
         <!-- Rating -->
-        <div v-if="product.average_rating" class="flex items-center mb-3">
+        <div v-if="product.rating" class="flex items-center mb-3">
           <div class="flex items-center">
             <svg
               v-for="star in 5"
               :key="star"
               class="h-4 w-4"
-              :class="star <= Math.round(product.average_rating) ? 'text-yellow-400' : 'text-gray-300'"
+              :class="star <= Math.round(product.rating) ? 'text-yellow-400' : 'text-gray-300'"
               fill="currentColor"
               viewBox="0 0 24 24"
             >
@@ -52,13 +51,15 @@
 
         <!-- Price and Actions -->
         <div class="flex items-center justify-between">
+          <!-- Price -->
           <div class="flex items-center space-x-2">
             <span class="text-lg font-bold text-gray-900">${{ displayPrice }}</span>
-            <span v-if="product.sale_price" class="text-sm text-gray-500 line-through">
-              ${{ product.price }}
+            <span v-if="product.discount_percentage" class="text-sm text-gray-500 line-through">
+              ${{ product.original_price }}
             </span>
           </div>
 
+          <!-- Actions -->
           <div class="flex items-center space-x-2 relative z-20">
             <!-- Wishlist Button -->
             <button
@@ -78,10 +79,12 @@
               :disabled="cartStore.loading"
               class="bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center"
             >
+              <!-- Loading Spinner -->
               <svg v-if="cartStore.loading" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
+              <!-- Cart Icon -->
               <svg v-else class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m6-5v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6m8 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v4.01" />
               </svg>
@@ -113,20 +116,20 @@ const cartStore = useCartStore()
 const wishlistStore = useWishlistStore()
 const toast = useToast()
 
-// Compute product image
+// Compute product image (use main image or fallback to gallery)
 const productImage = computed(() => {
-  if (props.product.media?.length) return props.product.media[0].url
-  return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIwIiBoZWlnaHQ9IjMyMCIgdmlld0JveD0iMCAwIDMyMCAzMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjMyMCIgaGVpZ2h0PSIzMjAiIGZpbGw9IiNlZWUiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZG9taW5hbnQtYmFzZWxpbmU9ImNlbnRyYWwiIGZvbnQtc2l6ZT0iMjAiIGZpbGw9IiNjY2MiPk5vIEltYWdlPC90ZXh0Pjwvc3ZnPg=='
+  return props.product.main_image_url || props.product.gallery_images?.[0] ||
+    'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIwIiBoZWlnaHQ9IjMyMCIgdmlld0JveD0iMCAwIDMyMCAzMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjMyMCIgaGVpZ2h0PSIzMjAiIGZpbGw9IiNlZWUiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZG9taW5hbnQtYmFzZWxpbmU9ImNlbnRyYWwiIGZvbnQtc2l6ZT0iMjAiIGZpbGw9IiNjY2MiPk5vIEltYWdlPC90ZXh0Pjwvc3ZnPg=='
 })
 
-// Handle image load error
+// Handle image error by using fallback
 const handleImageError = (event) => {
   event.target.src = productImage.value
 }
 
-// Compute display price
+// Compute display price (discount or normal)
 const displayPrice = computed(() => {
-  return props.product.sale_price || props.product.price
+  return props.product.price || props.product.original_price
 })
 
 // Check if product is in wishlist
@@ -137,14 +140,20 @@ const isInWishlist = computed(() => {
 
 // Add product to cart
 const addToCart = async () => {
+  if (!props.product.in_stock) {
+    toast.warning('This product is currently out of stock')
+    return
+  }
+
   try {
     await cartStore.addToCart(props.product.id, 1)
+    // toast.success('Added to cart')
   } catch (error) {
-    toast.error('An unexpected error occurred')
+    // toast.error('An unexpected error occurred')
   }
 }
 
-// Toggle wishlist status
+// Toggle wishlist (add/remove)
 const toggleWishlist = async () => {
   if (!authStore.isAuthenticated) {
     toast.info('Please log in to use the wishlist feature.')
@@ -153,22 +162,21 @@ const toggleWishlist = async () => {
 
   try {
     if (isInWishlist.value) {
-      // Find the wishlist item ID for this product
       const item = wishlistStore.getItemByProductId(props.product.id)
       if (item) {
         const result = await wishlistStore.removeFromWishlist(item.id)
         if (result.success) {
-          toast.success('Removed from wishlist')
+        //   toast.success('Removed from wishlist')
         }
       }
     } else {
       const result = await wishlistStore.addToWishlist(props.product.id)
       if (result.success) {
-        toast.success('Added to wishlist')
+        // toast.success('Added to wishlist')
       }
     }
   } catch (error) {
-    toast.error('Failed to update wishlist')
+    // toast.error('Failed to update wishlist')
   }
 }
 </script>
