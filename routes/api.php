@@ -17,17 +17,14 @@ Route::prefix('public')->name('public.')->group(function () {
     // Settings routes
     Route::get('/settings', [\App\Http\Controllers\Api\SettingController::class, 'index'])->name('settings.index');
 
-    // Newsletter routes
-    Route::prefix('newsletter')->name('newsletter.')->controller(\App\Http\Controllers\Api\Public\NewsletterController::class)->group(function () {
-        Route::post('/subscribe', 'subscribe')->name('subscribe');
-        Route::post('/unsubscribe', 'unsubscribe')->name('unsubscribe');
-    });
-
     // Public product routes
     Route::prefix('products')->name('products.')->controller(\App\Http\Controllers\Api\Public\ProductController::class)->group(function () {
         Route::get('/', 'index')->name('index');
         Route::get('/{id}', 'show')->name('show');
     });
+
+    // Contact form submission (public route)
+    Route::post('/contact', [\App\Http\Controllers\Api\ContactMessageController::class, 'store'])->name('contact.store');
 
     // Public category routes
     Route::prefix('categories')->name('categories.')->controller(\App\Http\Controllers\Api\CategoryController::class)->group(function () {
@@ -41,6 +38,7 @@ Route::prefix('public')->name('public.')->group(function () {
 });
 
 Route::middleware('auth:sanctum')->group(function () {
+
     // Get authenticated user
     Route::get('/user', function (Request $request) {
         $user = $request->user();

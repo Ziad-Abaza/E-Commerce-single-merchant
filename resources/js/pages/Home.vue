@@ -275,16 +275,14 @@
 
         <section class="py-16 bg-blue-600 text-center">
             <div class="container max-w-2xl mx-auto">
-                <h2 class="text-3xl font-bold text-white mb-4">
-                    Who We Are
-                </h2>
+                <h2 class="text-3xl font-bold text-white mb-4">Who We Are</h2>
                 <p class="text-lg text-gray-300">
-                   {{ siteStore.settings.who_we_are }}
+                    {{ siteStore.settings.who_we_are }}
                 </p>
             </div>
         </section>
 
-         <!-- Login / Register Call to Action -->
+        <!-- Login / Register Call to Action -->
         <section
             v-if="!authStore.isAuthenticated"
             class="py-16 bg-gray-50 text-center"
@@ -294,8 +292,8 @@
                     Join Us Today
                 </h2>
                 <p class="text-lg text-gray-600 mb-6">
-                    Create an account or log in to enjoy a personalized
-                    shopping experience.
+                    Create an account or log in to enjoy a personalized shopping
+                    experience.
                 </p>
                 <div class="flex justify-center gap-4">
                     <router-link
@@ -315,34 +313,33 @@
         </section>
 
         <!-- Contact Section -->
-<section class="py-16 bg-white text-center">
-    <div class="container max-w-2xl mx-auto">
-        <h2 class="text-3xl font-bold text-gray-900 mb-4">
-            Get in Touch
-        </h2>
-        <p class="text-lg text-gray-600 mb-6">
-            Have any questions or feedback? We'd love to hear from you.
-        </p>
-        <router-link
-            to="/contact"
-            class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors"
-        >
-            Contact Us
-            <svg
-                class="ml-2 -mr-1 w-5 h-5"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-            >
-                <path
-                    fill-rule="evenodd"
-                    d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
-                    clip-rule="evenodd"
-                />
-            </svg>
-        </router-link>
-    </div>
-</section>
-
+        <section class="py-16 bg-white text-center">
+            <div class="container max-w-2xl mx-auto">
+                <h2 class="text-3xl font-bold text-gray-900 mb-4">
+                    Get in Touch
+                </h2>
+                <p class="text-lg text-gray-600 mb-6">
+                    Have any questions or feedback? We'd love to hear from you.
+                </p>
+                <router-link
+                    to="/contact"
+                    class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors"
+                >
+                    Contact Us
+                    <svg
+                        class="ml-2 -mr-1 w-5 h-5"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                    >
+                        <path
+                            fill-rule="evenodd"
+                            d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
+                            clip-rule="evenodd"
+                        />
+                    </svg>
+                </router-link>
+            </div>
+        </section>
     </div>
 </template>
 
@@ -359,41 +356,6 @@ const siteStore = useSiteStore();
 const homeStore = useHomeStore();
 const toast = useToast();
 const authStore = useAuthStore();
-
-const email = ref("");
-const isSubscribing = ref(false);
-
-const subscribeNewsletter = async () => {
-    if (isSubscribing.value) return;
-
-    isSubscribing.value = true;
-
-    try {
-        const response = await axios.post("/api/public/newsletter/subscribe", {
-            email: email.value,
-        });
-
-        if (response.data.success) {
-            toast.success("Successfully subscribed to newsletter!");
-            email.value = "";
-        } else {
-            toast.error(
-                response.data.message ||
-                    "Failed to subscribe. Please try again.",
-            );
-        }
-    } catch (error) {
-        if (error.response?.status === 422) {
-            toast.error(
-                error.response.data.message || "Invalid email address.",
-            );
-        } else {
-            toast.error("Failed to subscribe. Please try again.");
-        }
-    } finally {
-        isSubscribing.value = false;
-    }
-};
 
 const filterByCategory = async (categoryId) => {
     await homeStore.filterByCategory(categoryId);

@@ -1,391 +1,650 @@
 <template>
-  <div class="min-h-screen">
-    <!-- Breadcrumb Navigation -->
-    <Breadcrumb :breadcrumbs="breadcrumbs" />
+    <div class="min-h-screen">
+        <!-- Breadcrumb Navigation -->
+        <Breadcrumb :breadcrumbs="breadcrumbs" />
 
-    <!-- Hero Section -->
-    <section class="relative bg-gradient-to-r from-primary-600 to-primary-800 text-white">
-      <div class="container py-20">
-        <div class="max-w-4xl mx-auto text-center">
-          <h1 class="text-4xl md:text-6xl font-bold mb-6">
-            Contact Us
-          </h1>
-          <p class="text-xl md:text-2xl text-primary-100">
-            Get in touch with us - we'd love to hear from you
-          </p>
-        </div>
-      </div>
-    </section>
-
-    <!-- Contact Form & Info Section -->
-    <section class="py-16 bg-white">
-      <div class="container">
-        <div class="max-w-6xl mx-auto">
-          <div class="grid lg:grid-cols-2 gap-12">
-            <!-- Contact Form -->
-            <div>
-              <h2 class="text-3xl font-bold text-gray-900 mb-6">Send us a Message</h2>
-              <p class="text-lg text-gray-600 mb-8">
-                Have a question, suggestion, or need help? Fill out the form below and we'll get back to you as soon as possible.
-              </p>
-
-              <form @submit.prevent="submitForm" class="space-y-6">
-                <div class="grid md:grid-cols-2 gap-6">
-                  <div>
-                    <label for="firstName" class="block text-sm font-medium text-gray-700 mb-2">
-                      First Name *
-                    </label>
-                    <input
-                      id="firstName"
-                      v-model="form.firstName"
-                      type="text"
-                      required
-                      class="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
-                      placeholder="Enter your first name"
-                    />
-                  </div>
-                  <div>
-                    <label for="lastName" class="block text-sm font-medium text-gray-700 mb-2">
-                      Last Name *
-                    </label>
-                    <input
-                      id="lastName"
-                      v-model="form.lastName"
-                      type="text"
-                      required
-                      class="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
-                      placeholder="Enter your last name"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
-                    Email Address *
-                  </label>
-                  <input
-                    id="email"
-                    v-model="form.email"
-                    type="email"
-                    required
-                    class="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
-                    placeholder="Enter your email address"
-                  />
-                </div>
-
-                <div>
-                  <label for="phone" class="block text-sm font-medium text-gray-700 mb-2">
-                    Phone Number
-                  </label>
-                  <input
-                    id="phone"
-                    v-model="form.phone"
-                    type="tel"
-                    class="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
-                    placeholder="Enter your phone number"
-                  />
-                </div>
-
-                <div>
-                  <label for="subject" class="block text-sm font-medium text-gray-700 mb-2">
-                    Subject *
-                  </label>
-                  <select
-                    id="subject"
-                    v-model="form.subject"
-                    required
-                    class="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
-                  >
-                    <option value="">Select a subject</option>
-                    <option value="general">General Inquiry</option>
-                    <option value="order">Order Support</option>
-                    <option value="product">Product Question</option>
-                    <option value="shipping">Shipping & Returns</option>
-                    <option value="technical">Technical Support</option>
-                    <option value="other">Other</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label for="message" class="block text-sm font-medium text-gray-700 mb-2">
-                    Message *
-                  </label>
-                  <textarea
-                    id="message"
-                    v-model="form.message"
-                    rows="6"
-                    required
-                    class="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors resize-vertical"
-                    placeholder="Tell us how we can help you..."
-                  ></textarea>
-                </div>
-
-                <button
-                  type="submit"
-                  :disabled="isSubmitting"
-                  class="w-full px-6 py-3 bg-primary-600 text-white font-medium rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                >
-                  <span v-if="isSubmitting">Sending Message...</span>
-                  <span v-else>Send Message</span>
-                </button>
-              </form>
-            </div>
-
-            <!-- Contact Information -->
-            <div>
-              <h2 class="text-3xl font-bold text-gray-900 mb-6">Get in Touch</h2>
-              <p class="text-lg text-gray-600 mb-8">
-                We're here to help! Reach out to us through any of the following channels.
-              </p>
-
-              <div class="space-y-6">
-                <!-- Address -->
-                <div class="flex items-start">
-                  <div class="flex-shrink-0">
-                    <div class="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center">
-                      <svg class="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                      </svg>
-                    </div>
-                  </div>
-                  <div class="ml-4">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-1">Our Address</h3>
-                    <p class="text-gray-600">
-                        {{ siteStore.settings.address }}
+        <!-- Hero Section -->
+        <section
+            class="relative bg-gradient-to-r from-primary-600 to-primary-800 text-white"
+        >
+            <div class="container py-20">
+                <div class="max-w-4xl mx-auto text-center">
+                    <h1 class="text-4xl md:text-6xl font-bold mb-6">
+                        Contact Us
+                    </h1>
+                    <p class="text-xl md:text-2xl text-primary-100">
+                        Get in touch with us - we'd love to hear from you
                     </p>
-                  </div>
                 </div>
+            </div>
+        </section>
 
-                <!-- Phone -->
-                <div class="flex items-start">
-                  <div class="flex-shrink-0">
-                    <div class="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center">
-                      <svg class="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                      </svg>
+        <!-- Contact Form & Info Section -->
+        <section class="py-16 bg-white">
+            <div class="container">
+                <div class="max-w-6xl mx-auto">
+                    <div class="grid lg:grid-cols-2 gap-12">
+                        <!-- Contact Form -->
+                        <div>
+                            <h2 class="text-3xl font-bold text-gray-900 mb-6">
+                                Send us a Message
+                            </h2>
+                            <p class="text-lg text-gray-600 mb-8">
+                                Have a question, suggestion, or need help? Fill
+                                out the form below and we'll get back to you as
+                                soon as possible.
+                            </p>
+
+                            <form
+                                @submit.prevent="submitForm"
+                                class="space-y-6"
+                            >
+                                <div
+                                    v-if="contactStore.isSuccess"
+                                    class="p-4 mb-6 text-sm text-green-800 rounded-lg bg-green-50"
+                                >
+                                    <p>
+                                        Thank you for your message! We'll get
+                                        back to you soon.
+                                    </p>
+                                </div>
+
+                                <div>
+                                    <label
+                                        for="name"
+                                        class="block text-sm font-medium text-gray-700 mb-2"
+                                    >
+                                        Full Name *
+                                    </label>
+                                    <input
+                                        id="name"
+                                        v-model="contactStore.form.name"
+                                        type="text"
+                                        required
+                                        :class="[
+                                            'w-full px-4 py-3 border rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors',
+                                            contactStore.errors.name
+                                                ? 'border-red-500'
+                                                : 'border-gray-300',
+                                        ]"
+                                        placeholder="Enter your full name"
+                                    />
+                                    <p
+                                        v-if="contactStore.errors.name"
+                                        class="mt-1 text-sm text-red-600"
+                                    >
+                                        {{ contactStore.errors.name[0] }}
+                                    </p>
+                                </div>
+
+                                <div>
+                                    <label
+                                        for="email"
+                                        class="block text-sm font-medium text-gray-700 mb-2"
+                                    >
+                                        Email Address *
+                                    </label>
+                                    <input
+                                        id="email"
+                                        v-model="contactStore.form.email"
+                                        type="email"
+                                        required
+                                        :class="[
+                                            'w-full px-4 py-3 border rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors',
+                                            contactStore.errors.email
+                                                ? 'border-red-500'
+                                                : 'border-gray-300',
+                                        ]"
+                                        placeholder="Enter your email address"
+                                    />
+                                    <p
+                                        v-if="contactStore.errors.email"
+                                        class="mt-1 text-sm text-red-600"
+                                    >
+                                        {{ contactStore.errors.email[0] }}
+                                    </p>
+                                </div>
+
+                                <div>
+                                    <label
+                                        for="phone"
+                                        class="block text-sm font-medium text-gray-700 mb-2"
+                                    >
+                                        Phone Number
+                                    </label>
+                                    <input
+                                        id="phone"
+                                        v-model="contactStore.form.phone"
+                                        type="tel"
+                                        :class="[
+                                            'w-full px-4 py-3 border rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors',
+                                            contactStore.errors.phone
+                                                ? 'border-red-500'
+                                                : 'border-gray-300',
+                                        ]"
+                                        placeholder="Enter your phone number"
+                                    />
+                                    <p
+                                        v-if="contactStore.errors.phone"
+                                        class="mt-1 text-sm text-red-600"
+                                    >
+                                        {{ contactStore.errors.phone[0] }}
+                                    </p>
+                                </div>
+
+                                <div>
+                                    <label
+                                        for="subject"
+                                        class="block text-sm font-medium text-gray-700 mb-2"
+                                    >
+                                        Subject *
+                                    </label>
+                                    <input
+                                        id="subject"
+                                        v-model="contactStore.form.subject"
+                                        type="text"
+                                        required
+                                        :class="[
+                                            'w-full px-4 py-3 border rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors',
+                                            contactStore.errors.subject
+                                                ? 'border-red-500'
+                                                : 'border-gray-300',
+                                        ]"
+                                        placeholder="Enter the subject of your message"
+                                    />
+                                    <p
+                                        v-if="contactStore.errors.subject"
+                                        class="mt-1 text-sm text-red-600"
+                                    >
+                                        {{ contactStore.errors.subject[0] }}
+                                    </p>
+                                </div>
+
+                                <div>
+                                    <label
+                                        for="message"
+                                        class="block text-sm font-medium text-gray-700 mb-2"
+                                    >
+                                        Message *
+                                    </label>
+                                    <textarea
+                                        id="message"
+                                        v-model="contactStore.form.message"
+                                        rows="5"
+                                        required
+                                        :class="[
+                                            'w-full px-4 py-3 border rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors',
+                                            contactStore.errors.message
+                                                ? 'border-red-500'
+                                                : 'border-gray-300',
+                                        ]"
+                                        placeholder="How can we help you?"
+                                    ></textarea>
+                                    <p
+                                        v-if="contactStore.errors.message"
+                                        class="mt-1 text-sm text-red-600"
+                                    >
+                                        {{ contactStore.errors.message[0] }}
+                                    </p>
+                                </div>
+
+                                <div class="pt-2">
+                                    <button
+                                        type="submit"
+                                        :disabled="contactStore.isLoading"
+                                        class="w-full flex justify-center items-center px-6 py-3 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
+                                    >
+                                        <svg
+                                            v-if="contactStore.isLoading"
+                                            class="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            fill="none"
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <circle
+                                                class="opacity-25"
+                                                cx="12"
+                                                cy="12"
+                                                r="10"
+                                                stroke="currentColor"
+                                                stroke-width="4"
+                                            ></circle>
+                                            <path
+                                                class="opacity-75"
+                                                fill="currentColor"
+                                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                            ></path>
+                                        </svg>
+                                        {{
+                                            contactStore.isLoading
+                                                ? "Sending..."
+                                                : "Send Message"
+                                        }}
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Contact Information -->
+                        <div>
+                            <h2 class="text-3xl font-bold text-gray-900 mb-6">
+                                Get in Touch
+                            </h2>
+                            <p class="text-lg text-gray-600 mb-8">
+                                We're here to help! Reach out to us through any
+                                of the following channels.
+                            </p>
+
+                            <div class="space-y-6">
+                                <!-- Address -->
+                                <div class="flex items-start">
+                                    <div class="flex-shrink-0">
+                                        <div
+                                            class="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center"
+                                        >
+                                            <svg
+                                                class="w-6 h-6 text-primary-600"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <path
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                    stroke-width="2"
+                                                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                                                />
+                                                <path
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                    stroke-width="2"
+                                                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                                                />
+                                            </svg>
+                                        </div>
+                                    </div>
+                                    <div class="ml-4">
+                                        <h3
+                                            class="text-lg font-semibold text-gray-900 mb-1"
+                                        >
+                                            Our Address
+                                        </h3>
+                                        <p class="text-gray-600">
+                                            {{ siteStore.settings.address }}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <!-- Phone -->
+                                <div class="flex items-start">
+                                    <div class="flex-shrink-0">
+                                        <div
+                                            class="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center"
+                                        >
+                                            <svg
+                                                class="w-6 h-6 text-primary-600"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <path
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                    stroke-width="2"
+                                                    d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                                                />
+                                            </svg>
+                                        </div>
+                                    </div>
+                                    <div class="ml-4">
+                                        <h3
+                                            class="text-lg font-semibold text-gray-900 mb-1"
+                                        >
+                                            Phone Number
+                                        </h3>
+                                        <p class="text-gray-600">
+                                            <a
+                                                :href="`tel:${siteStore.settings.contact_phone}`"
+                                                class="hover:text-primary-600 transition-colors"
+                                            >
+                                                {{
+                                                    siteStore.settings
+                                                        .contact_phone
+                                                }}
+                                            </a>
+                                        </p>
+                                        <p class="text-sm text-gray-500 mt-1">
+                                            Monday - Friday, 9AM - 6PM
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <!-- Email -->
+                                <div class="flex items-start">
+                                    <div class="flex-shrink-0">
+                                        <div
+                                            class="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center"
+                                        >
+                                            <svg
+                                                class="w-6 h-6 text-primary-600"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <path
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                    stroke-width="2"
+                                                    d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                                                />
+                                            </svg>
+                                        </div>
+                                    </div>
+                                    <div class="ml-4">
+                                        <h3
+                                            class="text-lg font-semibold text-gray-900 mb-1"
+                                        >
+                                            Email Address
+                                        </h3>
+                                        <p class="text-gray-600">
+                                            <a
+                                                :href="`mailto:${siteStore.settings.contact_email}`"
+                                                class="hover:text-primary-600 transition-colors"
+                                            >
+                                                {{
+                                                    siteStore.settings
+                                                        .contact_email
+                                                }}
+                                            </a>
+                                        </p>
+                                        <p class="text-sm text-gray-500 mt-1">
+                                            We'll respond within 24 hours
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <!-- Live Chat -->
+                                <div class="flex items-start">
+                                    <div class="flex-shrink-0">
+                                        <div
+                                            class="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center"
+                                        >
+                                            <svg
+                                                class="w-6 h-6 text-primary-600"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <path
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                    stroke-width="2"
+                                                    d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+                                                />
+                                            </svg>
+                                        </div>
+                                    </div>
+                                    <div class="ml-4">
+                                        <h3
+                                            class="text-lg font-semibold text-gray-900 mb-1"
+                                        >
+                                            WhatsApp Chat
+                                        </h3>
+                                        <p class="text-gray-600">
+                                            Chat with us on WhatsApp
+                                        </p>
+                                        <button
+                                            class="text-primary-600 hover:text-primary-700 font-medium mt-1 transition-colors"
+                                        >
+                                            <a
+                                                :href="`https://wa.me/${siteStore.settings.contact_whatsapp}`"
+                                                target="_blank"
+                                            >
+                                                Start Chat →
+                                            </a>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Business Hours -->
+                            <div class="mt-12 p-6 bg-gray-50 rounded-lg">
+                                <h3
+                                    class="text-lg font-semibold text-gray-900 mb-4"
+                                >
+                                    Business Hours
+                                </h3>
+                                <div class="space-y-2 text-sm">
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-900 font-medium">
+                                            {{
+                                                siteStore.settings
+                                                    .business_hours
+                                            }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Social Media -->
+                            <div class="mt-8 p-6 bg-primary-50 rounded-lg">
+                                <h3
+                                    class="text-lg font-semibold text-gray-900 mb-4"
+                                >
+                                    Follow Us
+                                </h3>
+                                <p class="text-gray-600 mb-4">
+                                    Stay connected with us on social media for
+                                    updates, promotions, and more!
+                                </p>
+                                <div class="flex space-x-4">
+                                    <a
+                                        :href="siteStore.settings.facebook_url"
+                                        class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white hover:bg-blue-700 transition-colors"
+                                    >
+                                        <svg
+                                            class="w-5 h-5"
+                                            fill="currentColor"
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <path
+                                                d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"
+                                            />
+                                        </svg>
+                                    </a>
+                                    <a
+                                        :href="siteStore.settings.twitter_url"
+                                        class="w-10 h-10 bg-blue-800 rounded-full flex items-center justify-center text-white hover:bg-blue-900 transition-colors"
+                                    >
+                                        <svg
+                                            class="w-5 h-5"
+                                            fill="currentColor"
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <path
+                                                d="M22.46 6c-.77.35-1.6.58-2.46.69.88-.53 1.56-1.37 1.88-2.38-.83.5-1.75.85-2.72 1.05C18.37 4.5 17.26 4 16 4c-2.35 0-4.27 1.92-4.27 4.29 0 .34.04.67.11.98C8.28 9.09 5.11 7.38 3 4.79c-.37.63-.58 1.37-.58 2.15 0 1.49.75 2.81 1.91 3.56-.71 0-1.37-.2-1.95-.5v.03c0 2.08 1.48 3.82 3.44 4.21a4.22 4.22 0 0 1-1.93.07 4.28 4.28 0 0 0 4 2.98 8.521 8.521 0 0 1-5.33 1.84c-.34 0-.68-.02-1.02-.06C3.44 20.29 5.7 21 8.12 21 16 21 20.33 14.46 20.33 8.79c0-.19 0-.37-.01-.56.84-.6 1.56-1.36 2.14-2.23z"
+                                            />
+                                        </svg>
+                                    </a>
+                                    <a
+                                        :href="siteStore.settings.instagram_url"
+                                        class="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white hover:from-purple-600 hover:to-pink-600 transition-colors"
+                                    >
+                                        <svg
+                                            class="w-5 h-5"
+                                            fill="currentColor"
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <path
+                                                d="M12 2c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.267-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.073 4.948.073 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.438-.645 1.438-1.44s-.643-1.44-1.438-1.44z"
+                                            />
+                                        </svg>
+                                    </a>
+                                    <a
+                                        :href="siteStore.settings.tiktok_url"
+                                        target="_blank"
+                                        class="w-10 h-10 bg-black rounded-full flex items-center justify-center text-white hover:bg-gray-800 transition-colors"
+                                    >
+                                        <svg
+                                            class="w-5 h-5"
+                                            fill="currentColor"
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <path
+                                                d="M12 2c0 .553-.448 1-1 1s-1-.447-1-1 .448-1 1-1 1 .447 1 1zm7.605 3.783c-.357.16-.742.27-1.144.33-.195.029-.375.049-.551.059v4.206c.004.514.042 1.029.111 1.54.057.431.14.859.253 1.28a5.495 5.495 0 01-2.773-1.346 5.562 5.562 0 01-1.964-3.548H12V21h-2V8.421c-1.048-.122-2.062-.497-2.963-1.088a5.53 5.53 0 01-1.813-2.92h2.014c.04.413.145.817.31 1.192a3.504 3.504 0 003.16 2.22c.74 0 1.426-.263 1.964-.698V2h2v3.783c.577.22 1.123.53 1.608.915.432.336.812.733 1.13 1.175l1.006-.578a5.33 5.33 0 00-1.034-1.14 6.025 6.025 0 00-1.293-.824z"
+                                            />
+                                        </svg>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                  </div>
-                  <div class="ml-4">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-1">Phone Number</h3>
-                    <p class="text-gray-600">
-                      <a :href="`tel:${siteStore.settings.contact_phone}`" class="hover:text-primary-600 transition-colors">
-                            {{ siteStore.settings.contact_phone }}
-                        </a>
-                    </p>
-                    <p class="text-sm text-gray-500 mt-1">Monday - Friday, 9AM - 6PM</p>
-                  </div>
                 </div>
+            </div>
+        </section>
 
-                <!-- Email -->
-                <div class="flex items-start">
-                  <div class="flex-shrink-0">
-                    <div class="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center">
-                      <svg class="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                      </svg>
+        <!-- FAQ Section -->
+        <section class="py-16 bg-gray-50">
+            <div class="container">
+                <div class="max-w-4xl mx-auto">
+                    <div class="text-center mb-12">
+                        <h2 class="text-3xl font-bold text-gray-900 mb-4">
+                            Frequently Asked Questions
+                        </h2>
+                        <p class="text-lg text-gray-600">
+                            Quick answers to common questions
+                        </p>
                     </div>
-                  </div>
-                  <div class="ml-4">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-1">Email Address</h3>
-                    <p class="text-gray-600">
-                        <a :href="`mailto:${siteStore.settings.contact_email}`" class="hover:text-primary-600 transition-colors">
-                        {{ siteStore.settings.contact_email }}
-                        </a>
 
-                    </p>
-                    <p class="text-sm text-gray-500 mt-1">We'll respond within 24 hours</p>
-                  </div>
-                </div>
+                    <div class="space-y-6">
+                        <div
+                            class="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
+                        >
+                            <h3
+                                class="text-lg font-semibold text-gray-900 mb-2"
+                            >
+                                How long does shipping take?
+                            </h3>
+                            <p class="text-gray-600">
+                                Standard shipping typically takes 3-5 business
+                                days, while express shipping takes 1-2 business
+                                days. International shipping may take 7-14
+                                business days depending on the destination.
+                            </p>
+                        </div>
 
-                <!-- Live Chat -->
-                <div class="flex items-start">
-                  <div class="flex-shrink-0">
-                    <div class="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center">
-                      <svg class="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                      </svg>
+                        <div
+                            class="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
+                        >
+                            <h3
+                                class="text-lg font-semibold text-gray-900 mb-2"
+                            >
+                                What is your return policy?
+                            </h3>
+                            <p class="text-gray-600">
+                                We offer a 30-day return policy for most items.
+                                Products must be in original condition with tags
+                                attached. Some restrictions may apply to certain
+                                categories.
+                            </p>
+                        </div>
+
+                        <div
+                            class="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
+                        >
+                            <h3
+                                class="text-lg font-semibold text-gray-900 mb-2"
+                            >
+                                Do you offer international shipping?
+                            </h3>
+                            <p class="text-gray-600">
+                                Yes, we ship to most countries worldwide.
+                                Shipping costs and delivery times vary by
+                                destination. International customers are
+                                responsible for any customs duties or taxes.
+                            </p>
+                        </div>
+
+                        <div
+                            class="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
+                        >
+                            <h3
+                                class="text-lg font-semibold text-gray-900 mb-2"
+                            >
+                                How can I track my order?
+                            </h3>
+                            <p class="text-gray-600">
+                                Once your order ships, you'll receive a tracking
+                                number via email. You can also track your order
+                                by logging into your account and viewing your
+                                order history.
+                            </p>
+                        </div>
                     </div>
-                  </div>
-                  <div class="ml-4">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-1">WhatsApp Chat</h3>
-                    <p class="text-gray-600">Chat with us on WhatsApp</p>
-                    <button class="text-primary-600 hover:text-primary-700 font-medium mt-1 transition-colors">
-                      <a :href="`https://wa.me/${siteStore.settings.contact_whatsapp}`" target="_blank">
-                        Start Chat →
-                      </a>
-                    </button>
-                  </div>
                 </div>
-              </div>
-
-              <!-- Business Hours -->
-              <div class="mt-12 p-6 bg-gray-50 rounded-lg">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">Business Hours</h3>
-                <div class="space-y-2 text-sm">
-                    <div class="flex justify-between">
-                    <span class="text-gray-900 font-medium">
-                        {{ siteStore.settings.business_hours }}
-                    </span>
-                    </div>
-                </div>
-              </div>
-
-              <!-- Social Media -->
-              <div class="mt-8 p-6 bg-primary-50 rounded-lg">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">Follow Us</h3>
-                <p class="text-gray-600 mb-4">Stay connected with us on social media for updates, promotions, and more!</p>
-                <div class="flex space-x-4">
-                  <a :href="siteStore.settings.facebook_url" class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white hover:bg-blue-700 transition-colors">
-                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/>
-                    </svg>
-                  </a>
-                  <a :href="siteStore.settings.twitter_url" class="w-10 h-10 bg-blue-800 rounded-full flex items-center justify-center text-white hover:bg-blue-900 transition-colors">
-                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M22.46 6c-.77.35-1.6.58-2.46.69.88-.53 1.56-1.37 1.88-2.38-.83.5-1.75.85-2.72 1.05C18.37 4.5 17.26 4 16 4c-2.35 0-4.27 1.92-4.27 4.29 0 .34.04.67.11.98C8.28 9.09 5.11 7.38 3 4.79c-.37.63-.58 1.37-.58 2.15 0 1.49.75 2.81 1.91 3.56-.71 0-1.37-.2-1.95-.5v.03c0 2.08 1.48 3.82 3.44 4.21a4.22 4.22 0 0 1-1.93.07 4.28 4.28 0 0 0 4 2.98 8.521 8.521 0 0 1-5.33 1.84c-.34 0-.68-.02-1.02-.06C3.44 20.29 5.7 21 8.12 21 16 21 20.33 14.46 20.33 8.79c0-.19 0-.37-.01-.56.84-.6 1.56-1.36 2.14-2.23z"/>
-                    </svg>
-                  </a>
-                  <a :href="siteStore.settings.instagram_url" class="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white hover:from-purple-600 hover:to-pink-600 transition-colors">
-                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
-                    </svg>
-                  </a>
-                    <a :href="siteStore.settings.tiktok_url" target="_blank" class="w-10 h-10 bg-black rounded-full flex items-center justify-center text-white hover:bg-gray-800 transition-colors">
-                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M12 2c0 .553-.448 1-1 1s-1-.447-1-1 .448-1 1-1 1 .447 1 1zm7.605 3.783c-.357.16-.742.27-1.144.33-.195.029-.375.049-.551.059v4.206c.004.514.042 1.029.111 1.54.057.431.14.859.253 1.28a5.495 5.495 0 01-2.773-1.346 5.562 5.562 0 01-1.964-3.548H12V21h-2V8.421c-1.048-.122-2.062-.497-2.963-1.088a5.53 5.53 0 01-1.813-2.92h2.014c.04.413.145.817.31 1.192a3.504 3.504 0 003.16 2.22c.74 0 1.426-.263 1.964-.698V2h2v3.783c.577.22 1.123.53 1.608.915.432.336.812.733 1.13 1.175l1.006-.578a5.33 5.33 0 00-1.034-1.14 6.025 6.025 0 00-1.293-.824z"/>
-                    </svg>
-                    </a>
-                </div>
-              </div>
             </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- FAQ Section -->
-    <section class="py-16 bg-gray-50">
-      <div class="container">
-        <div class="max-w-4xl mx-auto">
-          <div class="text-center mb-12">
-            <h2 class="text-3xl font-bold text-gray-900 mb-4">Frequently Asked Questions</h2>
-            <p class="text-lg text-gray-600">
-              Quick answers to common questions
-            </p>
-          </div>
-
-          <div class="space-y-6">
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h3 class="text-lg font-semibold text-gray-900 mb-2">How long does shipping take?</h3>
-              <p class="text-gray-600">
-                Standard shipping typically takes 3-5 business days, while express shipping takes 1-2 business days. International shipping may take 7-14 business days depending on the destination.
-              </p>
-            </div>
-
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h3 class="text-lg font-semibold text-gray-900 mb-2">What is your return policy?</h3>
-              <p class="text-gray-600">
-                We offer a 30-day return policy for most items. Products must be in original condition with tags attached. Some restrictions may apply to certain categories.
-              </p>
-            </div>
-
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h3 class="text-lg font-semibold text-gray-900 mb-2">Do you offer international shipping?</h3>
-              <p class="text-gray-600">
-                Yes, we ship to most countries worldwide. Shipping costs and delivery times vary by destination. International customers are responsible for any customs duties or taxes.
-              </p>
-            </div>
-
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h3 class="text-lg font-semibold text-gray-900 mb-2">How can I track my order?</h3>
-              <p class="text-gray-600">
-                Once your order ships, you'll receive a tracking number via email. You can also track your order by logging into your account and viewing your order history.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  </div>
+        </section>
+    </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import { useToast } from 'vue-toastification'
-import Breadcrumb from '../components/common/Breadcrumb.vue'
-import { useSiteStore } from "../stores/site";
+import { ref, onMounted, computed } from "vue";
+import { useToast } from "vue-toastification";
+import { useContactStore } from "@/stores/contact";
+import { useSiteStore } from "@/stores/site";
+import Breadcrumb from "../components/common/Breadcrumb.vue";
+import { useAuthStore } from "@/stores/auth";
 
+const authStore = useAuthStore();
+const contactStore = useContactStore();
 const siteStore = useSiteStore();
-const toast = useToast()
+const toast = useToast();
 
-const form = ref({
-  firstName: '',
-  lastName: '',
-  email: '',
-  phone: '',
-  subject: '',
-  message: ''
-})
+const breadcrumbs = ref([{ name: "Contact Us" }]);
 
-const isSubmitting = ref(false)
-
-// Breadcrumb navigation
-const breadcrumbs = ref([
-  { name: 'Contact Us' }
-])
-
-// Set page title and meta tags for SEO
 onMounted(() => {
-  document.title = 'Contact Us - E-Commerce Store | Get in Touch'
+    document.title = "Contact Us - E-Commerce Store | Get in Touch";
 
-  // Update meta description
-  const metaDescription = document.querySelector('meta[name="description"]')
-  if (metaDescription) {
-    metaDescription.setAttribute('content', 'Contact our e-commerce store for support, questions, or feedback. Find our contact information, business hours, and send us a message through our contact form.')
-  } else {
-    const meta = document.createElement('meta')
-    meta.name = 'description'
-    meta.content = 'Contact our e-commerce store for support, questions, or feedback. Find our contact information, business hours, and send us a message through our contact form.'
-    document.head.appendChild(meta)
-  }
+    const metaDescription = document.querySelector('meta[name="description"]');
+    if (metaDescription) {
+        metaDescription.setAttribute(
+            "content",
+            "Contact our e-commerce store for support, questions, or feedback. Find our contact information, business hours, and send us a message through our contact form.",
+        );
+    } else {
+        const meta = document.createElement("meta");
+        meta.name = "description";
+        meta.content =
+            "Contact our e-commerce store for support, questions, or feedback. Find our contact information, business hours, and send us a message through our contact form.";
+        document.head.appendChild(meta);
+    }
 
-  // Add keywords meta tag
-  const metaKeywords = document.querySelector('meta[name="keywords"]')
-  if (metaKeywords) {
-    metaKeywords.setAttribute('content', 'contact us, customer support, help center, contact form, business hours, phone number, email, live chat, FAQ')
-  } else {
-    const meta = document.createElement('meta')
-    meta.name = 'keywords'
-    meta.content = 'contact us, customer support, help center, contact form, business hours, phone number, email, live chat, FAQ'
-    document.head.appendChild(meta)
-  }
-})
+    const metaKeywords = document.querySelector('meta[name="keywords"]');
+    if (metaKeywords) {
+        metaKeywords.setAttribute(
+            "content",
+            "contact us, customer support, help center, contact form, business hours, phone number, email, live chat, FAQ",
+        );
+    } else {
+        const meta = document.createElement("meta");
+        meta.name = "keywords";
+        meta.content =
+            "contact us, customer support, help center, contact form, business hours, phone number, email, live chat, FAQ";
+        document.head.appendChild(meta);
+    }
+
+    if (authStore.isAuthenticated && authStore.user) {
+        contactStore.form.name = authStore.user.name || "";
+        contactStore.form.email = authStore.user.email || "";
+        contactStore.form.phone = authStore.user.phone || "";
+    }
+});
 
 const submitForm = async () => {
-  if (isSubmitting.value) return
-
-  isSubmitting.value = true
-
-  try {
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1500))
-
-    toast.success('Message sent successfully! We\'ll get back to you soon.')
-
-    // Reset form
-    form.value = {
-      firstName: '',
-      lastName: '',
-      email: '',
-      phone: '',
-      subject: '',
-      message: ''
+    try {
+        await contactStore.submitForm();
+    } catch (error) {
+        console.error("Form submission error:", error);
     }
-  } catch (error) {
-    toast.error('Failed to send message. Please try again.')
-  } finally {
-    isSubmitting.value = false
-  }
-}
+};
 </script>

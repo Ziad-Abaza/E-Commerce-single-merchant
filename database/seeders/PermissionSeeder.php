@@ -21,6 +21,7 @@ class PermissionSeeder extends Seeder
             'manage_wishlist',
             'manage_roles',
             'manage_permissions',
+            'manage_contact_messages',
             'view_dashboard',
         ];
 

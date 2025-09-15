@@ -15,6 +15,7 @@ import Users from "../pages/dashboard/Users.vue";
 import Roles from "../pages/dashboard/Roles.vue";
 import Reviews from "../pages/dashboard/Reviews.vue";
 import Settings from "../pages/dashboard/Settings.vue";
+import Contact from "../pages/dashboard/ContactMessages.vue";
 
 const routes = [
     {
@@ -120,6 +121,23 @@ const routes = [
                 },
             },
             {
+                path: "contact-messages",
+                name: "dashboard.contact-messages",
+                component: Contact,
+                meta: {
+                    title: "Contact Messages",
+                    requiresAuth: true,
+                    requiresPermission: "manage_contact_messages",
+                    breadcrumb: [
+                        { name: "Dashboard", path: "/dashboard" },
+                        {
+                            name: "Contact Messages",
+                            path: "/dashboard/contact-messages",
+                        },
+                    ],
+                },
+            },
+            {
                 path: "reviews",
                 name: "dashboard.reviews",
                 component: Reviews,
@@ -146,7 +164,7 @@ const routes = [
                         { name: "Settings", path: "/dashboard/settings" },
                     ],
                 },
-            }
+            },
         ],
     },
 ];

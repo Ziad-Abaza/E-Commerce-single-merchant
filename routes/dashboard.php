@@ -151,6 +151,23 @@ Route::middleware('auth:sanctum')->prefix('dashboard')->name('dashboard.')->grou
             Route::delete('/{id}', 'destroy')->name('destroy');
         });
 
+    // Contact Messages Management
+    Route::middleware(['can:manage_contact_messages'])
+        ->prefix('contact-messages')
+        ->name('contact-messages.')
+        ->controller(\App\Http\Controllers\Dashboard\ContactMessageController::class)
+        ->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('/trashed', 'trashed')->name('trashed');
+            Route::get('/{id}', 'show')->name('show');
+            Route::post('/', 'store')->name('store');
+            Route::post('/{id}', 'update')->name('update');
+            Route::delete('/{id}', 'destroy')->name('destroy');
+            Route::post('/{id}/restore', 'restore')->name('restore');
+            Route::delete('/{id}/force', 'forceDelete')->name('forceDelete');
+            Route::patch('/{id}/status', 'updateStatus')->name('updateStatus');
+        });
+
     // Settings Management
     Route::middleware(['can:manage_settings'])
         ->prefix('settings')

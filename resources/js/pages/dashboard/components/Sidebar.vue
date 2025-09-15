@@ -288,6 +288,12 @@ const menuSections = [
                 routeName: "dashboard.reviews",
                 icon: DocumentChartBarIcon,
             },
+            {
+                name: "Contact Messages",
+                to: "/dashboard/contact-messages",
+                routeName: "dashboard.contact-messages",
+                icon: ChartBarIcon,
+            },
         ],
     },
     {
