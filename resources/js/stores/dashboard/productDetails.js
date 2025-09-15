@@ -113,15 +113,40 @@ export const useProductDetailsStore = defineStore("dashboardProductDetails", {
             this.error = null;
 
             try {
-                const payload = {
-                    ...detailData,
-                    product_id: productId, // إضافة product_id هنا
-                };
+                const formData = new FormData();
+                if (detailData.is_active !== undefined) {
+                    detailData.is_active =
+                        detailData.is_active === true ||
+                        detailData.is_active === "true"
+                            ? 1
+                            : 0;
+                }
+                
+                for (let key in detailData) {
+                    if (
+                        key === "images" &&
+                        detailData[key] &&
+                        detailData[key].length
+                    ) {
+                        detailData[key].forEach((file, index) => {
+                            formData.append(`images[${index}]`, file);
+                        });
+                    } else if (key !== "images") {
+                        formData.append(key, detailData[key]);
+                    }
+                }
+                formData.append("product_id", productId);
 
                 const response = await axios.post(
                     `/dashboard/products/${productId}/details`,
-                    payload,
+                    formData,
+                    {
+                        headers: {
+                            "Content-Type": "multipart/form-data",
+                        },
+                    },
                 );
+
                 this.details.unshift(response.data.data);
                 return response.data.data;
             } catch (err) {
@@ -143,12 +168,40 @@ export const useProductDetailsStore = defineStore("dashboardProductDetails", {
             this.error = null;
 
             try {
-                console.log("Product ID:", productId);
+                const formData = new FormData();
+                if (detailData.is_active !== undefined) {
+                    detailData.is_active =
+                        detailData.is_active === true ||
+                        detailData.is_active === "true"
+                            ? 1
+                            : 0;
+                }
+                for (let key in detailData) {
+                    if (
+                        key === "images" &&
+                        detailData[key] &&
+                        detailData[key].length
+                    ) {
+                        detailData[key].forEach((file, index) => {
+                            formData.append(`images[${index}]`, file);
+                        });
+                    } else if (key !== "images") {
+                        formData.append(key, detailData[key]);
+                    }
+                }
+
+                formData.append("_method", "POST");
 
                 const response = await axios.post(
                     `/dashboard/products/${productId}/details/${detailId}`,
-                    detailData,
+                    formData,
+                    {
+                        headers: {
+                            "Content-Type": "multipart/form-data",
+                        },
+                    },
                 );
+
                 const index = this.details.findIndex((d) => d.id === detailId);
                 if (index !== -1) {
                     this.details[index] = response.data.data;
@@ -168,7 +221,6 @@ export const useProductDetailsStore = defineStore("dashboardProductDetails", {
                 this.loading = false;
             }
         },
-
         async deleteProductDetail(productId, detailId, confirm = false) {
             this.loading = true;
             this.error = null;
@@ -260,7 +312,7 @@ export const useProductDetailsStore = defineStore("dashboardProductDetails", {
             }
         },
 
-         async forceDeleteDetail(productId, detailId) {
+        async forceDeleteDetail(productId, detailId) {
             this.loading = true;
             this.error = null;
 
@@ -269,20 +321,23 @@ export const useProductDetailsStore = defineStore("dashboardProductDetails", {
                     `/dashboard/products/${productId}/details/${detailId}/force-delete`,
                 );
                 this.trashedDetails = this.trashedDetails.filter(
-                    (d) => d.id !== detailId
+                    (d) => d.id !== detailId,
                 );
                 return true;
             } catch (err) {
                 this.error =
                     err.response?.data?.message ||
                     "Failed to force delete detail";
-                console.error("[ProductDetails Store] Error force deleting detail:", err);
+                console.error(
+                    "[ProductDetails Store] Error force deleting detail:",
+                    err,
+                );
                 throw err;
             } finally {
                 this.loading = false;
             }
         },
-        
+
         setFilter(key, value) {
             this.filters[key] = value;
             this.pagination.current_page = 1;

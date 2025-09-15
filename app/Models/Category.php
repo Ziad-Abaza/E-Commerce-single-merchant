@@ -44,12 +44,12 @@ class Category extends Model implements HasMedia
     {
         $this->addMediaCollection('thumbnail')
             ->useDisk('public')
-            ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/webp', 'image/gif'])
+            ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/jpg'])
             ->withResponsiveImages();
 
         $this->addMediaCollection('icons')
             ->useDisk('public')
-            ->acceptsMimeTypes(['image/svg+xml', 'image/png', 'image/webp'])
+            ->acceptsMimeTypes(['image/svg+xml', 'image/png', 'image/webp', 'image/jpeg', 'image/jpg'])
             ->singleFile();
     }
 

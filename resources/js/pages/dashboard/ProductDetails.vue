@@ -65,7 +65,9 @@
                                 fetchProductDetails();
                             "
                             :class="
-                                viewMode === 'active' ? 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300' : 'bg-blue-600 text-white'
+                                viewMode === 'active'
+                                    ? 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
+                                    : 'bg-blue-600 text-white'
                             "
                             class="px-3 py-2 rounded-lg text-sm bg-green-500 text-white hover:bg-green-600 transition-colors duration-200"
                         >
@@ -77,7 +79,9 @@
                                 fetchTrashedDetails();
                             "
                             :class="
-                                viewMode === 'trash' ? 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300' : 'bg-blue-600 text-white'
+                                viewMode === 'trash'
+                                    ? 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
+                                    : 'bg-blue-600 text-white'
                             "
                             class="px-3 py-2 rounded-lg text-sm bg-red-500 text-white hover:bg-red-600 transition-colors duration-200"
                         >
@@ -295,10 +299,9 @@
             <!-- Details Table -->
             <div v-else>
                 <Table
-    :headers="tableHeaders"
-    :rows="viewMode === 'active' ? tableRows : trashedRows"
-/>
-
+                    :headers="tableHeaders"
+                    :rows="viewMode === 'active' ? tableRows : trashedRows"
+                />
             </div>
         </div>
 
@@ -439,7 +442,6 @@ const detailToDelete = ref(null);
 const selectedDetail = ref(null);
 const formFields = ref([]);
 
-
 // Get product ID from route
 const productId = computed(() => route.params.id);
 
@@ -540,7 +542,6 @@ const trashedRows = computed(() => {
         ],
     }));
 });
-
 
 // Event handlers
 const handleSearch = (searchTerm) => {
@@ -746,6 +747,16 @@ const initializeFormFields = (detail) => {
             placeholder: "Enter barcode",
         },
         {
+            id: "images",
+            label: "Product Images",
+            type: "files",
+            value: detail?.images || [],
+            required: false,
+            acceptedTypes:
+                "image/jpeg,image/png,image/jpg,image/webp,image/gif",
+            placeholder: "Upload product images",
+        },
+        {
             id: "is_active",
             label: "Active Status",
             type: "checkbox",
@@ -843,7 +854,11 @@ const handleForceDeleteConfirm = async () => {
 
 const fetchTrashedDetails = async (page = 1, perPage = 10) => {
     if (!productId.value) return;
-    await productDetailsStore.fetchTrashedDetails(productId.value, page, perPage);
+    await productDetailsStore.fetchTrashedDetails(
+        productId.value,
+        page,
+        perPage,
+    );
 };
 
 const handleRestore = async (detail) => {
@@ -853,7 +868,6 @@ const handleRestore = async (detail) => {
 const handleForceDelete = async (detail) => {
     await productDetailsStore.forceDeleteDetail(productId.value, detail.id);
 };
-
 
 const handleImagePreview = (imageUrl) => {
     window.open(imageUrl, "_blank");

@@ -82,10 +82,48 @@ export const useCategoriesStore = defineStore("dashboardCategories", {
             this.loading = true;
             this.error = null;
             try {
+                const formData = new FormData();
+
+                if (categoryData.is_active !== undefined) {
+                    categoryData.is_active =
+                        categoryData.is_active === true ||
+                        categoryData.is_active === "true"
+                            ? 1
+                            : 0;
+                }
+
+                if (categoryData.parent_id !== undefined) {
+                    categoryData.parent_id = categoryData.parent_id
+                        ? parseInt(categoryData.parent_id)
+                        : null;
+                }
+
+                for (let key in categoryData) {
+                    if (
+                        key === "thumbnail" &&
+                        categoryData[key] instanceof File
+                    ) {
+                        formData.append("thumbnail", categoryData[key]);
+                    } else if (
+                        key === "icon" &&
+                        categoryData[key] instanceof File
+                    ) {
+                        formData.append("icon", categoryData[key]);
+                    } else if (key !== "thumbnail" && key !== "icon") {
+                        formData.append(key, categoryData[key]);
+                    }
+                }
+
                 const response = await axios.post(
                     "/dashboard/categories",
-                    categoryData,
+                    formData,
+                    {
+                        headers: {
+                            "Content-Type": "multipart/form-data",
+                        },
+                    },
                 );
+
                 this.categories.unshift(response.data.data);
                 return response.data.data;
             } catch (err) {
@@ -101,10 +139,50 @@ export const useCategoriesStore = defineStore("dashboardCategories", {
             this.loading = true;
             this.error = null;
             try {
+                const formData = new FormData();
+
+                if (categoryData.is_active !== undefined) {
+                    categoryData.is_active =
+                        categoryData.is_active === true ||
+                        categoryData.is_active === "true"
+                            ? 1
+                            : 0;
+                }
+
+                if (categoryData.parent_id !== undefined) {
+                    categoryData.parent_id = categoryData.parent_id
+                        ? parseInt(categoryData.parent_id)
+                        : null;
+                }
+
+                for (let key in categoryData) {
+                    if (
+                        key === "thumbnail" &&
+                        categoryData[key] instanceof File
+                    ) {
+                        formData.append("thumbnail", categoryData[key]);
+                    } else if (
+                        key === "icon" &&
+                        categoryData[key] instanceof File
+                    ) {
+                        formData.append("icon", categoryData[key]);
+                    } else if (key !== "thumbnail" && key !== "icon") {
+                        formData.append(key, categoryData[key]);
+                    }
+                }
+
+                formData.append("_method", "POST");
+
                 const response = await axios.post(
                     `/dashboard/categories/${id}`,
-                    categoryData,
+                    formData,
+                    {
+                        headers: {
+                            "Content-Type": "multipart/form-data",
+                        },
+                    },
                 );
+
                 const index = this.categories.findIndex((c) => c.id === id);
                 if (index !== -1) this.categories[index] = response.data.data;
                 this.currentCategory = response.data.data;

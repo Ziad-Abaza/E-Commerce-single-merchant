@@ -48,6 +48,16 @@
                 :class="inputClass(field)"
             />
 
+            <!-- Password Input -->
+            <input
+                v-else-if="field.type === 'password'"
+                v-model="field.value"
+                :id="field.id"
+                type="password"
+                :placeholder="field.placeholder"
+                :class="inputClass(field)"
+            />
+
             <!-- Select Input -->
             <Select
                 v-else-if="field.type === 'select'"
@@ -255,7 +265,7 @@ watch(
             fields.push(JSON.parse(JSON.stringify(field)));
         });
     },
-    { immediate: true, deep: true }
+    { immediate: true, deep: true },
 );
 
 // Function to add a new entity
@@ -277,8 +287,8 @@ const addEntity = (event, field) => {
                     attr.default !== undefined
                         ? attr.default
                         : attr.type === "select" && attr.options.length
-                        ? attr.options[0].value
-                        : "";
+                          ? attr.options[0].value
+                          : "";
             });
         }
 
@@ -298,7 +308,7 @@ watch(
             }
         });
     },
-    { deep: true }
+    { deep: true },
 );
 
 const inputClass = (field) =>

@@ -61,7 +61,7 @@ export const useUsersStore = defineStore("dashboardUsers", {
                 this.pagination = response.data.pagination || this.pagination;
                 this.statistics = response.data.statistics || this.statistics;
 
-                this.roles = response.data.roles || []; 
+                this.roles = response.data.roles || [];
             } catch (err) {
                 this.error =
                     err.response?.data?.message || "Failed to load users";
@@ -89,12 +89,38 @@ export const useUsersStore = defineStore("dashboardUsers", {
             }
         },
 
-        // Create a new user
         async createUser(userData) {
             this.loading = true;
             this.error = null;
             try {
-                const response = await axios.post("/dashboard/users", userData);
+                const formData = new FormData();
+
+                if (userData.is_active !== undefined) {
+                    userData.is_active =
+                        userData.is_active === true ||
+                        userData.is_active === "true"
+                            ? 1
+                            : 0;
+                }
+
+                for (let key in userData) {
+                    if (key === "avatar" && userData[key] instanceof File) {
+                        formData.append("avatar", userData[key]);
+                    } else if (key !== "avatar") {
+                        formData.append(key, userData[key]);
+                    }
+                }
+
+                const response = await axios.post(
+                    "/dashboard/users",
+                    formData,
+                    {
+                        headers: {
+                            "Content-Type": "multipart/form-data",
+                        },
+                    },
+                );
+
                 this.users.unshift(response.data.data);
                 return response.data.data;
             } catch (err) {
@@ -106,15 +132,40 @@ export const useUsersStore = defineStore("dashboardUsers", {
             }
         },
 
-        // Update user
         async updateUser(id, userData) {
             this.loading = true;
             this.error = null;
             try {
+                const formData = new FormData();
+
+                if (userData.is_active !== undefined) {
+                    userData.is_active =
+                        userData.is_active === true ||
+                        userData.is_active === "true"
+                            ? 1
+                            : 0;
+                }
+
+                for (let key in userData) {
+                        if (key === "avatar" && userData[key] instanceof File) {
+                        formData.append("avatar", userData[key]);
+                    } else if (key !== "avatar") {
+                        formData.append(key, userData[key]);
+                    }
+                }
+
+                formData.append("_method", "POST");
+
                 const response = await axios.post(
                     `/dashboard/users/${id}`,
-                    userData,
+                    formData,
+                    {
+                        headers: {
+                            "Content-Type": "multipart/form-data",
+                        },
+                    },
                 );
+
                 const index = this.users.findIndex((u) => u.id === id);
                 if (index !== -1) this.users[index] = response.data.data;
                 this.currentUser = response.data.data;

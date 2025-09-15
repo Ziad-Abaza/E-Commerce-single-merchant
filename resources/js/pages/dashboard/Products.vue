@@ -612,11 +612,11 @@ const tableRows = computed(() => {
         image: {
             type: "image",
             src:
-                product.image_url ||
+                product.main_image_url ||
                 product.images?.[0]?.url ||
                 "/images/placeholder-product.png",
             full:
-                product.image_url ||
+                product.main_image_url ||
                 product.images?.[0]?.url ||
                 "/images/placeholder-product.png",
         },
