@@ -24,7 +24,7 @@
       <div v-if="product.discount_percentage > 0" class="absolute top-2 left-2 bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded">
         -{{ product.discount_percentage }}%
       </div>
-      
+
       <!-- Stock Status -->
       <div v-if="!product.in_stock" class="absolute top-2 left-2 bg-gray-800 text-white text-xs font-semibold px-2 py-1 rounded">
         Out of Stock
@@ -47,7 +47,9 @@
 
       <!-- Description -->
       <p v-if="product.description" class="text-xs md:text-sm text-gray-600 mb-2 line-clamp-2">
+        <router-link :to="`/products/${product.id}`" class="hover:text-primary-600 transition-colors">
         {{ product.description }}
+        </router-link>
       </p>
 
       <!-- Rating -->
@@ -132,7 +134,7 @@ const addToCart = async () => {
     toast.warning('This product is currently out of stock')
     return
   }
-  
+
   try {
      await cartStore.addToCart(props.product.id, 1)
   } catch (error) {

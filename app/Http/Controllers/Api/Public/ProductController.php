@@ -87,29 +87,37 @@ class ProductController extends Controller
                 break;
         }
 
-        // Apply price filters (works for all types)
-        if ($request->min_price) {
-            $query->where('price', '>=', $request->min_price);
-        }
-        if ($request->max_price) {
-            $query->where('price', '<=', $request->max_price);
-        }
+        // Apply price filters using ProductDetail
+        $query->whereHas('details', function ($q) use ($request) {
+            if ($request->min_price) {
+                $q->whereRaw('(price - discount) >= ?', [$request->min_price]);
+            }
+            if ($request->max_price) {
+                $q->whereRaw('(price - discount) <= ?', [$request->max_price]);
+            }
+        });
 
         // Apply sorting
         switch ($request->sort ?? 'created_at') {
             case 'name':
                 $query->orderBy('name');
                 break;
+
             case 'price_asc':
-                $query->orderBy('price');
+                $query->withMin('details', 'price')
+                    ->orderBy('details_min_price', 'asc');
                 break;
+
             case 'price_desc':
-                $query->orderBy('price', 'desc');
+                $query->withMin('details', 'price')
+                    ->orderBy('details_min_price', 'desc');
                 break;
+
             case 'rating':
                 $query->withAvg('reviews', 'rating')
                     ->orderBy('reviews_avg_rating', 'desc');
                 break;
+
             case 'created_at':
             default:
                 $query->latest();
@@ -180,7 +188,7 @@ class ProductController extends Controller
             ->filter(fn($word) => strlen($word) >= 3)
             ->map(fn($word) => "name LIKE '%" . addslashes($word) . "%'")
             ->implode(' OR ');
-            
+
         // Always fetch related products (by shared categories)
         $relatedProducts = Product::with(['categories', 'details'])
             ->where('is_active', true)
