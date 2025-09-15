@@ -7,6 +7,8 @@ export const useAuthStore = defineStore("auth", {
         token: localStorage.getItem("auth_token"),
         permissions: JSON.parse(localStorage.getItem("auth_permissions")) || [],
         roles: JSON.parse(localStorage.getItem("auth_roles")) || [],
+        is_verified:
+            JSON.parse(localStorage.getItem("auth_is_verified")) || false,
         loading: false,
         error: null,
     }),
@@ -16,10 +18,18 @@ export const useAuthStore = defineStore("auth", {
         userRole: (state) => state.user?.role || null,
         isAdmin: (state) => state.user?.role === "admin",
         isCustomer: (state) => state.user?.role === "customer",
-        hasPermission: (state) => (permission) => state.permissions.includes(permission),
+        isVerified: (state) => state.is_verified,
+        hasPermission: (state) => (permission) =>
+            state.permissions.includes(permission),
         hasRole: (state) => (role) => state.roles.includes(role),
-        hasAnyPermission: (state) => (permissions) => permissions.some(permission => state.permissions.includes(permission)),
-        hasAllPermissions: (state) => (permissions) => permissions.every(permission => state.permissions.includes(permission)),
+        hasAnyPermission: (state) => (permissions) =>
+            permissions.some((permission) =>
+                state.permissions.includes(permission),
+            ),
+        hasAllPermissions: (state) => (permissions) =>
+            permissions.every((permission) =>
+                state.permissions.includes(permission),
+            ),
     },
 
     actions: {
@@ -29,7 +39,6 @@ export const useAuthStore = defineStore("auth", {
             try {
                 const response = await axios.post("/login", credentials);
 
-                // اتأكد من وجود التوكن
                 const token = response.data?.token || null;
                 const user = response.data?.data || null;
 
@@ -40,16 +49,23 @@ export const useAuthStore = defineStore("auth", {
                     throw new Error("User data not found in response");
                 }
 
-                // خزّن البيانات
                 this.token = token;
                 this.user = user;
                 this.permissions = user.permissions || [];
                 this.roles = user.roles || [];
+                this.is_verified = user.is_verified || false;
 
                 localStorage.setItem("auth_token", token);
                 localStorage.setItem("auth_user", JSON.stringify(user));
-                localStorage.setItem("auth_permissions", JSON.stringify(this.permissions));
+                localStorage.setItem(
+                    "auth_permissions",
+                    JSON.stringify(this.permissions),
+                );
                 localStorage.setItem("auth_roles", JSON.stringify(this.roles));
+                localStorage.setItem(
+                    "auth_is_verified",
+                    JSON.stringify(this.is_verified),
+                );
 
                 return { success: true, data: response.data };
             } catch (error) {
@@ -73,11 +89,19 @@ export const useAuthStore = defineStore("auth", {
                 this.token = response.data.token;
                 this.permissions = this.user.permissions || [];
                 this.roles = this.user.roles || [];
+                this.is_verified = this.user.is_verified || false;
 
                 localStorage.setItem("auth_token", this.token);
                 localStorage.setItem("auth_user", JSON.stringify(this.user));
-                localStorage.setItem("auth_permissions", JSON.stringify(this.permissions));
+                localStorage.setItem(
+                    "auth_permissions",
+                    JSON.stringify(this.permissions),
+                );
                 localStorage.setItem("auth_roles", JSON.stringify(this.roles));
+                localStorage.setItem(
+                    "auth_is_verified",
+                    JSON.stringify(this.is_verified),
+                );
 
                 return { success: true, data: response.data };
             } catch (error) {
@@ -92,23 +116,30 @@ export const useAuthStore = defineStore("auth", {
         async logout() {
             try {
                 if (this.token) {
-                    const response = await axios.post("/logout");
+                    const response = await axios.post(
+                        "/logout",
+                        {},
+                        { withCredentials: true },
+                    );
 
                     if (response.data?.success) {
                         this.user = null;
                         this.token = null;
                         this.permissions = [];
                         this.roles = [];
+                        this.is_verified = false;
 
                         localStorage.removeItem("auth_token");
                         localStorage.removeItem("auth_user");
                         localStorage.removeItem("auth_permissions");
                         localStorage.removeItem("auth_roles");
+                        localStorage.removeItem("auth_is_verified");
 
                         document.cookie =
                             "XSRF-TOKEN=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
                         document.cookie =
                             "laravel_session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+                        document.cookie = "remember_web_5=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
                     }
                 }
             } catch (error) {
@@ -118,17 +149,18 @@ export const useAuthStore = defineStore("auth", {
                 this.token = null;
                 this.permissions = [];
                 this.roles = [];
+                this.is_verified = false;
                 localStorage.removeItem("auth_token");
                 localStorage.removeItem("auth_user");
                 localStorage.removeItem("auth_permissions");
                 localStorage.removeItem("auth_roles");
+                localStorage.removeItem("auth_is_verified");
             }
         },
 
         async checkAuth() {
             if (!this.token) return false;
 
-            // لو عندك user مخزن خلاص
             if (this.user) return true;
 
             this.loading = true;
@@ -137,9 +169,18 @@ export const useAuthStore = defineStore("auth", {
                 this.user = response.data.data;
                 this.permissions = this.user.permissions || [];
                 this.roles = this.user.roles || [];
+                this.is_verified = this.user.is_verified || false;
+
                 localStorage.setItem("auth_user", JSON.stringify(this.user));
-                localStorage.setItem("auth_permissions", JSON.stringify(this.permissions));
+                localStorage.setItem(
+                    "auth_permissions",
+                    JSON.stringify(this.permissions),
+                );
                 localStorage.setItem("auth_roles", JSON.stringify(this.roles));
+                localStorage.setItem(
+                    "auth_is_verified",
+                    JSON.stringify(this.is_verified),
+                );
                 return true;
             } catch (error) {
                 this.logout();

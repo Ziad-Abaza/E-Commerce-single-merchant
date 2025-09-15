@@ -1,26 +1,67 @@
 <!-- components/ReviewList.vue -->
 <template>
   <div class="bg-white rounded-lg shadow border border-gray-200">
+    <!-- Header with Stats -->
     <div class="p-6 border-b border-gray-200">
       <h3 class="text-lg font-medium text-gray-900">Customer Reviews</h3>
-      <div v-if="stats" class="mt-2 flex items-center space-x-4">
-        <div class="flex items-center">
-          <StarRating :model-value="stats.average_rating" :show-rating="true" />
-          <span class="ml-2 text-sm text-gray-600">({{ stats.total_reviews }} reviews)</span>
+
+      <div v-if="stats" class="mt-4 space-y-4">
+        <!-- Average Rating & Total -->
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div class="flex items-center">
+            <StarRating :model-value="stats.average_rating" :size="24" :show-rating="true" class="text-yellow-500" />
+            <span class="ml-2 text-2xl font-bold text-gray-900">{{ stats.average_rating }}</span>
+            <span class="mx-1 text-gray-500">•</span>
+            <span class="text-sm text-gray-600">({{ stats.total_reviews }} reviews)</span>
+          </div>
+        </div>
+
+        <!-- Rating Distribution Bars -->
+        <div class="space-y-3">
+          <h4 class="text-sm font-medium text-gray-700">Rating Breakdown</h4>
+          <div class="space-y-2">
+            <div v-for="star in [5, 4, 3, 2, 1]" :key="star" class="flex items-center space-x-3">
+              <!-- Star Icon + Number (SVG inline) -->
+              <div class="flex items-center w-8">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-4 w-4 text-yellow-500">
+                  <path fill-rule="evenodd" d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.714.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z" clip-rule="evenodd" />
+                </svg>
+                <span class="text-sm font-medium text-gray-700 ml-1">{{ star }}</span>
+              </div>
+
+              <!-- Progress Bar -->
+              <div class="flex-1 bg-gray-200 rounded-full h-2.5">
+                <div
+                  class="h-2.5 rounded-full bg-yellow-500 transition-all duration-500 ease-out"
+                  :style="{ width: getBarWidth(star) + '%' }"
+                ></div>
+              </div>
+
+              <!-- Count & Percentage -->
+              <div class="text-right w-16">
+                <span class="text-xs text-gray-600">
+                  {{ getRatingCount(star) }} ({{ getRatingPercentage(star) }}%)
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
-    <div v-if="loading" class="p-6 flex justify-center">
+    <!-- Loading State -->
+    <div v-if="loading && reviews.length === 0" class="p-6 flex justify-center">
       <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-primary-600"></div>
     </div>
 
+    <!-- No Reviews -->
     <div v-else-if="reviews.length === 0" class="p-6 text-center text-gray-500">
       No reviews yet. Be the first to write a review!
     </div>
 
+    <!-- Reviews List -->
     <div v-else class="divide-y divide-gray-200">
-      <div v-for="review in reviews" :key="review.id" class="p-6">
+      <div v-for="review in displayedReviews" :key="review.id" class="p-6">
         <div class="flex items-start space-x-4">
           <!-- User Avatar -->
           <div class="flex-shrink-0">
@@ -52,80 +93,16 @@
       </div>
     </div>
 
-    <!-- Pagination -->
-    <div v-if="pagination.lastPage > 1" class="px-6 py-4 border-t border-gray-200">
-      <nav class="flex items-center justify-between">
-        <div class="flex-1 flex justify-between sm:hidden">
-          <button
-            @click="changePage(pagination.currentPage - 1)"
-            :disabled="pagination.currentPage === 1"
-            class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
-          >
-            Previous
-          </button>
-          <button
-            @click="changePage(pagination.currentPage + 1)"
-            :disabled="pagination.currentPage === pagination.lastPage"
-            class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
-          >
-            Next
-          </button>
-        </div>
-        <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-          <div>
-            <p class="text-sm text-gray-700">
-              Showing
-              <span class="font-medium">{{ (pagination.currentPage - 1) * pagination.perPage + 1 }}</span>
-              to
-              <span class="font-medium">{{ Math.min(pagination.currentPage * pagination.perPage, pagination.total) }}</span>
-              of
-              <span class="font-medium">{{ pagination.total }}</span>
-              reviews
-            </p>
-          </div>
-          <div>
-            <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
-              <button
-                @click="changePage(pagination.currentPage - 1)"
-                :disabled="pagination.currentPage === 1"
-                class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
-                :class="{ 'cursor-not-allowed': pagination.currentPage === 1 }"
-              >
-                <span class="sr-only">Previous</span>
-                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                </svg>
-              </button>
-
-              <button
-                v-for="page in visiblePages"
-                :key="page"
-                @click="changePage(page)"
-                :class="[
-                  page === pagination.currentPage
-                    ? 'z-10 bg-primary-50 border-primary-500 text-primary-600'
-                    : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50',
-                  'relative inline-flex items-center px-4 py-2 border text-sm font-medium'
-                ]"
-              >
-                {{ page }}
-              </button>
-
-              <button
-                @click="changePage(pagination.currentPage + 1)"
-                :disabled="pagination.currentPage === pagination.lastPage"
-                class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
-                :class="{ 'cursor-not-allowed': pagination.currentPage === pagination.lastPage }"
-              >
-                <span class="sr-only">Next</span>
-                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                </svg>
-              </button>
-            </nav>
-          </div>
-        </div>
-      </nav>
+    <!-- Load More Button -->
+    <div v-if="hasMorePages" class="px-6 py-4 border-t border-gray-200 text-center">
+      <button
+        @click="loadMore"
+        :disabled="loadingMore"
+        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50"
+      >
+        <span v-if="!loadingMore">Load More</span>
+        <div v-else class="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
+      </button>
     </div>
   </div>
 </template>
@@ -144,37 +121,21 @@ const props = defineProps({
 
 const reviewStore = useReviewStore()
 const loading = ref(false)
-const reviews = computed(() => reviewStore.reviews)
-const pagination = computed(() => reviewStore.pagination)
-const stats = ref(null)
+const loadingMore = ref(false)
+const currentPage = ref(1)
+const allReviews = ref([])
 
-// Calculate visible pages for pagination (show max 5 pages)
-const visiblePages = computed(() => {
-  const currentPage = pagination.value.currentPage
-  const lastPage = pagination.value.lastPage
-  const pages = []
-
-  if (lastPage <= 5) {
-    for (let i = 1; i <= lastPage; i++) {
-      pages.push(i)
-    }
-  } else {
-    pages.push(1)
-    if (currentPage > 3) pages.push('...')
-
-    const start = Math.max(2, currentPage - 1)
-    const end = Math.min(lastPage - 1, currentPage + 1)
-
-    for (let i = start; i <= end; i++) {
-      pages.push(i)
-    }
-
-    if (currentPage < lastPage - 2) pages.push('...')
-    pages.push(lastPage)
-  }
-
-  return pages
+const reviews = computed(() => allReviews.value)
+const displayedReviews = computed(() => {
+  return reviews.value.slice(0, 4 + (currentPage.value - 1) * 15)
 })
+
+const hasMorePages = computed(() => {
+  const totalLoaded = displayedReviews.value.length
+  return totalLoaded < reviewStore.pagination.total && !loading.value
+})
+
+const stats = ref(null)
 
 const formatDate = (dateString) => {
   const date = new Date(dateString)
@@ -185,20 +146,57 @@ const formatDate = (dateString) => {
   })
 }
 
+// Get rating count for specific star
+const getRatingCount = (star) => {
+  if (!stats.value || !stats.value.rating_distribution) return 0
+  const rating = stats.value.rating_distribution.find(r => r.rating === star)
+  return rating ? rating.count : 0
+}
+
+// Get percentage for specific star
+const getRatingPercentage = (star) => {
+  if (!stats.value || !stats.value.rating_distribution || stats.value.total_reviews === 0) return 0
+  const count = getRatingCount(star)
+  return Math.round((count / stats.value.total_reviews) * 100)
+}
+
+// Get bar width percentage for progress bar
+const getBarWidth = (star) => {
+  return getRatingPercentage(star)
+}
+
 const loadReviews = async (page = 1) => {
-  loading.value = true
+  const isFirstLoad = page === 1
+  if (isFirstLoad) {
+    loading.value = true
+  } else {
+    loadingMore.value = true
+  }
+
   try {
-    await reviewStore.loadReviews(props.productId, page)
+    const result = await reviewStore.loadReviews(props.productId, page)
+    if (result.success) {
+      if (page === 1) {
+        allReviews.value = result.data.data || []
+      } else {
+        allReviews.value = [...allReviews.value, ...(result.data.data || [])]
+      }
+      currentPage.value = page
+    }
   } catch (error) {
     console.error('Failed to load reviews:', error)
   } finally {
-    loading.value = false
+    if (isFirstLoad) {
+      loading.value = false
+    } else {
+      loadingMore.value = false
+    }
   }
 }
 
-const changePage = (page) => {
-  if (page >= 1 && page <= pagination.value.lastPage) {
-    loadReviews(page)
+const loadMore = () => {
+  if (hasMorePages.value) {
+    loadReviews(currentPage.value + 1)
   }
 }
 
@@ -207,7 +205,7 @@ const loadStats = async () => {
   try {
     const result = await reviewStore.getProductRatingStats(props.productId)
     if (result.success) {
-      stats.value = result.data
+      stats.value = result.data.data
     }
   } catch (error) {
     console.error('Failed to load rating stats:', error)
@@ -221,3 +219,10 @@ onMounted(async () => {
   ])
 })
 </script>
+
+<style scoped>
+/* Smooth transition for progress bars */
+.bg-yellow-500 {
+  transition: width 0.5s ease-out;
+}
+</style>

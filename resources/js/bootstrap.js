@@ -5,6 +5,18 @@ import { useAuthStore } from "./stores/auth";
 axios.defaults.baseURL = import.meta.env.APP_URL || "/api";
 axios.defaults.headers.common["Accept"] = "application/json";
 axios.defaults.headers.common["Content-Type"] = "application/json";
+axios.defaults.headers.common["X-Requested-With"] = "XMLHttpRequest";
+axios.defaults.withCredentials = true;
+
+let token = document.head.querySelector('meta[name="csrf-token"]');
+
+if (token) {
+    axios.defaults.headers.common["X-CSRF-TOKEN"] = token.content;
+} else {
+    console.error(
+        "CSRF token not found: https://laravel.com/docs/csrf#csrf-x-csrf-token",
+    );
+}
 
 // Request interceptor to add auth token
 axios.interceptors.request.use(

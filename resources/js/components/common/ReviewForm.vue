@@ -78,6 +78,7 @@
 import { ref, reactive, watch,computed } from 'vue'
 import { useToast } from 'vue-toastification'
 import StarRating from './StarRating.vue'
+import { useReviewStore } from '@/stores/reviews'
 
 const props = defineProps({
   productId: {
@@ -151,8 +152,9 @@ const handleSubmit = async () => {
         comment: form.comment,
       })
     } else {
-      result = await useReviewStore().createReview({
-        product_id: props.productId,
+      result = await useReviewStore().createReview(
+        props.productId,
+        {
         rating: form.rating,
         title: form.title,
         comment: form.comment,
@@ -166,8 +168,8 @@ const handleSubmit = async () => {
       throw new Error(result.error)
     }
   } catch (error) {
+    console.error(error)
     errors.value = { form: error.message || 'An unexpected error occurred' }
-    toast.error('Failed to save review. Please try again.')
   } finally {
     loading.value = false
   }

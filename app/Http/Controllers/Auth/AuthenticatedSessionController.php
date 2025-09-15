@@ -23,6 +23,13 @@ class AuthenticatedSessionController extends Controller
          */
         $user = Auth::guard('web')->user();
 
+        if (!$user) {
+            return response()->json([
+                'message' => 'Authentication failed.',
+                'success' => false,
+            ], 401);
+        }
+
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
@@ -34,6 +41,7 @@ class AuthenticatedSessionController extends Controller
                 'phone' => $user->phone,
                 'address' => $user->address,
                 'is_active' => $user->is_active,
+                'is_verified' => $user->is_verified ?? false,
                 'created_at' => $user->created_at,
                 'updated_at' => $user->updated_at,
                 'avatar_url' => $user->getAvatarUrl() ?? null,
@@ -50,9 +58,21 @@ class AuthenticatedSessionController extends Controller
      */
     public function destroy(Request $request): JsonResponse
     {
-        if ($request->user() && $request->user()->currentAccessToken()) {
-            $request->user()->currentAccessToken()->delete();
+        $user = $request->user();
+
+        if ($user) {
+            $accessToken = $user->currentAccessToken();
+
+            if ($accessToken && method_exists($accessToken, 'delete')) {
+                $accessToken->delete();
+            }
         }
+
+        if (Auth::guard('web')->check()) {
+            Auth::guard('web')->logout();
+        }
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
 
         return response()->json([
             'message' => 'Logged out successfully.',

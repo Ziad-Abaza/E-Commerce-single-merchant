@@ -38,7 +38,7 @@ export const useReviewStore = defineStore("reviews", {
                 const response = await axios.get(`/reviews/${productId}`, {
                     params: { page, per_page: this.pagination.perPage },
                 });
-                console.log(response);
+
                 this.reviews = response.data.data || [];
                 this.pagination = {
                     currentPage: response.data.pagination?.current_page || 1,
@@ -59,9 +59,9 @@ export const useReviewStore = defineStore("reviews", {
         },
 
         /**
-         * Create a new review
+         * Create a new review for a specific product
          */
-        async createReview(reviewData) {
+        async createReview(productId, reviewData) {
             this.loading = true;
             this.error = null;
 
@@ -76,15 +76,16 @@ export const useReviewStore = defineStore("reviews", {
                 const data = {
                     ...reviewData,
                     user_id: authStore.user.id,
-                    is_verified_purchase: false, // This should be set by backend based on order history
+                    is_verified_purchase: authStore.isVerified,
                 };
 
-                const response = await axios.post("/reviews", data);
+                const response = await axios.post(
+                    `/reviews/${productId}`,
+                    data,
+                );
 
                 const toast = useToast();
-                toast.success(
-                    "Review submitted successfully! It will be published after approval.",
-                );
+                toast.success("Review submitted successfully!");
 
                 return { success: true, data: response.data };
             } catch (error) {
@@ -155,9 +156,7 @@ export const useReviewStore = defineStore("reviews", {
             this.error = null;
 
             try {
-                const response = await axios.get(
-                    `/reviews/product/${productId}/stats`,
-                );
+                const response = await axios.get(`/reviews/${productId}/stats`);
                 return { success: true, data: response.data };
             } catch (error) {
                 this.error =

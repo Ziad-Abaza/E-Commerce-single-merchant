@@ -21,8 +21,6 @@ return new class extends Migration
             $table->boolean('is_verified_purchase')->default(false);
             $table->boolean('active')->default(true);
             $table->timestamps();
-            $table->unique(['user_id', 'product_id'], 'unique_user_product_review');
-
             $table->index('rating');
             $table->index('active');
         });

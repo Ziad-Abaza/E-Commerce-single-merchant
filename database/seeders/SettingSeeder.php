@@ -136,23 +136,6 @@ class SettingSeeder extends Seeder
                 'is_public' => true,
                 'sort_order' => 8,
             ],
-            // Appearance Settings
-            [
-                'key' => 'theme_color',
-                'value' => 'blue',
-                'type' => 'select',
-                'group' => 'appearance',
-                'label' => 'Theme Color',
-                'description' => 'Primary color scheme for the website',
-                'options' => [
-                    ['value' => 'blue', 'label' => 'Blue'],
-                    ['value' => 'green', 'label' => 'Green'],
-                    ['value' => 'purple', 'label' => 'Purple'],
-                    ['value' => 'red', 'label' => 'Red'],
-                ],
-                'is_public' => true,
-                'sort_order' => 1,
-            ],
             [
                 'key' => 'logo_url',
                 'value' => '/images/default-logo.webp',

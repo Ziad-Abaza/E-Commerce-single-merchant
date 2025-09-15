@@ -16,20 +16,15 @@ class ReviewController extends Controller
     /**
      * Display a listing of the reviews.
      */
-    public function index(Request $request)
+    /**
+     * Display a listing of reviews for a specific product.
+     */
+    public function index(Request $request, $productId)
     {
         try {
-            $query = Review::with(['user', 'product']);
-
-            // Filter by product if specified
-            if ($request->has('product_id')) {
-                $query->where('product_id', $request->product_id);
-            }
-
-            // Filter by user if specified
-            if ($request->has('user_id')) {
-                $query->where('user_id', $request->user_id);
-            }
+            $query = Review::with(['user'])
+                ->where('product_id', $productId)
+                ->active();
 
             // Filter by rating if specified
             if ($request->has('rating')) {
@@ -39,11 +34,6 @@ class ReviewController extends Controller
             // Filter by minimum rating if specified
             if ($request->has('min_rating')) {
                 $query->where('rating', '>=', $request->min_rating);
-            }
-
-            // Filter by approval status if specified
-            if ($request->has('is_approved')) {
-                $query->where('is_approved', $request->boolean('is_approved'));
             }
 
             // Filter by verified purchase if specified
@@ -63,6 +53,7 @@ class ReviewController extends Controller
             $reviews = $query->orderBy('created_at', 'desc')->paginate(15);
 
             return response()->json([
+                'success' => true,
                 'message' => 'Reviews retrieved successfully.',
                 'data' => ReviewResource::collection($reviews),
                 'pagination' => [
@@ -76,6 +67,7 @@ class ReviewController extends Controller
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
+                'success' => false,
                 'message' => 'Failed to retrieve reviews.',
                 'data' => null,
                 'errors' => ['server' => [$e->getMessage()]],
@@ -85,81 +77,69 @@ class ReviewController extends Controller
     }
 
     /**
-     * Display the specified review as an array (for consistency with index endpoint)
+     * Display the specified review.
      */
     public function show($id)
     {
         try {
             $review = Review::with(['user', 'product'])->findOrFail($id);
 
-            // Wrap single review in an array
-            $reviews = [$review];
-
             return response()->json([
+                'success' => true,
                 'message' => 'Review retrieved successfully.',
-                'data' => ReviewResource::collection($reviews),
-                'pagination' => [
-                    'current_page' => 1,
-                    'last_page' => 1,
-                    'per_page' => 1,
-                    'total' => 1,
-                ],
+                'data' => new ReviewResource($review),
                 'errors' => null,
                 'code' => 200,
             ], 200);
         } catch (ModelNotFoundException $e) {
             return response()->json([
+                'success' => false,
                 'message' => 'Review not found.',
-                'data' => [],
-                'pagination' => [
-                    'current_page' => 1,
-                    'last_page' => 1,
-                    'per_page' => 0,
-                    'total' => 0,
-                ],
+                'data' => null,
                 'errors' => ['review' => ['Review could not be found.']],
                 'code' => 404,
             ], 404);
         } catch (\Exception $e) {
             return response()->json([
+                'success' => false,
                 'message' => 'Failed to retrieve review.',
-                'data' => [],
-                'pagination' => [
-                    'current_page' => 1,
-                    'last_page' => 1,
-                    'per_page' => 0,
-                    'total' => 0,
-                ],
+                'data' => null,
                 'errors' => ['server' => [$e->getMessage()]],
                 'code' => 500,
             ], 500);
         }
     }
 
-
     /**
-     * Store a newly created review.
+     * Store a newly created review for a specific product.
+     * If user already reviewed this product, update the existing one.
      */
-    public function store(ReviewStoreRequest $request)
+    public function store(ReviewStoreRequest $request, $productId)
     {
         try {
             DB::beginTransaction();
 
             $data = $request->validated();
-            $review = Review::create($data);
+
+            $data['product_id'] = $productId;
+                $review = Review::create($data);
+                $message = 'Review created successfully.';
+                $code = 201;
 
             DB::commit();
 
             return response()->json([
-                'message' => 'Review created successfully.',
-                'data' => new ReviewResource($review->load(['user', 'product'])),
+                'success' => true,
+                'message' => $message,
+                'data' => new ReviewResource($review->load(['user'])),
                 'errors' => null,
-                'code' => 201,
-            ], 201);
+                'code' => $code,
+            ], $code);
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json([
-                'message' => 'Failed to create review.',
+                'success' => false,
+                'message' => 'Failed to process review.',
                 'data' => null,
                 'errors' => ['server' => [$e->getMessage()]],
                 'code' => 500,
@@ -183,6 +163,7 @@ class ReviewController extends Controller
             DB::commit();
 
             return response()->json([
+                'success' => true,
                 'message' => 'Review updated successfully.',
                 'data' => new ReviewResource($review->fresh(['user', 'product'])),
                 'errors' => null,
@@ -190,6 +171,7 @@ class ReviewController extends Controller
             ], 200);
         } catch (ModelNotFoundException $e) {
             return response()->json([
+                'success' => false,
                 'message' => 'Review not found.',
                 'data' => null,
                 'errors' => ['review' => ['Review could not be found.']],
@@ -198,6 +180,7 @@ class ReviewController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json([
+                'success' => false,
                 'message' => 'Failed to update review.',
                 'data' => null,
                 'errors' => ['server' => [$e->getMessage()]],
@@ -216,6 +199,7 @@ class ReviewController extends Controller
             $review->delete();
 
             return response()->json([
+                'success' => true,
                 'message' => 'Review deleted successfully.',
                 'data' => null,
                 'errors' => null,
@@ -223,6 +207,7 @@ class ReviewController extends Controller
             ], 200);
         } catch (ModelNotFoundException $e) {
             return response()->json([
+                'success' => false,
                 'message' => 'Review not found.',
                 'data' => null,
                 'errors' => ['review' => ['Review could not be found.']],
@@ -230,91 +215,8 @@ class ReviewController extends Controller
             ], 404);
         } catch (\Exception $e) {
             return response()->json([
+                'success' => false,
                 'message' => 'Failed to delete review.',
-                'data' => null,
-                'errors' => ['server' => [$e->getMessage()]],
-                'code' => 500,
-            ], 500);
-        }
-    }
-
-    /**
-     * Approve the specified review.
-     */
-    public function approve($id)
-    {
-        try {
-            $review = Review::findOrFail($id);
-
-            if ($review->is_approved) {
-                return response()->json([
-                    'message' => 'Review is already approved.',
-                    'data' => null,
-                    'errors' => ['review' => ['Review status is already approved.']],
-                    'code' => 400,
-                ], 400);
-            }
-
-            $review->update(['is_approved' => true]);
-
-            return response()->json([
-                'message' => 'Review approved successfully.',
-                'data' => new ReviewResource($review->fresh(['user', 'product'])),
-                'errors' => null,
-                'code' => 200,
-            ], 200);
-        } catch (ModelNotFoundException $e) {
-            return response()->json([
-                'message' => 'Review not found.',
-                'data' => null,
-                'errors' => ['review' => ['Review could not be found.']],
-                'code' => 404,
-            ], 404);
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Failed to approve review.',
-                'data' => null,
-                'errors' => ['server' => [$e->getMessage()]],
-                'code' => 500,
-            ], 500);
-        }
-    }
-
-    /**
-     * Reject the specified review.
-     */
-    public function reject($id)
-    {
-        try {
-            $review = Review::findOrFail($id);
-
-            if (!$review->is_approved) {
-                return response()->json([
-                    'message' => 'Review is already rejected.',
-                    'data' => null,
-                    'errors' => ['review' => ['Review status is already rejected.']],
-                    'code' => 400,
-                ], 400);
-            }
-
-            $review->update(['is_approved' => false]);
-
-            return response()->json([
-                'message' => 'Review rejected successfully.',
-                'data' => new ReviewResource($review->fresh(['user', 'product'])),
-                'errors' => null,
-                'code' => 200,
-            ], 200);
-        } catch (ModelNotFoundException $e) {
-            return response()->json([
-                'message' => 'Review not found.',
-                'data' => null,
-                'errors' => ['review' => ['Review could not be found.']],
-                'code' => 404,
-            ], 404);
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Failed to reject review.',
                 'data' => null,
                 'errors' => ['server' => [$e->getMessage()]],
                 'code' => 500,
@@ -331,10 +233,11 @@ class ReviewController extends Controller
             $averageRating = Review::getAverageRating($productId);
             $ratingDistribution = Review::getRatingDistribution($productId);
             $totalReviews = Review::where('product_id', $productId)
-                ->where('is_approved', true)
+                ->where('active', true)
                 ->count();
 
             return response()->json([
+                'success' => true,
                 'message' => 'Product rating statistics retrieved successfully.',
                 'data' => [
                     'product_id' => $productId,
@@ -347,6 +250,7 @@ class ReviewController extends Controller
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
+                'success' => false,
                 'message' => 'Failed to retrieve product rating statistics.',
                 'data' => null,
                 'errors' => ['server' => [$e->getMessage()]],

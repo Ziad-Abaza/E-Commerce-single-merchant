@@ -27,5 +27,7 @@ class RoleSeeder extends Seeder
             'manage_reviews',
         ];
         $admin->syncPermissions($adminPermissions);
+
+        $customer = Role::firstOrCreate(['name' => 'customer']);
     }
 }
