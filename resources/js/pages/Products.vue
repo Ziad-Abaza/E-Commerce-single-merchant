@@ -439,8 +439,6 @@ onMounted(async () => {
     window.addEventListener("resize", handleResize);
 });
 
-
-
 onBeforeUnmount(() => {
     window.removeEventListener("resize", handleResize);
 });
