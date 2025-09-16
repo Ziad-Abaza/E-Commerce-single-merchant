@@ -426,12 +426,20 @@ const visiblePages = computed(() => {
 });
 
 // Initialize filters from store
-onMounted(() => {
-    clearFilters();
+onMounted(async () => {
+    if (productStore.categories.length === 0) {
+        await productStore.loadCategories();
+    }
+
+    productStore.clearFilters();
     filters.value = { ...productStore.filters };
-    loadProducts();
+    productStore.resetPagination();
+    await loadProducts();
+
     window.addEventListener("resize", handleResize);
 });
+
+
 
 onBeforeUnmount(() => {
     window.removeEventListener("resize", handleResize);

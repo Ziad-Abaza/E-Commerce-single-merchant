@@ -1,17 +1,19 @@
 <template>
   <div id="app" class="min-h-screen bg-gray-50">
     <router-view />
+    <MobileMenuOverlay v-if="showMobileMenu" @close="closeMobileMenu" />
     <LoadingOverlay v-if="isLoading" />
   </div>
 </template>
 
 <script setup>
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, ref, onBeforeUnmount } from 'vue'
 import { useAuthStore } from './stores/auth'
 import { useProductStore } from './stores/products'
 import { useSiteStore } from './stores/site'
 import { useCartStore } from './stores/cart'
 import LoadingOverlay from './components/LoadingOverlay.vue'
+import MobileMenuOverlay from './components/layout/MobileMenuOverlay.vue'
 
 const authStore = useAuthStore()
 const productStore = useProductStore()
@@ -21,6 +23,23 @@ const siteStore = useSiteStore()
 const isLoading = computed(() => {
   return authStore.loading || productStore.loading || cartStore.loading
 })
+
+const showMobileMenu = ref(false)
+
+const openMobileMenu = () => {
+  showMobileMenu.value = true
+  document.body.style.overflow = 'hidden' // Prevent scrolling when menu is open
+}
+
+const closeMobileMenu = () => {
+  showMobileMenu.value = false
+  document.body.style.overflow = '' // Re-enable scrolling
+}
+
+// Listen for the custom event from AppHeader
+const handleOpenMobileMenu = () => {
+  openMobileMenu()
+}
 
 // Initialize app data
 const initializeApp = async () => {
@@ -46,6 +65,12 @@ const initializeApp = async () => {
 
 onMounted(() => {
   initializeApp()
+  window.addEventListener('open-mobile-menu', handleOpenMobileMenu)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('open-mobile-menu', handleOpenMobileMenu)
+  document.body.style.overflow = '' // Ensure scrolling is re-enabled if component is unmounted
 })
 </script>
 

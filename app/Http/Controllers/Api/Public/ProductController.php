@@ -49,7 +49,10 @@ class ProductController extends Controller
                 break;
 
             case 'latest':
-                // Already ordered by latest by default
+                $query->where('is_active', true)
+                    ->latest()
+                    ->limit(8)
+                    ->get();
                 break;
 
             case 'category':
@@ -71,7 +74,6 @@ class ProductController extends Controller
 
             case 'all':
             default:
-                // Default case - all products with optional filters
                 if ($request->category_id) {
                     $query->whereHas('categories', function ($q) use ($request) {
                         $q->where('categories.id', $request->category_id);
