@@ -51,7 +51,7 @@
           <div class="space-y-4">
             <div v-for="item in order.items" :key="item.id" class="flex items-center space-x-4">
               <img
-                :src="item.product?.media?.[0]?.url || '/images/placeholder-product.jpg'"
+                :src="item.product?.media?.[0]?.url || '/public/images/placeholder-product.jpg'"
                 :alt="item.product?.name"
                 class="w-16 h-16 object-cover rounded-md"
               />

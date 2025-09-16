@@ -458,7 +458,7 @@ const maxQuantity = computed(() => {
 });
 
 const handleImageError = (event) => {
-    const placeholder = "/images/placeholder-product.jpg";
+    const placeholder = "/public/images/placeholder-product.jpg";
     if (event.target.src !== window.location.origin + placeholder) {
         event.target.src = placeholder;
     }
@@ -468,7 +468,7 @@ const handleImageError = (event) => {
 const mainImageUrl = computed(() => {
     return (
         productStore.currentProduct?.main_image_url ||
-        "/images/placeholder-product.jpg"
+        "/public/images/placeholder-product.jpg"
     );
 });
 
@@ -478,7 +478,7 @@ const galleryImages = computed(() => {
     if (images.length > 0) return images;
     return productStore.currentProduct?.main_image_url
         ? [productStore.currentProduct.main_image_url]
-        : ["/images/placeholder-product.jpg"];
+        : ["/public/images/placeholder-product.jpg"];
 });
 
 // Format price to 2 decimals
@@ -564,7 +564,7 @@ onMounted(async () => {
     const productId = route.params.id;
     await productStore.getProduct(productId);
     selectedImage.value =
-        galleryImages.value[0] || "/images/placeholder-product.jpg";
+        galleryImages.value[0] || "/public/images/placeholder-product.jpg";
     await wishlistStore.initializeWishlist();
     if (wishlistStore.isAuthenticated && productStore.currentProduct) {
         isInWishlist.value = wishlistStore.isInWishlist(
