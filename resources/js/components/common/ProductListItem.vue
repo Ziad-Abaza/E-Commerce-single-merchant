@@ -53,9 +53,9 @@
         <div class="flex items-center justify-between">
           <!-- Price -->
           <div class="flex items-center space-x-2">
-            <span class="text-lg font-bold text-gray-900">${{ displayPrice }}</span>
+            <span class="text-lg font-bold text-gray-900">{{ displayPrice }} {{ siteStore.settings.currency }}</span>
             <span v-if="product.discount_percentage" class="text-sm text-gray-500 line-through">
-              ${{ product.original_price }}
+              {{ product.original_price }} {{ siteStore.settings.currency }}
             </span>
           </div>
 
@@ -102,6 +102,7 @@ import { computed } from 'vue'
 import { useAuthStore } from '../../stores/auth'
 import { useCartStore } from '../../stores/cart'
 import { useWishlistStore } from '../../stores/wishlist'
+import { useSiteStore } from "../../stores/site";
 import { useToast } from 'vue-toastification'
 
 const props = defineProps({
@@ -112,6 +113,7 @@ const props = defineProps({
 })
 
 const authStore = useAuthStore()
+const siteStore = useSiteStore();
 const cartStore = useCartStore()
 const wishlistStore = useWishlistStore()
 const toast = useToast()
