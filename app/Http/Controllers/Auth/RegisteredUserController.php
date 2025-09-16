@@ -43,9 +43,9 @@ class RegisteredUserController extends Controller
             $user->setAvatar($request->file('avatar'));
         }
 
+        $user->assignRole('customer');
         event(new Registered($user));
 
-        Auth::login($user);
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([

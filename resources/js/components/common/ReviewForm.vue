@@ -162,7 +162,6 @@ const handleSubmit = async () => {
     }
 
     if (result.success) {
-      toast.success(isEditing.value ? 'Review updated successfully!' : 'Review submitted successfully!')
       emit('submitted', result.data)
     } else {
       throw new Error(result.error)

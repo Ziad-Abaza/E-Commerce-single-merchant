@@ -1,3 +1,4 @@
+<!-- src/views/OrdersView.vue -->
 <template>
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <div class="mb-8">
@@ -6,12 +7,12 @@
     </div>
 
     <!-- Loading State -->
-    <div v-if="loading" class="flex justify-center py-12">
+    <div v-if="orderStore.loading" class="flex justify-center py-12">
       <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
     </div>
 
     <!-- Empty State -->
-    <div v-else-if="orders.length === 0" class="text-center py-12">
+    <div v-else-if="orderStore.orders.length === 0" class="text-center py-12">
       <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
       </svg>
@@ -26,7 +27,7 @@
 
     <!-- Orders List -->
     <div v-else class="space-y-6">
-      <div v-for="order in orders" :key="order.id" class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+      <div v-for="order in orderStore.orders" :key="order.id" class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
         <!-- Order Header -->
         <div class="px-6 py-4 border-b border-gray-200">
           <div class="flex items-center justify-between">
@@ -35,12 +36,12 @@
               <p class="text-sm text-gray-500">Placed on {{ formatDate(order.created_at) }}</p>
             </div>
             <div class="text-right">
-              <div class="text-lg font-medium text-gray-900">{{ order.total.toFixed(2) }} {{ siteStore.settings.currency }}</div>
+              <div class="text-lg font-medium text-gray-900">{{ parseFloat(order.final_total).toFixed(2) }} {{ order.currency }}</div>
               <span
                 class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                :class="getStatusColor(order.status)"
+                :class="orderStore.getStatusColor(order.status)"
               >
-                {{ getStatusText(order.status) }}
+                {{ orderStore.getStatusText(order.status) }}
               </span>
             </div>
           </div>
@@ -50,18 +51,19 @@
         <div class="px-6 py-4">
           <div class="space-y-4">
             <div v-for="item in order.items" :key="item.id" class="flex items-center space-x-4">
-              <img
-                :src="item.product?.media?.[0]?.url || '/public/images/placeholder-product.jpg'"
-                :alt="item.product?.name"
-                class="w-16 h-16 object-cover rounded-md"
-              />
+              <div class="w-16 h-16 bg-gray-200 rounded-md flex items-center justify-center">
+                <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+              </div>
               <div class="flex-1 min-w-0">
-                <h4 class="text-sm font-medium text-gray-900 truncate">{{ item.product?.name }}</h4>
+                <h4 class="text-sm font-medium text-gray-900 truncate">{{ item.product_name }}</h4>
+                <p class="text-sm text-gray-500">SKU: {{ item.product_sku }}</p>
                 <p class="text-sm text-gray-500">Quantity: {{ item.quantity }}</p>
-                <p class="text-sm text-gray-500">Price: {{ item.price.toFixed(2) }} {{ siteStore.settings.currency }}</p>
+                <p class="text-sm text-gray-500">Price: {{ parseFloat(item.unit_price).toFixed(2) }} {{ order.currency }}</p>
               </div>
               <div class="text-sm font-medium text-gray-900">
-                {{ (item.price * item.quantity).toFixed(2) }} {{ siteStore.settings.currency }}
+                {{ parseFloat(item.total_price).toFixed(2) }} {{ order.currency }}
               </div>
             </div>
           </div>
@@ -81,11 +83,11 @@
                 View Details
               </button>
               <button
-                v-if="canReorder(order)"
-                @click="reorder(order)"
-                class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                v-if="orderStore.canBeCancelled(order.id)"
+                @click="cancelOrder(order.id)"
+                class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
               >
-                Reorder
+                Cancel Order
               </button>
             </div>
           </div>
@@ -94,38 +96,85 @@
     </div>
 
     <!-- Order Details Modal -->
-    <div v-if="selectedOrder" class="fixed inset-0 z-50 overflow-y-auto">
+    <div v-if="orderStore.currentOrder" class="fixed inset-0 z-50 overflow-y-auto">
       <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
         <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" @click="closeOrderDetails"></div>
 
-        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
           <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
             <div class="sm:flex sm:items-start">
               <div class="mt-3 text-center sm:mt-0 sm:text-left w-full">
                 <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">
-                  Order #{{ selectedOrder.order_number }}
+                  Order #{{ orderStore.currentOrder.order_number }}
                 </h3>
 
                 <!-- Order Details -->
-                <div class="space-y-4">
-                  <div>
-                    <h4 class="font-medium text-gray-900">Shipping Address</h4>
-                    <p class="text-sm text-gray-600">{{ selectedOrder.shipping_address }}</p>
+                <div class="space-y-6">
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <h4 class="font-medium text-gray-900">Order Information</h4>
+                      <div class="mt-2 space-y-2 text-sm text-gray-600">
+                        <p><span class="font-medium">Order Date:</span> {{ formatDate(orderStore.currentOrder.created_at) }}</p>
+                        <p><span class="font-medium">Status:</span>
+                          <span
+                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ml-2"
+                            :class="orderStore.getStatusColor(orderStore.currentOrder.status)"
+                          >
+                            {{ orderStore.getStatusText(orderStore.currentOrder.status) }}
+                          </span>
+                        </p>
+                        <p><span class="font-medium">Payment Status:</span> {{ orderStore.currentOrder.payment_status }}</p>
+                        <p><span class="font-medium">Payment Method:</span> {{ orderStore.currentOrder.payment_method }}</p>
+                      </div>
+                    </div>
+
+                    <div>
+                      <h4 class="font-medium text-gray-900">Shipping Information</h4>
+                      <div class="mt-2 space-y-2 text-sm text-gray-600">
+                        <p><span class="font-medium">Address:</span> {{ orderStore.currentOrder.shipping_address }}</p>
+                        <p v-if="orderStore.currentOrder.tracking_number">
+                          <span class="font-medium">Tracking Number:</span> {{ orderStore.currentOrder.tracking_number }}
+                        </p>
+                      </div>
+                    </div>
                   </div>
 
                   <div>
-                    <h4 class="font-medium text-gray-900">Payment Method</h4>
-                    <p class="text-sm text-gray-600">{{ selectedOrder.payment_method }}</p>
+                    <h4 class="font-medium text-gray-900">Order Items</h4>
+                    <div class="mt-2 divide-y divide-gray-200">
+                      <div v-for="item in orderStore.currentOrder.items" :key="item.id" class="py-3 flex justify-between">
+                        <div>
+                          <p class="text-sm font-medium text-gray-900">{{ item.product_name }}</p>
+                          <p class="text-sm text-gray-500">SKU: {{ item.product_sku }}</p>
+                          <p class="text-sm text-gray-500">Quantity: {{ item.quantity }}</p>
+                        </div>
+                        <div class="text-right">
+                          <p class="text-sm font-medium text-gray-900">{{ parseFloat(item.unit_price).toFixed(2) }} {{ orderStore.currentOrder.currency }}</p>
+                          <p class="text-sm text-gray-500">Total: {{ parseFloat(item.total_price).toFixed(2) }} {{ orderStore.currentOrder.currency }}</p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
 
-                  <div>
-                    <h4 class="font-medium text-gray-900">Order Status</h4>
-                    <span
-                      class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                      :class="getStatusColor(selectedOrder.status)"
-                    >
-                      {{ getStatusText(selectedOrder.status) }}
-                    </span>
+                  <div class="border-t border-gray-200 pt-4">
+                    <div class="space-y-2">
+                      <div class="flex justify-between text-sm">
+                        <span>Subtotal</span>
+                        <span>{{ parseFloat(orderStore.currentOrder.subtotal).toFixed(2) }} {{ orderStore.currentOrder.currency }}</span>
+                      </div>
+                      <div class="flex justify-between text-sm">
+                        <span>Shipping</span>
+                        <span>{{ parseFloat(orderStore.currentOrder.shipping_cost).toFixed(2) }} {{ orderStore.currentOrder.currency }}</span>
+                      </div>
+                      <div class="flex justify-between text-sm">
+                        <span>Tax</span>
+                        <span>{{ parseFloat(orderStore.currentOrder.tax_amount).toFixed(2) }} {{ orderStore.currentOrder.currency }}</span>
+                      </div>
+                      <div class="flex justify-between text-base font-medium border-t border-gray-200 pt-2">
+                        <span>Total</span>
+                        <span>{{ parseFloat(orderStore.currentOrder.final_total).toFixed(2) }} {{ orderStore.currentOrder.currency }}</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -148,17 +197,8 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { useToast } from 'vue-toastification'
-import { useCartStore } from '../stores/cart'
-import { useSiteStore } from "../stores/site";
-
-const siteStore = useSiteStore();
-const toast = useToast()
-const cartStore = useCartStore()
-
-const loading = ref(false)
-const orders = ref([])
-const selectedOrder = ref(null)
+import { useOrderStore } from '../stores/orders'
+const orderStore = useOrderStore()
 
 const formatDate = (dateString) => {
   return new Date(dateString).toLocaleDateString('en-US', {
@@ -168,129 +208,21 @@ const formatDate = (dateString) => {
   })
 }
 
-const getStatusColor = (status) => {
-  const colors = {
-    pending: 'bg-yellow-100 text-yellow-800',
-    processing: 'bg-blue-100 text-blue-800',
-    shipped: 'bg-purple-100 text-purple-800',
-    delivered: 'bg-green-100 text-green-800',
-    cancelled: 'bg-red-100 text-red-800'
-  }
-  return colors[status] || 'bg-gray-100 text-gray-800'
-}
-
-const getStatusText = (status) => {
-  const texts = {
-    pending: 'Pending',
-    processing: 'Processing',
-    shipped: 'Shipped',
-    delivered: 'Delivered',
-    cancelled: 'Cancelled'
-  }
-  return texts[status] || 'Unknown'
-}
-
-const canReorder = (order) => {
-  return order.status === 'delivered' || order.status === 'cancelled'
-}
-
-const viewOrderDetails = (order) => {
-  selectedOrder.value = order
+const viewOrderDetails = async (order) => {
+    await orderStore.getOrder(order.id)
 }
 
 const closeOrderDetails = () => {
-  selectedOrder.value = null
+  orderStore.currentOrder = null
 }
 
-const reorder = async (order) => {
-  try {
-    // Add all items from the order to cart
-    for (const item of order.items) {
-      await cartStore.addToCart(item.product_id, item.quantity, {
-        price: item.price
-      })
-    }
-
-    toast.success('Items added to cart!')
-    // Navigate to cart
-    // router.push('/cart')
-  } catch (error) {
-    toast.error('Failed to reorder items')
-  }
-}
-
-const loadOrders = async () => {
-  loading.value = true
-
-  try {
-    // This would be an actual API call
-    // For now, we'll use mock data
-    await new Promise(resolve => setTimeout(resolve, 1000))
-
-    orders.value = [
-      {
-        id: 1,
-        order_number: 'ORD-001',
-        status: 'delivered',
-        total: 129.99,
-        created_at: '2024-01-15T10:30:00Z',
-        tracking_number: 'TRK123456789',
-        shipping_address: '123 Main St, City, State 12345',
-        payment_method: 'Credit Card ending in 1234',
-        items: [
-          {
-            id: 1,
-            product_id: 1,
-            quantity: 2,
-            price: 49.99,
-            product: {
-              name: 'Sample Product 1',
-              media: [{ url: '/images/placeholder-product.jpg' }]
-            }
-          },
-          {
-            id: 2,
-            product_id: 2,
-            quantity: 1,
-            price: 29.99,
-            product: {
-              name: 'Sample Product 2',
-              media: [{ url: '/images/placeholder-product.jpg' }]
-            }
-          }
-        ]
-      },
-      {
-        id: 2,
-        order_number: 'ORD-002',
-        status: 'processing',
-        total: 79.99,
-        created_at: '2024-01-20T14:15:00Z',
-        tracking_number: null,
-        shipping_address: '456 Oak Ave, City, State 12345',
-        payment_method: 'PayPal',
-        items: [
-          {
-            id: 3,
-            product_id: 3,
-            quantity: 1,
-            price: 79.99,
-            product: {
-              name: 'Sample Product 3',
-              media: [{ url: '/images/placeholder-product.jpg' }]
-            }
-          }
-        ]
-      }
-    ]
-  } catch (error) {
-    toast.error('Failed to load orders')
-  } finally {
-    loading.value = false
+const cancelOrder = async (orderId) => {
+  if (confirm('Are you sure you want to cancel this order?')) {
+      await orderStore.cancelOrder(orderId)
   }
 }
 
 onMounted(() => {
-  loadOrders()
+  orderStore.loadOrders()
 })
 </script>

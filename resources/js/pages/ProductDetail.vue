@@ -557,6 +557,11 @@ const closeReviewForm = () => {
 
 const handleReviewSubmitted = (newReview) => {
     closeReviewForm();
+    productStore.currentProduct.reviews.push(newReview);
+    // refresh the reviews list
+    productStore.currentProduct.reviews = [
+        ...productStore.currentProduct.reviews,
+    ];
 };
 
 // Initialize

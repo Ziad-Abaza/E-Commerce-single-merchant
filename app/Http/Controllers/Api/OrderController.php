@@ -10,33 +10,35 @@ use App\Http\Requests\OrderUpdateRequest;
 use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class OrderController extends Controller
 {
-    /**
-     * Display a listing of the orders.
-     */
     public function index(Request $request)
     {
         try {
-            $query = Order::with(['user', 'items.product', 'payment']);
-
-            // Filter by user if specified
-            if ($request->has('user_id')) {
-                $query->where('user_id', $request->user_id);
+            $user = Auth::user();
+            if (!$user) {
+                return response()->json([
+                    'message' => 'You are not logged in, please log in first',
+                    'data' => null,
+                    'errors' => null,
+                    'code' => 401,
+                    'success' => false
+                ], 401);
             }
 
-            // Filter by status if specified
+            $query = Order::with(['user', 'items.product', 'payment'])
+                ->where('user_id', $user->id);
+
             if ($request->has('status')) {
                 $query->where('status', $request->status);
             }
 
-            // Filter by payment status if specified
             if ($request->has('payment_status')) {
                 $query->where('payment_status', $request->payment_status);
             }
 
-            // Filter by date range if specified
             if ($request->has('date_from')) {
                 $query->whereDate('created_at', '>=', $request->date_from);
             }
@@ -69,13 +71,12 @@ class OrderController extends Controller
         }
     }
 
-    /**
-     * Display the specified order.
-     */
     public function show($id)
     {
         try {
-            $order = Order::with(['user', 'items.product', 'payment'])->findOrFail($id);
+            $order = Order::with(['user', 'items.product', 'payment'])
+                ->where('user_id', Auth::id())
+                ->findOrFail($id);
 
             return response()->json([
                 'message' => 'Order retrieved successfully.',
@@ -100,9 +101,6 @@ class OrderController extends Controller
         }
     }
 
-    /**
-     * Store a newly created order.
-     */
     public function store(OrderStoreRequest $request)
     {
         try {
@@ -110,10 +108,10 @@ class OrderController extends Controller
 
             $data = $request->validated();
             $data['order_number'] = $this->generateOrderNumber();
+            $data['user_id'] = Auth::id();
 
             $order = Order::create($data);
 
-            // Handle file uploads
             if ($request->hasFile('receipt')) {
                 $order->setReceipt($request->file('receipt'));
             }
@@ -145,20 +143,16 @@ class OrderController extends Controller
         }
     }
 
-    /**
-     * Update the specified order.
-     */
     public function update(OrderUpdateRequest $request, $id)
     {
         try {
-            $order = Order::findOrFail($id);
+            $order = Order::where('user_id', Auth::id())->findOrFail($id);
 
             DB::beginTransaction();
 
             $data = $request->validated();
             $order->update($data);
 
-            // Handle file uploads
             if ($request->hasFile('receipt')) {
                 $order->setReceipt($request->file('receipt'));
             }
@@ -197,13 +191,10 @@ class OrderController extends Controller
         }
     }
 
-    /**
-     * Remove the specified order.
-     */
     public function destroy($id)
     {
         try {
-            $order = Order::findOrFail($id);
+            $order = Order::where('user_id', Auth::id())->findOrFail($id);
 
             DB::beginTransaction();
 
@@ -238,13 +229,10 @@ class OrderController extends Controller
         }
     }
 
-    /**
-     * Mark order as delivered.
-     */
     public function markAsDelivered($id)
     {
         try {
-            $order = Order::findOrFail($id);
+            $order = Order::where('user_id', Auth::id())->findOrFail($id);
 
             if (!$order->canBeCancelled()) {
                 return response()->json([
@@ -280,13 +268,10 @@ class OrderController extends Controller
         }
     }
 
-    /**
-     * Mark order as cancelled.
-     */
     public function markAsCancelled($id)
     {
         try {
-            $order = Order::findOrFail($id);
+            $order = Order::where('user_id', Auth::id())->findOrFail($id);
 
             if (!$order->canBeCancelled()) {
                 return response()->json([
@@ -322,9 +307,6 @@ class OrderController extends Controller
         }
     }
 
-    /**
-     * Generate a unique order number.
-     */
     private function generateOrderNumber()
     {
         do {
