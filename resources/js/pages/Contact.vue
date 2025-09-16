@@ -12,7 +12,9 @@
                     <h1 class="text-4xl md:text-6xl font-bold mb-6">
                         Contact Us
                     </h1>
-                    <p class="text-xl md:text-2xl text-primary-100 dark:text-primary-200">
+                    <p
+                        class="text-xl md:text-2xl text-primary-100 dark:text-primary-200"
+                    >
                         Get in touch with us - we'd love to hear from you
                     </p>
                 </div>
@@ -26,10 +28,14 @@
                     <div class="grid lg:grid-cols-2 gap-12">
                         <!-- Contact Form -->
                         <div>
-                            <h2 class="text-3xl font-bold text-gray-900 mb-6 dark:text-white">
+                            <h2
+                                class="text-3xl font-bold text-gray-900 mb-6 dark:text-white"
+                            >
                                 Send us a Message
                             </h2>
-                            <p class="text-lg text-gray-600 mb-8 dark:text-gray-300">
+                            <p
+                                class="text-lg text-gray-600 mb-8 dark:text-gray-300"
+                            >
                                 Have a question, suggestion, or need help? Fill
                                 out the form below and we'll get back to you as
                                 soon as possible.
@@ -227,10 +233,14 @@
 
                         <!-- Contact Information -->
                         <div>
-                            <h2 class="text-3xl font-bold text-gray-900 mb-6 dark:text-white">
+                            <h2
+                                class="text-3xl font-bold text-gray-900 mb-6 dark:text-white"
+                            >
                                 Get in Touch
                             </h2>
-                            <p class="text-lg text-gray-600 mb-8 dark:text-gray-300">
+                            <p
+                                class="text-lg text-gray-600 mb-8 dark:text-gray-300"
+                            >
                                 We're here to help! Reach out to us through any
                                 of the following channels.
                             </p>
@@ -269,7 +279,9 @@
                                         >
                                             Our Address
                                         </h3>
-                                        <p class="text-gray-600 dark:text-gray-300">
+                                        <p
+                                            class="text-gray-600 dark:text-gray-300"
+                                        >
                                             {{ siteStore.settings.address }}
                                         </p>
                                     </div>
@@ -302,7 +314,9 @@
                                         >
                                             Phone Number
                                         </h3>
-                                        <p class="text-gray-600 dark:text-gray-300">
+                                        <p
+                                            class="text-gray-600 dark:text-gray-300"
+                                        >
                                             <a
                                                 :href="`tel:${siteStore.settings.contact_phone}`"
                                                 class="hover:text-primary-600 transition-colors dark:hover:text-primary-400"
@@ -313,7 +327,9 @@
                                                 }}
                                             </a>
                                         </p>
-                                        <p class="text-sm text-gray-500 mt-1 dark:text-gray-400">
+                                        <p
+                                            class="text-sm text-gray-500 mt-1 dark:text-gray-400"
+                                        >
                                             Monday - Friday, 9AM - 6PM
                                         </p>
                                     </div>
@@ -346,7 +362,9 @@
                                         >
                                             Email Address
                                         </h3>
-                                        <p class="text-gray-600 dark:text-gray-300">
+                                        <p
+                                            class="text-gray-600 dark:text-gray-300"
+                                        >
                                             <a
                                                 :href="`mailto:${siteStore.settings.contact_email}`"
                                                 class="hover:text-primary-600 transition-colors dark:hover:text-primary-400"
@@ -357,7 +375,9 @@
                                                 }}
                                             </a>
                                         </p>
-                                        <p class="text-sm text-gray-500 mt-1 dark:text-gray-400">
+                                        <p
+                                            class="text-sm text-gray-500 mt-1 dark:text-gray-400"
+                                        >
                                             We'll respond within 24 hours
                                         </p>
                                     </div>
@@ -390,7 +410,9 @@
                                         >
                                             WhatsApp Chat
                                         </h3>
-                                        <p class="text-gray-600 dark:text-gray-300">
+                                        <p
+                                            class="text-gray-600 dark:text-gray-300"
+                                        >
                                             Chat with us on WhatsApp
                                         </p>
                                         <button
@@ -408,7 +430,9 @@
                             </div>
 
                             <!-- Business Hours -->
-                            <div class="mt-12 p-6 bg-gray-50 rounded-lg dark:bg-gray-800">
+                            <div
+                                class="mt-12 p-6 bg-gray-50 rounded-lg dark:bg-gray-800"
+                            >
                                 <h3
                                     class="text-lg font-semibold text-gray-900 mb-4 dark:text-white"
                                 >
@@ -416,7 +440,9 @@
                                 </h3>
                                 <div class="space-y-2 text-sm">
                                     <div class="flex justify-between">
-                                        <span class="text-gray-900 font-medium dark:text-white">
+                                        <span
+                                            class="text-gray-900 font-medium dark:text-white"
+                                        >
                                             {{
                                                 siteStore.settings
                                                     .business_hours
@@ -427,13 +453,17 @@
                             </div>
 
                             <!-- Social Media -->
-                            <div class="mt-8 p-6 bg-primary-50 rounded-lg dark:bg-primary-900/20">
+                            <div
+                                class="mt-8 p-6 bg-primary-50 rounded-lg dark:bg-primary-900/20"
+                            >
                                 <h3
                                     class="text-lg font-semibold text-gray-900 mb-4 dark:text-white"
                                 >
                                     Follow Us
                                 </h3>
-                                <p class="text-gray-600 mb-4 dark:text-gray-300">
+                                <p
+                                    class="text-gray-600 mb-4 dark:text-gray-300"
+                                >
                                     Stay connected with us on social media for
                                     updates, promotions, and more!
                                 </p>
@@ -485,15 +515,10 @@
                                         target="_blank"
                                         class="w-10 h-10 bg-black rounded-full flex items-center justify-center text-white hover:bg-gray-800 transition-colors dark:hover:bg-gray-700"
                                     >
-                                        <svg
-                                            class="w-5 h-5"
-                                            fill="currentColor"
-                                            viewBox="0 0 24 24"
-                                        >
-                                            <path
-                                                d="M12 2c0 .553-.448 1-1 1s-1-.447-1-1 .448-1 1-1 1 .447 1 1zm7.605 3.783c-.357.16-.742.27-1.144.33-.195.029-.375.049-.551.059v4.206c.004.514.042 1.029.111 1.54.057.431.14.859.253 1.28a5.495 5.495 0 01-2.773-1.346 5.562 5.562 0 01-1.964-3.548H12V21h-2V8.421c-1.048-.122-2.062-.497-2.963-1.088a5.53 5.53 0 01-1.813-2.92h2.014c.04.413.145.817.31 1.192a3.504 3.504 0 003.16 2.22c.74 0 1.426-.263 1.964-.698V2h2v3.783c.577.22 1.123.53 1.608.915.432.336.812.733 1.13 1.175l1.006-.578a5.33 5.33 0 00-1.034-1.14 6.025 6.025 0 00-1.293-.824z"
-                                            />
-                                        </svg>
+                                        M9 0h1.98c.144.715.54 1.617 1.235
+                                        2.512C12.895 3.389 13.797 4 15
+                                        4v2c-1.753 0-3.07-.814-4-1.829V11a5 5 0
+                                        1 1-5-5v2a3 3 0 1 0 3 3z
                                     </a>
                                 </div>
                             </div>
@@ -508,7 +533,9 @@
             <div class="container">
                 <div class="max-w-4xl mx-auto">
                     <div class="text-center mb-12">
-                        <h2 class="text-3xl font-bold text-gray-900 mb-4 dark:text-white">
+                        <h2
+                            class="text-3xl font-bold text-gray-900 mb-4 dark:text-white"
+                        >
                             Frequently Asked Questions
                         </h2>
                         <p class="text-lg text-gray-600 dark:text-gray-300">
