@@ -293,7 +293,7 @@
                                         class="flex-shrink-0"
                                     >
                                         <img
-                                            :src="setting.value"
+                                            :src="setting.file_url"
                                             :alt="setting.label"
                                             class="h-16 w-16 object-cover rounded-md border border-gray-200 dark:border-gray-600"
                                         />
@@ -427,6 +427,52 @@
             @cancel="showDeleteConfirm = false"
             :loading="settingsStore.deleting"
         />
+
+        <!-- Upload Progress Modal -->
+        <div
+            v-if="showUploadModal"
+            class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50"
+        >
+            <div
+                class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 w-full max-w-sm text-center"
+            >
+                <h3
+                    class="text-lg font-semibold text-gray-900 dark:text-white mb-4"
+                >
+                    File Upload
+                </h3>
+
+                <!-- Progress bar -->
+                <div
+                    class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 overflow-hidden mb-4"
+                >
+                    <div
+                        class="bg-blue-600 h-3 transition-all duration-300"
+                        :style="{ width: uploadProgress + '%' }"
+                    ></div>
+                </div>
+
+                <p class="text-sm text-gray-600 dark:text-gray-300 mb-2">
+                    {{ uploadMessage }}
+                </p>
+
+                <!-- Success / Error icon -->
+                <div v-if="uploadStatus !== 'uploading'" class="mt-3">
+                    <span
+                        v-if="uploadStatus === 'success'"
+                        class="text-green-600 font-medium"
+                    >
+                        ✅ Upload completed!
+                    </span>
+                    <span
+                        v-else-if="uploadStatus === 'error'"
+                        class="text-red-600 font-medium"
+                    >
+                        ❌ Upload failed
+                    </span>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -447,6 +493,11 @@ const showEditModal = ref(false);
 const showDeleteConfirm = ref(false);
 const editingSetting = ref(null);
 const settingToDelete = ref(null);
+
+const showUploadModal = ref(false);
+const uploadProgress = ref(0);
+const uploadMessage = ref("Preparing upload...");
+const uploadStatus = ref("uploading");
 
 // Check permissions
 if (!authStore.hasPermission("manage_settings")) {
@@ -532,102 +583,51 @@ const handleFileUpload = async (setting, event) => {
     const file = event.target.files[0];
     if (!file) return;
 
-    // Validate file size (5MB max)
-    const maxSize = 5 * 1024 * 1024; // 5MB
-    if (file.size > maxSize) {
-        toast.error("File is too large. Maximum size is 5MB.");
+    // Validation
+    if (file.size > 5 * 1024 * 1024) {
+        alert("File too large. Max size 5MB.");
         event.target.value = "";
         return;
     }
-
-    // Validate file type for images
     if (setting.type === "image" && !file.type.startsWith("image/")) {
-        toast.error("Please upload a valid image file.");
+        alert("Please upload a valid image file.");
         event.target.value = "";
         return;
     }
 
     try {
-        // Create FormData to handle file upload
-        const formData = new FormData();
-        formData.append("file", file);
+        showUploadModal.value = true;
+        uploadProgress.value = 0;
+        uploadStatus.value = "uploading";
+        uploadMessage.value = "Uploading file...";
 
-        // Include all required fields for the setting
-        formData.append("key", setting.key);
-        formData.append("type", setting.type);
-        formData.append("group", setting.group);
-        formData.append("label", setting.label);
-        formData.append("description", setting.description || "");
-        formData.append("is_public", setting.is_public ? 1 : 0);
-        formData.append("sort_order", setting.sort_order?.toString() || "0");
-        if (Array.isArray(setting.options)) {
-            setting.options.forEach((option, index) => {
-                formData.append(`options[${index}][value]`, option.value);
-                formData.append(`options[${index}][label]`, option.label);
-            });
-        } else {
-            formData.append("options", []);
-        }
-
-        formData.append("_method", "POST");
-
-        // Show loading state
-        const loadingToast = toast.loading("Uploading file...");
-
-        const requestData =settingsStore.normalizeSettingData(formData)
-
-        // Upload the file
-        const response = await axios.post(
-            `/dashboard/settings/${setting.id}`,
-            formData,
-            {
-                headers: {
-                    "Content-Type": "multipart/form-data",
-                    "X-Requested-With": "XMLHttpRequest",
-                    Accept: "application/json",
-                },
-                onUploadProgress: (progressEvent) => {
-                    const percentCompleted = Math.round(
-                        (progressEvent.loaded * 100) / progressEvent.total,
-                    );
-                    toast.update(loadingToast, {
-                        render: `Uploading: ${percentCompleted}%`,
-                        type: "default",
-                        isLoading: true,
-                    });
-                },
+        settingsStore.updateSetting(
+            setting.id,
+            { ...setting, file },
+            (progressEvent) => {
+                const percentCompleted = Math.round(
+                    (progressEvent.loaded * 100) / progressEvent.total,
+                );
+                uploadProgress.value = percentCompleted;
+                uploadMessage.value = `Uploading: ${percentCompleted}%`;
             },
         );
 
-        // Update the setting with the new file path/URL
-        setting.value = response.data.data.value;
-        setting._isDirty = false;
+        uploadStatus.value = "success";
+        uploadMessage.value = "Upload completed successfully 🎉";
 
-        // Update the settings store
-        settingsStore.updateSettingValue(setting.key, setting.value);
+        setTimeout(() => {
+            showUploadModal.value = false;
+        }, 2000);
     } catch (error) {
-        console.error("Error uploading file:", error);
+        uploadStatus.value = "error";
+        uploadMessage.value =
+            error.response?.data?.message || error.message || "Upload failed";
 
-        let errorMessage = "Failed to upload file";
-        if (error.response?.data?.message) {
-            errorMessage = error.response.data.message;
-        } else if (error.message) {
-            errorMessage = error.message;
-        }
-
-        // Dismiss any existing loading toast
-        if (typeof loadingToast !== "undefined") {
-            toast.dismiss(loadingToast);
-        }
-
-        // Show error toast
-        toast.error(errorMessage, {
-            autoClose: 5000,
-            closeOnClick: true,
-            pauseOnHover: true,
-        });
+        setTimeout(() => {
+            showUploadModal.value = false;
+        }, 3000);
     } finally {
-        // Reset the file input
         event.target.value = "";
     }
 };

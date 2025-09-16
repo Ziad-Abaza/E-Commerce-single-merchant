@@ -2,11 +2,12 @@
   "info": {
     "name": "E-Commerce API",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "description": "Complete API collection for E-Commerce application"
+    "description": "Complete API collection for E-Commerce application with full dashboard support"
   },
   "item": [
     {
       "name": "Auth",
+      "description": "Authentication and user management endpoints",
       "item": [
         {
           "name": "Login",

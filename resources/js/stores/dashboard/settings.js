@@ -103,7 +103,7 @@ export const useSettingsStore = defineStore("settings", {
             }
         },
 
-        async updateSetting(id, settingData) {
+        async updateSetting(id, settingData, onUploadProgress = null) {
             this.saving = true;
             this.error = null;
 
@@ -113,7 +113,8 @@ export const useSettingsStore = defineStore("settings", {
                 const response = await axios.post(
                     `/dashboard/settings/${id}`,
                     normalizedData,
-                    { headers: { "Content-Type": "multipart/form-data" } },
+                    { headers: { "Content-Type": "multipart/form-data" },
+                    onUploadProgress },
                 );
 
                 // Update in local state
@@ -223,15 +224,41 @@ export const useSettingsStore = defineStore("settings", {
         },
 
         normalizeSettingData(data) {
-            return {
-                ...data,
-                options: Array.isArray(data.options)
-                    ? data.options
-                    : data.options
-                      ? JSON.parse(data.options)
-                      : [],
-                is_public: data.is_public ? 1 : 0,
-            };
+            const formData = new FormData();
+
+            // أهم الحقول (fallbacks لو ناقصة)
+            formData.append("key", data.key ?? "");
+            formData.append("type", data.type ?? "text");
+            formData.append("group", data.group ?? "general");
+            formData.append(
+                "label",
+                data.label ?? data.key ?? "Unnamed Setting",
+            );
+            formData.append("description", data.description ?? "");
+            formData.append("is_public", data.is_public === true ? 1 : 0);
+
+            if (data.sort_order !== undefined) {
+                formData.append("sort_order", data.sort_order.toString());
+            }
+
+            // لو رفع ملف
+            if (data.file) {
+                formData.append("file", data.file);
+            }
+
+            // باقي الحقول
+            if (data.options) {
+                formData.append(
+                    "options",
+                    Array.isArray(data.options)
+                        ? JSON.stringify(data.options)
+                        : data.options,
+                );
+            }
+
+            formData.append("_method", "POST");
+
+            return formData;
         },
         updateSettingValue(key, value) {
             const setting = this.settings.find((s) => s.key === key);
@@ -247,7 +274,11 @@ export const useSettingsStore = defineStore("settings", {
                 setting._isDirty = false;
             }
         },
+        /*************  ✨ Windsurf Command ⭐  *************/
+        /**
+         * Updates the value of a setting and marks it as dirty
 
+/*******  04ebac85-5969-497a-a16b-40bf5d70426d  *******/
         setSelectedGroup(group) {
             this.selectedGroup = group;
         },
