@@ -1,5 +1,5 @@
 <template>
-  <div id="app" class="min-h-screen bg-gray-50">
+  <div id="app" class="min-h-screen bg-gray-50 dark:bg-gray-900">
     <router-view />
     <MobileMenuOverlay v-if="showMobileMenu" @close="closeMobileMenu" />
     <LoadingOverlay v-if="isLoading" />
@@ -14,11 +14,14 @@ import { useSiteStore } from './stores/site'
 import { useCartStore } from './stores/cart'
 import LoadingOverlay from './components/LoadingOverlay.vue'
 import MobileMenuOverlay from './components/layout/MobileMenuOverlay.vue'
+import { useTheme } from './composables/useTheme.js'
 
 const authStore = useAuthStore()
 const productStore = useProductStore()
 const cartStore = useCartStore()
 const siteStore = useSiteStore()
+
+const { theme, isDark, setTheme } = useTheme()
 
 const isLoading = computed(() => {
   return authStore.loading || productStore.loading || cartStore.loading
@@ -58,6 +61,8 @@ const initializeApp = async () => {
     if (authStore.isAuthenticated) {
       await cartStore.loadCart()
     }
+
+     setTheme(theme.value)
   } catch (error) {
     console.error('Failed to initialize app:', error)
   }

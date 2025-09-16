@@ -15,12 +15,14 @@ onMounted(() => {
 
 <template>
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <h1 class="text-3xl font-bold mb-4">Search Results</h1>
+    <h1 class="text-3xl font-bold mb-4 text-gray-900 dark:text-white">Search Results</h1>
 
-    <div v-if="searchStore.loading" class="text-center py-12">Loading...</div>
+    <div v-if="searchStore.loading" class="text-center py-12">
+      <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 dark:border-primary-500 mx-auto"></div>
+    </div>
 
     <div v-else-if="!searchStore.results.length">
-      <p class="text-gray-500">No results found</p>
+      <p class="text-gray-500 dark:text-gray-400">No results found</p>
     </div>
 
     <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">

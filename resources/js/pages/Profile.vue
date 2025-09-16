@@ -1,10 +1,12 @@
 <template>
-    <div class="min-h-screen bg-gray-50">
+    <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
         <div class="container py-8">
             <!-- Header -->
             <div class="mb-8">
-                <h1 class="text-3xl font-bold text-gray-900">My Profile</h1>
-                <p class="text-gray-600 mt-2">
+                <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
+                    My Profile
+                </h1>
+                <p class="text-gray-600 mt-2 dark:text-gray-300">
                     Manage your account settings and preferences
                 </p>
             </div>
@@ -15,7 +17,7 @@
                 class="flex justify-center py-12"
             >
                 <div
-                    class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"
+                    class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 dark:border-primary-500"
                 ></div>
             </div>
 
@@ -24,14 +26,14 @@
                 <!-- Profile Sidebar -->
                 <div class="lg:col-span-1">
                     <div
-                        class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 sticky top-4"
+                        class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 sticky top-4 dark:bg-gray-800 dark:border-gray-700"
                     >
                         <!-- Profile Header -->
                         <div class="text-center mb-6">
                             <div class="relative inline-block">
                                 <!-- Avatar -->
                                 <div
-                                    class="w-24 h-24 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden mx-auto mb-4"
+                                    class="w-24 h-24 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden mx-auto mb-4 dark:bg-gray-700"
                                     :class="
                                         profileStore.loading
                                             ? 'animate-pulse'
@@ -53,7 +55,7 @@
                                         class="w-full h-full flex items-center justify-center"
                                     >
                                         <span
-                                            class="text-2xl font-semibold text-gray-600"
+                                            class="text-2xl font-semibold text-gray-600 dark:text-gray-300"
                                         >
                                             {{ profileStore.userInitials }}
                                         </span>
@@ -63,7 +65,7 @@
                                 <!-- Edit Avatar Button -->
                                 <button
                                     @click="showAvatarModal = true"
-                                    class="absolute bottom-0 right-0 p-2 bg-primary-600 text-white rounded-full shadow-lg hover:bg-primary-700 transition-all duration-200 transform hover:scale-110"
+                                    class="absolute bottom-0 right-0 p-2 bg-primary-600 text-white rounded-full shadow-lg hover:bg-primary-700 transition-all duration-200 transform hover:scale-110 dark:bg-primary-700 dark:hover:bg-primary-800"
                                     :title="t('profile.editAvatar')"
                                 >
                                     <svg
@@ -82,22 +84,28 @@
                                 </button>
                             </div>
 
-                            <h2 class="text-xl font-semibold text-gray-900">
+                            <h2
+                                class="text-xl font-semibold text-gray-900 dark:text-white"
+                            >
                                 {{ profileStore.user?.name || "User" }}
                             </h2>
-                            <p class="text-gray-500">
+                            <p class="text-gray-500 dark:text-gray-400">
                                 {{ profileStore.user?.email || "N/A" }}
                             </p>
-                            <p class="text-sm text-gray-500 mt-1">
+                            <p
+                                class="text-sm text-gray-500 mt-1 dark:text-gray-400"
+                            >
                                 Member since {{ profileStore.memberSince }}
                             </p>
                         </div>
 
                         <!-- Profile Stats -->
                         <div v-if="profileStore.stats" class="space-y-4">
-                            <div class="border-t border-gray-200 pt-4">
+                            <div
+                                class="border-t border-gray-200 pt-4 dark:border-gray-700"
+                            >
                                 <h3
-                                    class="text-sm font-medium text-gray-500 uppercase tracking-wider mb-3"
+                                    class="text-sm font-medium text-gray-500 uppercase tracking-wider mb-3 dark:text-gray-400"
                                 >
                                     {{ t("profile.statistics") }}
                                 </h3>
@@ -105,11 +113,12 @@
                                     <div
                                         class="flex justify-between items-center"
                                     >
-                                        <span class="text-sm text-gray-600">{{
-                                            t("profile.orders")
-                                        }}</span>
                                         <span
-                                            class="font-medium text-gray-900"
+                                            class="text-sm text-gray-600 dark:text-gray-400"
+                                            >{{ t("profile.orders") }}</span
+                                        >
+                                        <span
+                                            class="font-medium text-gray-900 dark:text-white"
                                             >{{
                                                 profileStore.stats.total_orders
                                             }}</span
@@ -118,11 +127,12 @@
                                     <div
                                         class="flex justify-between items-center"
                                     >
-                                        <span class="text-sm text-gray-600">{{
-                                            t("profile.reviews")
-                                        }}</span>
                                         <span
-                                            class="font-medium text-gray-900"
+                                            class="text-sm text-gray-600 dark:text-gray-400"
+                                            >{{ t("profile.reviews") }}</span
+                                        >
+                                        <span
+                                            class="font-medium text-gray-900 dark:text-white"
                                             >{{
                                                 profileStore.stats.total_reviews
                                             }}</span
@@ -131,11 +141,12 @@
                                     <div
                                         class="flex justify-between items-center"
                                     >
-                                        <span class="text-sm text-gray-600">{{
-                                            t("profile.wishlist")
-                                        }}</span>
                                         <span
-                                            class="font-medium text-gray-900"
+                                            class="text-sm text-gray-600 dark:text-gray-400"
+                                            >{{ t("profile.wishlist") }}</span
+                                        >
+                                        <span
+                                            class="font-medium text-gray-900 dark:text-white"
                                             >{{
                                                 profileStore.stats
                                                     .total_wishlist_items
@@ -145,16 +156,21 @@
                                     <div
                                         class="flex justify-between items-center"
                                     >
-                                        <span class="text-sm text-gray-600">{{
-                                            t("profile.spent")
-                                        }}</span>
-                                        <span class="font-medium text-gray-900"
+                                        <span
+                                            class="text-sm text-gray-600 dark:text-gray-400"
+                                            >{{ t("profile.spent") }}</span
+                                        >
+                                        <span
+                                            class="font-medium text-gray-900 dark:text-white"
                                             >{{
                                                 formatPrice(
                                                     profileStore.stats
                                                         .total_spent,
                                                 )
-                                            }} {{ siteStore.settings.currency }}</span
+                                            }}
+                                            {{
+                                                siteStore.settings.currency
+                                            }}</span
                                         >
                                     </div>
                                 </div>
@@ -162,19 +178,21 @@
                         </div>
 
                         <!-- Navigation -->
-                        <div class="border-t border-gray-200 pt-4 mt-6">
+                        <div
+                            class="border-t border-gray-200 pt-4 mt-6 dark:border-gray-700"
+                        >
                             <h3
-                                class="text-sm font-medium text-gray-500 uppercase tracking-wider mb-3"
+                                class="text-sm font-medium text-gray-500 uppercase tracking-wider mb-3 dark:text-gray-400"
                             >
                                 {{ t("profile.navigation") }}
                             </h3>
                             <nav class="space-y-2">
                                 <router-link
                                     to="/orders"
-                                    class="flex items-center px-3 py-2 text-sm text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"
+                                    class="flex items-center px-3 py-2 text-sm text-gray-700 rounded-lg hover:bg-gray-100 transition-colors dark:text-gray-300 dark:hover:bg-gray-700"
                                 >
                                     <svg
-                                        class="h-4 w-4 mr-3 text-gray-400"
+                                        class="h-4 w-4 mr-3 text-gray-400 dark:text-gray-500"
                                         fill="none"
                                         stroke="currentColor"
                                         viewBox="0 0 24 24"
@@ -190,10 +208,10 @@
                                 </router-link>
                                 <router-link
                                     to="/wishlist"
-                                    class="flex items-center px-3 py-2 text-sm text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"
+                                    class="flex items-center px-3 py-2 text-sm text-gray-700 rounded-lg hover:bg-gray-100 transition-colors dark:text-gray-300 dark:hover:bg-gray-700"
                                 >
                                     <svg
-                                        class="h-4 w-4 mr-3 text-gray-400"
+                                        class="h-4 w-4 mr-3 text-gray-400 dark:text-gray-500"
                                         fill="none"
                                         stroke="currentColor"
                                         viewBox="0 0 24 24"
@@ -209,10 +227,10 @@
                                 </router-link>
                                 <router-link
                                     to="/addresses"
-                                    class="flex items-center px-3 py-2 text-sm text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"
+                                    class="flex items-center px-3 py-2 text-sm text-gray-700 rounded-lg hover:bg-gray-100 transition-colors dark:text-gray-300 dark:hover:bg-gray-700"
                                 >
                                     <svg
-                                        class="h-4 w-4 mr-3 text-gray-400"
+                                        class="h-4 w-4 mr-3 text-gray-400 dark:text-gray-500"
                                         fill="none"
                                         stroke="currentColor"
                                         viewBox="0 0 24 24"
@@ -241,9 +259,11 @@
                 <div class="lg:col-span-2">
                     <!-- Profile Form -->
                     <div
-                        class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6"
+                        class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6 dark:bg-gray-800 dark:border-gray-700"
                     >
-                        <h2 class="text-xl font-semibold text-gray-900 mb-6">
+                        <h2
+                            class="text-xl font-semibold text-gray-900 mb-6 dark:text-white"
+                        >
                             {{ t("profile.basicInfo") }}
                         </h2>
 
@@ -252,7 +272,7 @@
                             <div>
                                 <label
                                     for="name"
-                                    class="block text-sm font-medium text-gray-700 mb-2"
+                                    class="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300"
                                 >
                                     {{ t("profile.name") }}
                                 </label>
@@ -260,7 +280,7 @@
                                     id="name"
                                     v-model="profileStore.formData.name"
                                     type="text"
-                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                                     :disabled="profileStore.loading"
                                     required
                                 />
@@ -270,7 +290,7 @@
                             <div>
                                 <label
                                     for="email"
-                                    class="block text-sm font-medium text-gray-700 mb-2"
+                                    class="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300"
                                 >
                                     {{ t("profile.email") }}
                                 </label>
@@ -278,10 +298,12 @@
                                     id="email"
                                     :value="profileStore.user?.email || ''"
                                     type="email"
-                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-500 cursor-not-allowed"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-500 cursor-not-allowed dark:bg-gray-700 dark:border-gray-600 dark:text-gray-400"
                                     disabled
                                 />
-                                <p class="mt-1 text-xs text-gray-500">
+                                <p
+                                    class="mt-1 text-xs text-gray-500 dark:text-gray-400"
+                                >
                                     {{ t("profile.emailReadOnly") }}
                                 </p>
                             </div>
@@ -290,7 +312,7 @@
                             <div>
                                 <label
                                     for="phone"
-                                    class="block text-sm font-medium text-gray-700 mb-2"
+                                    class="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300"
                                 >
                                     {{ t("profile.phone") }}
                                 </label>
@@ -298,7 +320,7 @@
                                     id="phone"
                                     v-model="profileStore.formData.phone"
                                     type="tel"
-                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                                     :disabled="profileStore.loading"
                                     placeholder="+1 (555) 123-4567"
                                 />
@@ -308,7 +330,7 @@
                             <div>
                                 <label
                                     for="address"
-                                    class="block text-sm font-medium text-gray-700 mb-2"
+                                    class="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300"
                                 >
                                     {{ t("profile.address") }}
                                 </label>
@@ -316,7 +338,7 @@
                                     id="address"
                                     v-model="profileStore.formData.address"
                                     rows="3"
-                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors resize-none"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors resize-none dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                                     :disabled="profileStore.loading"
                                     placeholder="Enter your full address"
                                 ></textarea>
@@ -327,7 +349,7 @@
                                 <button
                                     type="submit"
                                     :disabled="profileStore.loading"
-                                    class="px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    class="px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-primary-700 dark:hover:bg-primary-800"
                                 >
                                     <span v-if="profileStore.loading">
                                         <svg
@@ -363,7 +385,7 @@
                                     profileStore.successMessage &&
                                     !profileStore.error
                                 "
-                                class="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg"
+                                class="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg dark:bg-green-900/30 dark:border-green-800"
                             >
                                 <div class="flex">
                                     <div class="flex-shrink-0">
@@ -382,7 +404,9 @@
                                         </svg>
                                     </div>
                                     <div class="ml-3">
-                                        <p class="text-sm text-green-700">
+                                        <p
+                                            class="text-sm text-green-700 dark:text-green-300"
+                                        >
                                             {{ profileStore.successMessage }}
                                         </p>
                                     </div>
@@ -392,7 +416,7 @@
                             <!-- Error Message -->
                             <div
                                 v-if="profileStore.error"
-                                class="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg"
+                                class="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg dark:bg-red-900/30 dark:border-red-800"
                             >
                                 <div class="flex">
                                     <div class="flex-shrink-0">
@@ -411,7 +435,9 @@
                                         </svg>
                                     </div>
                                     <div class="ml-3">
-                                        <p class="text-sm text-red-700">
+                                        <p
+                                            class="text-sm text-red-700 dark:text-red-300"
+                                        >
                                             {{ profileStore.error }}
                                         </p>
                                     </div>
@@ -422,9 +448,11 @@
 
                     <!-- Password Change Form -->
                     <div
-                        class="bg-white rounded-xl shadow-sm border border-gray-200 p-6"
+                        class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 dark:bg-gray-800 dark:border-gray-700"
                     >
-                        <h2 class="text-xl font-semibold text-gray-900 mb-6">
+                        <h2
+                            class="text-xl font-semibold text-gray-900 mb-6 dark:text-white"
+                        >
                             {{ t("profile.changePassword") }}
                         </h2>
 
@@ -436,7 +464,7 @@
                             <div>
                                 <label
                                     for="current_password"
-                                    class="block text-sm font-medium text-gray-700 mb-2"
+                                    class="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300"
                                 >
                                     {{ t("profile.currentPassword") }}
                                 </label>
@@ -447,7 +475,7 @@
                                             .current_password
                                     "
                                     type="password"
-                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                                     :disabled="profileStore.loading"
                                     required
                                 />
@@ -457,7 +485,7 @@
                             <div>
                                 <label
                                     for="password"
-                                    class="block text-sm font-medium text-gray-700 mb-2"
+                                    class="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300"
                                 >
                                     {{ t("profile.newPassword") }}
                                 </label>
@@ -465,12 +493,14 @@
                                     id="password"
                                     v-model="profileStore.passwordData.password"
                                     type="password"
-                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                                     :disabled="profileStore.loading"
                                     required
                                     minlength="8"
                                 />
-                                <p class="mt-1 text-xs text-gray-500">
+                                <p
+                                    class="mt-1 text-xs text-gray-500 dark:text-gray-400"
+                                >
                                     {{ t("profile.passwordRequirements") }}
                                 </p>
                             </div>
@@ -479,7 +509,7 @@
                             <div>
                                 <label
                                     for="password_confirmation"
-                                    class="block text-sm font-medium text-gray-700 mb-2"
+                                    class="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300"
                                 >
                                     {{ t("profile.confirmPassword") }}
                                 </label>
@@ -490,7 +520,7 @@
                                             .password_confirmation
                                     "
                                     type="password"
-                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                                     :disabled="profileStore.loading"
                                     required
                                 />
@@ -501,7 +531,7 @@
                                 <button
                                     type="submit"
                                     :disabled="profileStore.loading"
-                                    class="px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    class="px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-primary-700 dark:hover:bg-primary-800"
                                 >
                                     <span v-if="profileStore.loading">
                                         <svg
@@ -532,7 +562,7 @@
                                 <button
                                     type="button"
                                     @click="profileStore.resetPasswordForm"
-                                    class="ml-4 px-6 py-3 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all duration-200"
+                                    class="ml-4 px-6 py-3 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all duration-200 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700"
                                 >
                                     {{ t("profile.cancel") }}
                                 </button>
@@ -544,7 +574,7 @@
                                     profileStore.successMessage &&
                                     !profileStore.error
                                 "
-                                class="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg"
+                                class="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg dark:bg-green-900/30 dark:border-green-800"
                             >
                                 <div class="flex">
                                     <div class="flex-shrink-0">
@@ -563,7 +593,9 @@
                                         </svg>
                                     </div>
                                     <div class="ml-3">
-                                        <p class="text-sm text-green-700">
+                                        <p
+                                            class="text-sm text-green-700 dark:text-green-300"
+                                        >
                                             {{ profileStore.successMessage }}
                                         </p>
                                     </div>
@@ -573,7 +605,7 @@
                             <!-- Error Message -->
                             <div
                                 v-if="profileStore.error"
-                                class="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg"
+                                class="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg dark:bg-red-900/30 dark:border-red-800"
                             >
                                 <div class="flex">
                                     <div class="flex-shrink-0">
@@ -592,7 +624,9 @@
                                         </svg>
                                     </div>
                                     <div class="ml-3">
-                                        <p class="text-sm text-red-700">
+                                        <p
+                                            class="text-sm text-red-700 dark:text-red-300"
+                                        >
                                             {{ profileStore.error }}
                                         </p>
                                     </div>
@@ -611,20 +645,20 @@
             @click="showAvatarModal = false"
         >
             <div
-                class="fixed inset-0 bg-black bg-opacity-50 transition-opacity"
+                class="fixed inset-0 bg-black bg-opacity-50 transition-opacity dark:bg-gray-900 dark:bg-opacity-75"
             ></div>
 
             <div
-                class="relative bg-white rounded-2xl shadow-xl max-w-md w-full mx-auto p-6 transform transition-all"
+                class="relative bg-white rounded-2xl shadow-xl max-w-md w-full mx-auto p-6 transform transition-all dark:bg-gray-800"
                 @click.stop
             >
                 <div class="flex items-center justify-between mb-6">
-                    <h3 class="text-xl font-bold text-gray-900">
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white">
                         {{ t("profile.changeAvatar") }}
                     </h3>
                     <button
                         @click="showAvatarModal = false"
-                        class="p-2 text-gray-400 hover:text-gray-600 transition-colors"
+                        class="p-2 text-gray-400 hover:text-gray-600 transition-colors dark:text-gray-500 dark:hover:text-gray-300"
                     >
                         <svg
                             class="h-6 w-6"
@@ -646,7 +680,7 @@
                     <!-- Current Avatar Preview -->
                     <div class="flex items-center space-x-4">
                         <div
-                            class="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden"
+                            class="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden dark:bg-gray-700"
                         >
                             <img
                                 v-if="
@@ -662,17 +696,21 @@
                                 class="w-full h-full flex items-center justify-center"
                             >
                                 <span
-                                    class="text-lg font-semibold text-gray-600"
+                                    class="text-lg font-semibold text-gray-600 dark:text-gray-300"
                                 >
                                     {{ profileStore.userInitials }}
                                 </span>
                             </div>
                         </div>
                         <div>
-                            <p class="text-sm font-medium text-gray-900">
+                            <p
+                                class="text-sm font-medium text-gray-900 dark:text-white"
+                            >
                                 {{ profileStore.user?.name || "User" }}
                             </p>
-                            <p class="text-xs text-gray-500">Current avatar</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">
+                                Current avatar
+                            </p>
                         </div>
                     </div>
 
@@ -680,7 +718,7 @@
                     <div>
                         <label
                             for="avatar-upload"
-                            class="block text-sm font-medium text-gray-700 mb-2"
+                            class="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300"
                         >
                             {{ t("profile.uploadNewAvatar") }}
                         </label>
@@ -689,20 +727,24 @@
                             type="file"
                             accept="image/*"
                             @change="handleAvatarUpload"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                         />
-                        <p class="mt-1 text-xs text-gray-500">
+                        <p
+                            class="mt-1 text-xs text-gray-500 dark:text-gray-400"
+                        >
                             {{ t("profile.avatarRequirements") }}
                         </p>
                     </div>
 
                     <!-- Preview -->
                     <div v-if="previewUrl" class="mt-4">
-                        <p class="text-sm font-medium text-gray-700 mb-2">
+                        <p
+                            class="text-sm font-medium text-gray-700 mb-2 dark:text-gray-300"
+                        >
                             {{ t("profile.preview") }}
                         </p>
                         <div
-                            class="w-24 h-24 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden mx-auto"
+                            class="w-24 h-24 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden mx-auto dark:bg-gray-700"
                         >
                             <img
                                 :src="previewUrl"
@@ -717,13 +759,13 @@
                     <button
                         @click="saveAvatar"
                         :disabled="!previewUrl || profileStore.loading"
-                        class="flex-1 bg-primary-600 text-white py-3 px-4 rounded-lg hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                        class="flex-1 bg-primary-600 text-white py-3 px-4 rounded-lg hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed dark:bg-primary-700 dark:hover:bg-primary-800"
                     >
                         {{ t("profile.saveAvatar") }}
                     </button>
                     <button
                         @click="removeAvatar"
-                        class="px-4 py-3 border border-red-300 text-red-700 rounded-lg hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all"
+                        class="px-4 py-3 border border-red-300 text-red-700 rounded-lg hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all dark:border-red-600 dark:text-red-400 dark:hover:bg-red-900/30"
                     >
                         {{ t("profile.removeAvatar") }}
                     </button>

@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 hover:shadow-md transition-shadow duration-200">
+  <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 hover:shadow-md transition-shadow duration-200 dark:bg-gray-800 dark:border-gray-700 dark:hover:shadow-gray-700/20">
     <div class="flex space-x-4">
       <!-- Product Image -->
       <div class="flex-shrink-0">
@@ -17,18 +17,18 @@
       <div class="flex-1 min-w-0 relative">
         <!-- Category -->
         <div v-if="product.categories && product.categories.length > 0" class="mb-1">
-          <span class="text-xs text-gray-500">{{ product.categories[0].name }}</span>
+          <span class="text-xs text-gray-500 dark:text-gray-400">{{ product.categories[0].name }}</span>
         </div>
 
         <!-- Product Name -->
-        <h3 class="text-lg font-medium text-gray-900 mb-2">
-          <router-link :to="`/products/${product.id}`" class="hover:text-primary-600 transition-colors">
+        <h3 class="text-lg font-medium text-gray-900 mb-2 dark:text-white">
+          <router-link :to="`/products/${product.id}`" class="hover:text-primary-600 transition-colors dark:hover:text-primary-400">
             {{ product.name }}
           </router-link>
         </h3>
 
         <!-- Product Description -->
-        <p v-if="product.description" class="text-sm text-gray-600 mb-3 line-clamp-2">
+        <p v-if="product.description" class="text-sm text-gray-600 mb-3 line-clamp-2 dark:text-gray-300">
           {{ product.description }}
         </p>
 
@@ -39,22 +39,22 @@
               v-for="star in 5"
               :key="star"
               class="h-4 w-4"
-              :class="star <= Math.round(product.rating) ? 'text-yellow-400' : 'text-gray-300'"
+              :class="star <= Math.round(product.rating) ? 'text-yellow-400' : 'text-gray-300 dark:text-gray-600'"
               fill="currentColor"
               viewBox="0 0 24 24"
             >
               <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
             </svg>
           </div>
-          <span class="ml-2 text-sm text-gray-600">({{ product.reviews_count || 0 }})</span>
+          <span class="ml-2 text-sm text-gray-600 dark:text-gray-400">({{ product.reviews_count || 0 }})</span>
         </div>
 
         <!-- Price and Actions -->
         <div class="flex items-center justify-between">
           <!-- Price -->
           <div class="flex items-center space-x-2">
-            <span class="text-lg font-bold text-gray-900">{{ displayPrice }} {{ siteStore.settings.currency }}</span>
-            <span v-if="product.discount_percentage" class="text-sm text-gray-500 line-through">
+            <span class="text-lg font-bold text-gray-900 dark:text-white">{{ displayPrice }} {{ siteStore.settings.currency }}</span>
+            <span v-if="product.discount_percentage" class="text-sm text-gray-500 line-through dark:text-gray-400">
               {{ product.original_price }} {{ siteStore.settings.currency }}
             </span>
           </div>
@@ -65,8 +65,8 @@
             <button
               v-if="authStore.isAuthenticated"
               @click.stop="toggleWishlist"
-              class="p-2 text-gray-400 hover:text-red-500 transition-colors"
-              :class="{ 'text-red-500': isInWishlist }"
+              class="p-2 text-gray-400 hover:text-red-500 transition-colors dark:text-gray-300 dark:hover:text-red-400"
+              :class="{ 'text-red-500 dark:text-red-400': isInWishlist }"
             >
               <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
@@ -77,7 +77,7 @@
             <button
               @click.stop="addToCart"
               :disabled="cartStore.loading"
-              class="bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center"
+              class="bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center dark:bg-primary-700 dark:hover:bg-primary-800"
             >
               <!-- Loading Spinner -->
               <svg v-if="cartStore.loading" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">

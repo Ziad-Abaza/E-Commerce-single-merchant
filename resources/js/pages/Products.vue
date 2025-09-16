@@ -1,12 +1,12 @@
 <template>
-    <div class="min-h-screen bg-gray-50">
+    <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
         <div class="container py-8">
             <!-- Header -->
             <div class="mb-8">
-                <h1 class="text-3xl font-bold text-gray-900 mb-4">
+                <h1 class="text-3xl font-bold text-gray-900 mb-4 dark:text-white">
                     All Products
                 </h1>
-                <p class="text-gray-600">
+                <p class="text-gray-600 dark:text-gray-300">
                     Discover our complete collection of products
                 </p>
             </div>
@@ -16,7 +16,7 @@
                 <div class="lg:hidden">
                     <button
                         @click="showFilters = !showFilters"
-                        class="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg shadow-sm text-gray-700 font-medium flex items-center justify-center"
+                        class="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg shadow-sm text-gray-700 font-medium flex items-center justify-center dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300"
                     >
                         <svg
                             class="w-5 h-5 mr-2"
@@ -39,13 +39,13 @@
                 <div
                     class="lg:w-64 lg:flex-shrink-0 transition-all duration-300"
                     :class="{
-                        'fixed inset-0 z-50 bg-black bg-opacity-50': !isDesktop,
+                        'fixed inset-0 z-50 bg-black bg-opacity-50 dark:bg-gray-900 dark:bg-opacity-75': !isDesktop,
                         hidden: !showFilters && !isDesktop,
                         block: isDesktop,
                     }"
                 >
                     <div
-                        class="bg-white rounded-lg shadow-lg border border-gray-200 p-6 w-full lg:w-auto lg:static lg:rounded-lg lg:shadow-sm"
+                        class="bg-white rounded-lg shadow-lg border border-gray-200 p-6 w-full lg:w-auto lg:static lg:rounded-lg lg:shadow-sm dark:bg-gray-800 dark:border-gray-700"
                         :class="
                             !isDesktop
                                 ? 'absolute top-0 right-0 bottom-0 w-80 overflow-y-auto'
@@ -56,10 +56,10 @@
                         <div class="lg:hidden flex justify-end mb-4">
                             <button
                                 @click="showFilters = false"
-                                class="p-2 rounded-full hover:bg-gray-100"
+                                class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
                             >
                                 <svg
-                                    class="w-6 h-6"
+                                    class="w-6 h-6 dark:text-gray-300"
                                     fill="none"
                                     stroke="currentColor"
                                     viewBox="0 0 24 24"
@@ -74,13 +74,13 @@
                             </button>
                         </div>
 
-                        <h3 class="text-lg font-semibold text-gray-900 mb-6">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-6 dark:text-white">
                             Filters
                         </h3>
 
                         <!-- Categories -->
                         <div class="mb-6">
-                            <h4 class="text-sm font-medium text-gray-900 mb-3">
+                            <h4 class="text-sm font-medium text-gray-900 mb-3 dark:text-white">
                                 Categories
                             </h4>
                             <div
@@ -92,9 +92,9 @@
                                         type="radio"
                                         :value="null"
                                         @change="applyFilters"
-                                        class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300"
+                                        class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 dark:bg-gray-700 dark:border-gray-600"
                                     />
-                                    <span class="ml-2 text-sm text-gray-700"
+                                    <span class="ml-2 text-sm text-gray-700 dark:text-gray-300"
                                         >All Categories</span
                                     >
                                 </label>
@@ -108,9 +108,9 @@
                                         type="radio"
                                         :value="category.id"
                                         @change="applyFilters"
-                                        class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300"
+                                        class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 dark:bg-gray-700 dark:border-gray-600"
                                     />
-                                    <span class="ml-2 text-sm text-gray-700">{{
+                                    <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">{{
                                         category.name
                                     }}</span>
                                 </label>
@@ -119,13 +119,13 @@
 
                         <!-- Price Range -->
                         <div class="mb-6">
-                            <h4 class="text-sm font-medium text-gray-900 mb-3">
+                            <h4 class="text-sm font-medium text-gray-900 mb-3 dark:text-white">
                                 Price Range
                             </h4>
                             <div class="space-y-3">
                                 <div>
                                     <label
-                                        class="block text-xs text-gray-500 mb-1"
+                                        class="block text-xs text-gray-500 mb-1 dark:text-gray-400"
                                         >Min Price</label
                                     >
                                     <input
@@ -133,12 +133,12 @@
                                         type="number"
                                         placeholder="0"
                                         @change="applyFilters"
-                                        class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-primary-500 focus:border-primary-500"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                                     />
                                 </div>
                                 <div>
                                     <label
-                                        class="block text-xs text-gray-500 mb-1"
+                                        class="block text-xs text-gray-500 mb-1 dark:text-gray-400"
                                         >Max Price</label
                                     >
                                     <input
@@ -146,7 +146,7 @@
                                         type="number"
                                         placeholder="1000"
                                         @change="applyFilters"
-                                        class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-primary-500 focus:border-primary-500"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                                     />
                                 </div>
                             </div>
@@ -154,13 +154,13 @@
 
                         <!-- Sort -->
                         <div class="mb-6">
-                            <h4 class="text-sm font-medium text-gray-900 mb-3">
+                            <h4 class="text-sm font-medium text-gray-900 mb-3 dark:text-white">
                                 Sort By
                             </h4>
                             <select
                                 v-model="filters.sort"
                                 @change="applyFilters"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-primary-500 focus:border-primary-500"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                             >
                                 <option value="created_at">Newest First</option>
                                 <option value="name">Name A-Z</option>
@@ -178,7 +178,7 @@
                         <div class="flex flex-col space-y-3">
                             <button
                                 @click="clearFilters"
-                                class="w-full px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                class="w-full px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
                             >
                                 Clear Filters
                             </button>
@@ -187,7 +187,7 @@
                             <button
                                 v-if="!isDesktop"
                                 @click="showFilters = false"
-                                class="w-full px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                class="w-full px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-primary-700 dark:hover:bg-primary-800"
                             >
                                 Apply Filters
                             </button>
@@ -199,18 +199,18 @@
                 <div class="flex-1">
                     <!-- Results Header -->
                     <div class="flex items-center justify-between mb-6">
-                        <div class="text-sm text-gray-500">
+                        <div class="text-sm text-gray-500 dark:text-gray-400">
                             Showing {{ productStore.pagination.total }} products
                         </div>
                         <div class="flex items-center space-x-2">
-                            <span class="text-sm text-gray-500">View:</span>
+                            <span class="text-sm text-gray-500 dark:text-gray-400">View:</span>
                             <button
                                 @click="viewMode = 'grid'"
                                 :class="[
                                     'p-2 rounded-md',
                                     viewMode === 'grid'
-                                        ? 'bg-primary-100 text-primary-600'
-                                        : 'text-gray-400 hover:text-gray-600',
+                                        ? 'bg-primary-100 text-primary-600 dark:bg-primary-900/30 dark:text-primary-400'
+                                        : 'text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300',
                                 ]"
                             >
                                 <svg
@@ -228,8 +228,8 @@
                                 :class="[
                                     'p-2 rounded-md',
                                     viewMode === 'list'
-                                        ? 'bg-primary-100 text-primary-600'
-                                        : 'text-gray-400 hover:text-gray-600',
+                                        ? 'bg-primary-100 text-primary-600 dark:bg-primary-900/30 dark:text-primary-400'
+                                        : 'text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300',
                                 ]"
                             >
                                 <svg
@@ -251,17 +251,17 @@
                     <div v-if="productStore.loading" class="product-grid">
                         <div v-for="n in 12" :key="n" class="animate-pulse">
                             <div
-                                class="bg-white rounded-lg shadow-sm border border-gray-200"
+                                class="bg-white rounded-lg shadow-sm border border-gray-200 dark:bg-gray-800 dark:border-gray-700"
                             >
                                 <div
-                                    class="h-48 bg-gray-200 rounded-t-lg"
+                                    class="h-48 bg-gray-200 rounded-t-lg dark:bg-gray-700"
                                 ></div>
                                 <div class="p-4">
                                     <div
-                                        class="bg-gray-200 h-4 rounded w-3/4 mb-2"
+                                        class="bg-gray-200 h-4 rounded w-3/4 mb-2 dark:bg-gray-600"
                                     ></div>
                                     <div
-                                        class="bg-gray-200 h-4 rounded w-1/2"
+                                        class="bg-gray-200 h-4 rounded w-1/2 dark:bg-gray-600"
                                     ></div>
                                 </div>
                             </div>
@@ -295,7 +295,7 @@
                         class="text-center py-12"
                     >
                         <svg
-                            class="mx-auto h-12 w-12 text-gray-400"
+                            class="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500"
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
@@ -307,16 +307,16 @@
                                 d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
                             />
                         </svg>
-                        <h3 class="mt-2 text-sm font-medium text-gray-900">
+                        <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">
                             No products found
                         </h3>
-                        <p class="mt-1 text-sm text-gray-500">
+                        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
                             Try adjusting your filters or search terms.
                         </p>
                         <div class="mt-6">
                             <button
                                 @click="clearFilters"
-                                class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                                class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 dark:bg-primary-700 dark:hover:bg-primary-800"
                             >
                                 Clear Filters
                             </button>
@@ -338,7 +338,7 @@
                                 :disabled="
                                     productStore.pagination.currentPage === 1
                                 "
-                                class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                                class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700 dark:hover:bg-gray-700"
                             >
                                 Previous
                             </button>
@@ -350,8 +350,8 @@
                                 :class="[
                                     'px-3 py-2 text-sm font-medium rounded-md',
                                     page === productStore.pagination.currentPage
-                                        ? 'bg-primary-600 text-white'
-                                        : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50',
+                                        ? 'bg-primary-600 text-white dark:bg-primary-700'
+                                        : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700 dark:hover:bg-gray-700',
                                 ]"
                             >
                                 {{ page }}
@@ -367,7 +367,7 @@
                                     productStore.pagination.currentPage ===
                                     productStore.pagination.lastPage
                                 "
-                                class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                                class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700 dark:hover:bg-gray-700"
                             >
                                 Next
                             </button>

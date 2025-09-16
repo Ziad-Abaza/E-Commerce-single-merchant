@@ -1,7 +1,9 @@
 import { ref, computed, watch } from "vue";
 
 const systemPreference = ref(
-    window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"
+    window.matchMedia("(prefers-color-scheme: dark)").matches
+        ? "dark"
+        : "light",
 );
 const theme = ref(null);
 
@@ -54,7 +56,7 @@ export const useTheme = () => {
         (newValue) => {
             applyTheme(newValue);
         },
-        { immediate: true }
+        { immediate: true },
     );
 
     return {

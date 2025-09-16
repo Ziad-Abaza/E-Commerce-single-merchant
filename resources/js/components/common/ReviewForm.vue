@@ -1,48 +1,48 @@
 <!-- components/ReviewForm.vue -->
 <template>
-  <div class="bg-white rounded-lg shadow p-6 border border-gray-200">
-    <h3 class="text-lg font-medium text-gray-900 mb-4">
+  <div class="bg-white rounded-lg shadow p-6 border border-gray-200 dark:bg-gray-800 dark:border-gray-700">
+    <h3 class="text-lg font-medium text-gray-900 mb-4 dark:text-white">
       {{ isEditing ? 'Edit Your Review' : 'Leave a Review' }}
     </h3>
 
     <form @submit.prevent="handleSubmit" class="space-y-4">
       <!-- Rating -->
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">Your Rating *</label>
+        <label class="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300">Your Rating *</label>
         <StarRating
           v-model="form.rating"
           :interactive="true"
           :show-rating="true"
           class="text-2xl"
         />
-        <p v-if="errors.rating" class="mt-1 text-sm text-red-600">{{ errors.rating }}</p>
+        <p v-if="errors.rating" class="mt-1 text-sm text-red-600 dark:text-red-400">{{ errors.rating }}</p>
       </div>
 
       <!-- Title -->
       <div>
-        <label for="title" class="block text-sm font-medium text-gray-700 mb-1">Review Title</label>
+        <label for="title" class="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">Review Title</label>
         <input
           id="title"
           v-model="form.title"
           type="text"
           maxlength="255"
-          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
           placeholder="Give your review a title"
         />
-        <p v-if="errors.title" class="mt-1 text-sm text-red-600">{{ errors.title }}</p>
+        <p v-if="errors.title" class="mt-1 text-sm text-red-600 dark:text-red-400">{{ errors.title }}</p>
       </div>
 
       <!-- Comment -->
       <div>
-        <label for="comment" class="block text-sm font-medium text-gray-700 mb-1">Your Review *</label>
+        <label for="comment" class="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">Your Review *</label>
         <textarea
           id="comment"
           v-model="form.comment"
           rows="5"
-          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
           placeholder="Share your thoughts about this product..."
         ></textarea>
-        <p v-if="errors.comment" class="mt-1 text-sm text-red-600">{{ errors.comment }}</p>
+        <p v-if="errors.comment" class="mt-1 text-sm text-red-600 dark:text-red-400">{{ errors.comment }}</p>
       </div>
 
       <!-- Submit Button -->
@@ -50,14 +50,14 @@
         <button
           type="button"
           @click="$emit('cancel')"
-          class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+          class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600"
           :disabled="loading"
         >
           Cancel
         </button>
         <button
           type="submit"
-          class="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:opacity-50"
+          class="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:opacity-50 dark:bg-primary-700 dark:hover:bg-primary-800"
           :disabled="loading"
         >
           <span v-if="loading" class="flex items-center">

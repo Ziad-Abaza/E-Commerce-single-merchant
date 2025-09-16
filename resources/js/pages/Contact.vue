@@ -1,5 +1,5 @@
 <template>
-    <div class="min-h-screen">
+    <div class="min-h-screen bg-white dark:bg-gray-900">
         <!-- Breadcrumb Navigation -->
         <Breadcrumb :breadcrumbs="breadcrumbs" />
 
@@ -12,7 +12,7 @@
                     <h1 class="text-4xl md:text-6xl font-bold mb-6">
                         Contact Us
                     </h1>
-                    <p class="text-xl md:text-2xl text-primary-100">
+                    <p class="text-xl md:text-2xl text-primary-100 dark:text-primary-200">
                         Get in touch with us - we'd love to hear from you
                     </p>
                 </div>
@@ -20,16 +20,16 @@
         </section>
 
         <!-- Contact Form & Info Section -->
-        <section class="py-16 bg-white">
+        <section class="py-16 bg-white dark:bg-gray-900">
             <div class="container">
                 <div class="max-w-6xl mx-auto">
                     <div class="grid lg:grid-cols-2 gap-12">
                         <!-- Contact Form -->
                         <div>
-                            <h2 class="text-3xl font-bold text-gray-900 mb-6">
+                            <h2 class="text-3xl font-bold text-gray-900 mb-6 dark:text-white">
                                 Send us a Message
                             </h2>
-                            <p class="text-lg text-gray-600 mb-8">
+                            <p class="text-lg text-gray-600 mb-8 dark:text-gray-300">
                                 Have a question, suggestion, or need help? Fill
                                 out the form below and we'll get back to you as
                                 soon as possible.
@@ -41,7 +41,7 @@
                             >
                                 <div
                                     v-if="contactStore.isSuccess"
-                                    class="p-4 mb-6 text-sm text-green-800 rounded-lg bg-green-50"
+                                    class="p-4 mb-6 text-sm text-green-800 rounded-lg bg-green-50 dark:bg-green-900/30 dark:text-green-300"
                                 >
                                     <p>
                                         Thank you for your message! We'll get
@@ -52,7 +52,7 @@
                                 <div>
                                     <label
                                         for="name"
-                                        class="block text-sm font-medium text-gray-700 mb-2"
+                                        class="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300"
                                     >
                                         Full Name *
                                     </label>
@@ -62,16 +62,16 @@
                                         type="text"
                                         required
                                         :class="[
-                                            'w-full px-4 py-3 border rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors',
+                                            'w-full px-4 py-3 border rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors dark:bg-gray-800 dark:text-white',
                                             contactStore.errors.name
-                                                ? 'border-red-500'
-                                                : 'border-gray-300',
+                                                ? 'border-red-500 dark:border-red-400'
+                                                : 'border-gray-300 dark:border-gray-600',
                                         ]"
                                         placeholder="Enter your full name"
                                     />
                                     <p
                                         v-if="contactStore.errors.name"
-                                        class="mt-1 text-sm text-red-600"
+                                        class="mt-1 text-sm text-red-600 dark:text-red-400"
                                     >
                                         {{ contactStore.errors.name[0] }}
                                     </p>
@@ -80,7 +80,7 @@
                                 <div>
                                     <label
                                         for="email"
-                                        class="block text-sm font-medium text-gray-700 mb-2"
+                                        class="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300"
                                     >
                                         Email Address *
                                     </label>
@@ -90,16 +90,16 @@
                                         type="email"
                                         required
                                         :class="[
-                                            'w-full px-4 py-3 border rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors',
+                                            'w-full px-4 py-3 border rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors dark:bg-gray-800 dark:text-white',
                                             contactStore.errors.email
-                                                ? 'border-red-500'
-                                                : 'border-gray-300',
+                                                ? 'border-red-500 dark:border-red-400'
+                                                : 'border-gray-300 dark:border-gray-600',
                                         ]"
                                         placeholder="Enter your email address"
                                     />
                                     <p
                                         v-if="contactStore.errors.email"
-                                        class="mt-1 text-sm text-red-600"
+                                        class="mt-1 text-sm text-red-600 dark:text-red-400"
                                     >
                                         {{ contactStore.errors.email[0] }}
                                     </p>
@@ -108,7 +108,7 @@
                                 <div>
                                     <label
                                         for="phone"
-                                        class="block text-sm font-medium text-gray-700 mb-2"
+                                        class="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300"
                                     >
                                         Phone Number
                                     </label>
@@ -117,16 +117,16 @@
                                         v-model="contactStore.form.phone"
                                         type="tel"
                                         :class="[
-                                            'w-full px-4 py-3 border rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors',
+                                            'w-full px-4 py-3 border rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors dark:bg-gray-800 dark:text-white',
                                             contactStore.errors.phone
-                                                ? 'border-red-500'
-                                                : 'border-gray-300',
+                                                ? 'border-red-500 dark:border-red-400'
+                                                : 'border-gray-300 dark:border-gray-600',
                                         ]"
                                         placeholder="Enter your phone number"
                                     />
                                     <p
                                         v-if="contactStore.errors.phone"
-                                        class="mt-1 text-sm text-red-600"
+                                        class="mt-1 text-sm text-red-600 dark:text-red-400"
                                     >
                                         {{ contactStore.errors.phone[0] }}
                                     </p>
@@ -135,7 +135,7 @@
                                 <div>
                                     <label
                                         for="subject"
-                                        class="block text-sm font-medium text-gray-700 mb-2"
+                                        class="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300"
                                     >
                                         Subject *
                                     </label>
@@ -145,16 +145,16 @@
                                         type="text"
                                         required
                                         :class="[
-                                            'w-full px-4 py-3 border rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors',
+                                            'w-full px-4 py-3 border rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors dark:bg-gray-800 dark:text-white',
                                             contactStore.errors.subject
-                                                ? 'border-red-500'
-                                                : 'border-gray-300',
+                                                ? 'border-red-500 dark:border-red-400'
+                                                : 'border-gray-300 dark:border-gray-600',
                                         ]"
                                         placeholder="Enter the subject of your message"
                                     />
                                     <p
                                         v-if="contactStore.errors.subject"
-                                        class="mt-1 text-sm text-red-600"
+                                        class="mt-1 text-sm text-red-600 dark:text-red-400"
                                     >
                                         {{ contactStore.errors.subject[0] }}
                                     </p>
@@ -163,7 +163,7 @@
                                 <div>
                                     <label
                                         for="message"
-                                        class="block text-sm font-medium text-gray-700 mb-2"
+                                        class="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300"
                                     >
                                         Message *
                                     </label>
@@ -173,16 +173,16 @@
                                         rows="5"
                                         required
                                         :class="[
-                                            'w-full px-4 py-3 border rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors',
+                                            'w-full px-4 py-3 border rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors dark:bg-gray-800 dark:text-white',
                                             contactStore.errors.message
-                                                ? 'border-red-500'
-                                                : 'border-gray-300',
+                                                ? 'border-red-500 dark:border-red-400'
+                                                : 'border-gray-300 dark:border-gray-600',
                                         ]"
                                         placeholder="How can we help you?"
                                     ></textarea>
                                     <p
                                         v-if="contactStore.errors.message"
-                                        class="mt-1 text-sm text-red-600"
+                                        class="mt-1 text-sm text-red-600 dark:text-red-400"
                                     >
                                         {{ contactStore.errors.message[0] }}
                                     </p>
@@ -192,7 +192,7 @@
                                     <button
                                         type="submit"
                                         :disabled="contactStore.isLoading"
-                                        class="w-full flex justify-center items-center px-6 py-3 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
+                                        class="w-full flex justify-center items-center px-6 py-3 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors disabled:opacity-70 disabled:cursor-not-allowed dark:bg-primary-700 dark:hover:bg-primary-800"
                                     >
                                         <svg
                                             v-if="contactStore.isLoading"
@@ -227,10 +227,10 @@
 
                         <!-- Contact Information -->
                         <div>
-                            <h2 class="text-3xl font-bold text-gray-900 mb-6">
+                            <h2 class="text-3xl font-bold text-gray-900 mb-6 dark:text-white">
                                 Get in Touch
                             </h2>
-                            <p class="text-lg text-gray-600 mb-8">
+                            <p class="text-lg text-gray-600 mb-8 dark:text-gray-300">
                                 We're here to help! Reach out to us through any
                                 of the following channels.
                             </p>
@@ -240,10 +240,10 @@
                                 <div class="flex items-start">
                                     <div class="flex-shrink-0">
                                         <div
-                                            class="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center"
+                                            class="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center dark:bg-gray-700"
                                         >
                                             <svg
-                                                class="w-6 h-6 text-primary-600"
+                                                class="w-6 h-6 text-primary-600 dark:text-primary-400"
                                                 fill="none"
                                                 stroke="currentColor"
                                                 viewBox="0 0 24 24"
@@ -265,11 +265,11 @@
                                     </div>
                                     <div class="ml-4">
                                         <h3
-                                            class="text-lg font-semibold text-gray-900 mb-1"
+                                            class="text-lg font-semibold text-gray-900 mb-1 dark:text-white"
                                         >
                                             Our Address
                                         </h3>
-                                        <p class="text-gray-600">
+                                        <p class="text-gray-600 dark:text-gray-300">
                                             {{ siteStore.settings.address }}
                                         </p>
                                     </div>
@@ -279,10 +279,10 @@
                                 <div class="flex items-start">
                                     <div class="flex-shrink-0">
                                         <div
-                                            class="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center"
+                                            class="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center dark:bg-gray-700"
                                         >
                                             <svg
-                                                class="w-6 h-6 text-primary-600"
+                                                class="w-6 h-6 text-primary-600 dark:text-primary-400"
                                                 fill="none"
                                                 stroke="currentColor"
                                                 viewBox="0 0 24 24"
@@ -298,14 +298,14 @@
                                     </div>
                                     <div class="ml-4">
                                         <h3
-                                            class="text-lg font-semibold text-gray-900 mb-1"
+                                            class="text-lg font-semibold text-gray-900 mb-1 dark:text-white"
                                         >
                                             Phone Number
                                         </h3>
-                                        <p class="text-gray-600">
+                                        <p class="text-gray-600 dark:text-gray-300">
                                             <a
                                                 :href="`tel:${siteStore.settings.contact_phone}`"
-                                                class="hover:text-primary-600 transition-colors"
+                                                class="hover:text-primary-600 transition-colors dark:hover:text-primary-400"
                                             >
                                                 {{
                                                     siteStore.settings
@@ -313,7 +313,7 @@
                                                 }}
                                             </a>
                                         </p>
-                                        <p class="text-sm text-gray-500 mt-1">
+                                        <p class="text-sm text-gray-500 mt-1 dark:text-gray-400">
                                             Monday - Friday, 9AM - 6PM
                                         </p>
                                     </div>
@@ -323,10 +323,10 @@
                                 <div class="flex items-start">
                                     <div class="flex-shrink-0">
                                         <div
-                                            class="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center"
+                                            class="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center dark:bg-gray-700"
                                         >
                                             <svg
-                                                class="w-6 h-6 text-primary-600"
+                                                class="w-6 h-6 text-primary-600 dark:text-primary-400"
                                                 fill="none"
                                                 stroke="currentColor"
                                                 viewBox="0 0 24 24"
@@ -342,14 +342,14 @@
                                     </div>
                                     <div class="ml-4">
                                         <h3
-                                            class="text-lg font-semibold text-gray-900 mb-1"
+                                            class="text-lg font-semibold text-gray-900 mb-1 dark:text-white"
                                         >
                                             Email Address
                                         </h3>
-                                        <p class="text-gray-600">
+                                        <p class="text-gray-600 dark:text-gray-300">
                                             <a
                                                 :href="`mailto:${siteStore.settings.contact_email}`"
-                                                class="hover:text-primary-600 transition-colors"
+                                                class="hover:text-primary-600 transition-colors dark:hover:text-primary-400"
                                             >
                                                 {{
                                                     siteStore.settings
@@ -357,7 +357,7 @@
                                                 }}
                                             </a>
                                         </p>
-                                        <p class="text-sm text-gray-500 mt-1">
+                                        <p class="text-sm text-gray-500 mt-1 dark:text-gray-400">
                                             We'll respond within 24 hours
                                         </p>
                                     </div>
@@ -367,10 +367,10 @@
                                 <div class="flex items-start">
                                     <div class="flex-shrink-0">
                                         <div
-                                            class="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center"
+                                            class="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center dark:bg-gray-700"
                                         >
                                             <svg
-                                                class="w-6 h-6 text-primary-600"
+                                                class="w-6 h-6 text-primary-600 dark:text-primary-400"
                                                 fill="none"
                                                 stroke="currentColor"
                                                 viewBox="0 0 24 24"
@@ -386,15 +386,15 @@
                                     </div>
                                     <div class="ml-4">
                                         <h3
-                                            class="text-lg font-semibold text-gray-900 mb-1"
+                                            class="text-lg font-semibold text-gray-900 mb-1 dark:text-white"
                                         >
                                             WhatsApp Chat
                                         </h3>
-                                        <p class="text-gray-600">
+                                        <p class="text-gray-600 dark:text-gray-300">
                                             Chat with us on WhatsApp
                                         </p>
                                         <button
-                                            class="text-primary-600 hover:text-primary-700 font-medium mt-1 transition-colors"
+                                            class="text-primary-600 hover:text-primary-700 font-medium mt-1 transition-colors dark:text-primary-400 dark:hover:text-primary-300"
                                         >
                                             <a
                                                 :href="`https://wa.me/${siteStore.settings.contact_whatsapp}`"
@@ -408,15 +408,15 @@
                             </div>
 
                             <!-- Business Hours -->
-                            <div class="mt-12 p-6 bg-gray-50 rounded-lg">
+                            <div class="mt-12 p-6 bg-gray-50 rounded-lg dark:bg-gray-800">
                                 <h3
-                                    class="text-lg font-semibold text-gray-900 mb-4"
+                                    class="text-lg font-semibold text-gray-900 mb-4 dark:text-white"
                                 >
                                     Business Hours
                                 </h3>
                                 <div class="space-y-2 text-sm">
                                     <div class="flex justify-between">
-                                        <span class="text-gray-900 font-medium">
+                                        <span class="text-gray-900 font-medium dark:text-white">
                                             {{
                                                 siteStore.settings
                                                     .business_hours
@@ -427,20 +427,20 @@
                             </div>
 
                             <!-- Social Media -->
-                            <div class="mt-8 p-6 bg-primary-50 rounded-lg">
+                            <div class="mt-8 p-6 bg-primary-50 rounded-lg dark:bg-primary-900/20">
                                 <h3
-                                    class="text-lg font-semibold text-gray-900 mb-4"
+                                    class="text-lg font-semibold text-gray-900 mb-4 dark:text-white"
                                 >
                                     Follow Us
                                 </h3>
-                                <p class="text-gray-600 mb-4">
+                                <p class="text-gray-600 mb-4 dark:text-gray-300">
                                     Stay connected with us on social media for
                                     updates, promotions, and more!
                                 </p>
                                 <div class="flex space-x-4">
                                     <a
                                         :href="siteStore.settings.facebook_url"
-                                        class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white hover:bg-blue-700 transition-colors"
+                                        class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white hover:bg-blue-700 transition-colors dark:hover:bg-blue-800"
                                     >
                                         <svg
                                             class="w-5 h-5"
@@ -454,7 +454,7 @@
                                     </a>
                                     <a
                                         :href="siteStore.settings.twitter_url"
-                                        class="w-10 h-10 bg-blue-800 rounded-full flex items-center justify-center text-white hover:bg-blue-900 transition-colors"
+                                        class="w-10 h-10 bg-blue-800 rounded-full flex items-center justify-center text-white hover:bg-blue-900 transition-colors dark:hover:bg-blue-950"
                                     >
                                         <svg
                                             class="w-5 h-5"
@@ -483,7 +483,7 @@
                                     <a
                                         :href="siteStore.settings.tiktok_url"
                                         target="_blank"
-                                        class="w-10 h-10 bg-black rounded-full flex items-center justify-center text-white hover:bg-gray-800 transition-colors"
+                                        class="w-10 h-10 bg-black rounded-full flex items-center justify-center text-white hover:bg-gray-800 transition-colors dark:hover:bg-gray-700"
                                     >
                                         <svg
                                             class="w-5 h-5"
@@ -504,28 +504,28 @@
         </section>
 
         <!-- FAQ Section -->
-        <section class="py-16 bg-gray-50">
+        <section class="py-16 bg-gray-50 dark:bg-gray-800">
             <div class="container">
                 <div class="max-w-4xl mx-auto">
                     <div class="text-center mb-12">
-                        <h2 class="text-3xl font-bold text-gray-900 mb-4">
+                        <h2 class="text-3xl font-bold text-gray-900 mb-4 dark:text-white">
                             Frequently Asked Questions
                         </h2>
-                        <p class="text-lg text-gray-600">
+                        <p class="text-lg text-gray-600 dark:text-gray-300">
                             Quick answers to common questions
                         </p>
                     </div>
 
                     <div class="space-y-6">
                         <div
-                            class="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
+                            class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 dark:bg-gray-700 dark:border-gray-600"
                         >
                             <h3
-                                class="text-lg font-semibold text-gray-900 mb-2"
+                                class="text-lg font-semibold text-gray-900 mb-2 dark:text-white"
                             >
                                 How long does shipping take?
                             </h3>
-                            <p class="text-gray-600">
+                            <p class="text-gray-600 dark:text-gray-300">
                                 Standard shipping typically takes 3-5 business
                                 days, while express shipping takes 1-2 business
                                 days. International shipping may take 7-14
@@ -534,14 +534,14 @@
                         </div>
 
                         <div
-                            class="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
+                            class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 dark:bg-gray-700 dark:border-gray-600"
                         >
                             <h3
-                                class="text-lg font-semibold text-gray-900 mb-2"
+                                class="text-lg font-semibold text-gray-900 mb-2 dark:text-white"
                             >
                                 What is your return policy?
                             </h3>
-                            <p class="text-gray-600">
+                            <p class="text-gray-600 dark:text-gray-300">
                                 We offer a 30-day return policy for most items.
                                 Products must be in original condition with tags
                                 attached. Some restrictions may apply to certain
@@ -550,14 +550,14 @@
                         </div>
 
                         <div
-                            class="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
+                            class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 dark:bg-gray-700 dark:border-gray-600"
                         >
                             <h3
-                                class="text-lg font-semibold text-gray-900 mb-2"
+                                class="text-lg font-semibold text-gray-900 mb-2 dark:text-white"
                             >
                                 Do you offer international shipping?
                             </h3>
-                            <p class="text-gray-600">
+                            <p class="text-gray-600 dark:text-gray-300">
                                 Yes, we ship to most countries worldwide.
                                 Shipping costs and delivery times vary by
                                 destination. International customers are
@@ -566,14 +566,14 @@
                         </div>
 
                         <div
-                            class="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
+                            class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 dark:bg-gray-700 dark:border-gray-600"
                         >
                             <h3
-                                class="text-lg font-semibold text-gray-900 mb-2"
+                                class="text-lg font-semibold text-gray-900 mb-2 dark:text-white"
                             >
                                 How can I track my order?
                             </h3>
-                            <p class="text-gray-600">
+                            <p class="text-gray-600 dark:text-gray-300">
                                 Once your order ships, you'll receive a tracking
                                 number via email. You can also track your order
                                 by logging into your account and viewing your

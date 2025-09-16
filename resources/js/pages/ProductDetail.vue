@@ -1,10 +1,10 @@
 <template>
-    <div class="min-h-screen bg-gray-50">
+    <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
         <div class="container py-8">
             <!-- Loading State -->
             <div v-if="productStore.loading" class="flex justify-center py-12">
                 <div
-                    class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"
+                    class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 dark:border-primary-500"
                 ></div>
             </div>
             <!-- Not Found -->
@@ -12,30 +12,29 @@
                 v-else-if="!productStore.currentProduct"
                 class="text-center py-12"
             >
-                <h1 class="text-2xl font-bold text-gray-900">
+                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
                     Product not found
                 </h1>
-                <p class="text-gray-600 mt-2">
+                <p class="text-gray-600 mt-2 dark:text-gray-300">
                     The product you're looking for doesn't exist.
                 </p>
                 <router-link
                     to="/products"
-                    class="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700"
+                    class="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 dark:bg-primary-700 dark:hover:bg-primary-800"
                 >
                     View All Products
                 </router-link>
             </div>
             <!-- Product Detail -->
             <div
-                v-else
-                class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden"
+                class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden dark:bg-gray-800 dark:border-gray-700"
             >
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 p-6 md:p-8">
                     <!-- Product Images -->
                     <div class="space-y-4">
                         <!-- Main Image -->
                         <div
-                            class="aspect-w-4 aspect-h-3 bg-gray-100 rounded-lg overflow-hidden"
+                            class="aspect-w-4 aspect-h-3 bg-gray-100 rounded-lg overflow-hidden dark:bg-gray-700"
                         >
                             <img
                                 :src="selectedImage || mainImageUrl"
@@ -53,9 +52,9 @@
                                 v-for="(thumb, index) in galleryImages"
                                 :key="index"
                                 @click="selectImage(thumb)"
-                                class="flex-shrink-0 w-16 h-16 bg-gray-100 rounded-md overflow-hidden border-2 hover:border-primary-500 transition-colors"
+                                class="flex-shrink-0 w-16 h-16 bg-gray-100 rounded-md overflow-hidden border-2 hover:border-primary-500 transition-colors dark:bg-gray-600 dark:border-gray-500"
                                 :class="{
-                                    'border-primary-500':
+                                    'border-primary-500 dark:border-primary-400':
                                         selectedImage === thumb,
                                 }"
                             >
@@ -72,38 +71,38 @@
                     <div class="space-y-6">
                         <!-- Breadcrumb -->
                         <nav
-                            class="flex flex-wrap items-center text-sm text-gray-500"
+                            class="flex flex-wrap items-center text-sm text-gray-500 dark:text-gray-400"
                             aria-label="Breadcrumb"
                         >
-                            <router-link to="/" class="hover:text-gray-700"
+                            <router-link to="/" class="hover:text-gray-700 dark:hover:text-gray-300"
                                 >Home</router-link
                             >
                             <span class="mx-2">/</span>
                             <router-link
                                 to="/products"
-                                class="hover:text-gray-700"
+                                class="hover:text-gray-700 dark:hover:text-gray-300"
                                 >Products</router-link
                             >
                             <span class="mx-2">/</span>
-                            <span class="text-gray-900">{{
+                            <span class="text-gray-900 dark:text-white">{{
                                 productStore.currentProduct.name
                             }}</span>
                         </nav>
                         <!-- Brand & Name -->
                         <div>
                             <p
-                                class="text-sm text-gray-500 uppercase tracking-wide"
+                                class="text-sm text-gray-500 uppercase tracking-wide dark:text-gray-400"
                             >
                                 {{ productStore.currentProduct.brand }}
                             </p>
                             <h1
-                                class="text-2xl md:text-3xl font-bold text-gray-900 mt-1"
+                                class="text-2xl md:text-3xl font-bold text-gray-900 mt-1 dark:text-white"
                             >
                                 {{ productStore.currentProduct.name }}
                             </h1>
                         </div>
                         <!-- Short Description -->
-                        <p class="text-gray-600 leading-relaxed">
+                        <p class="text-gray-600 leading-relaxed dark:text-gray-300">
                             {{ productStore.currentProduct.short_description }}
                         </p>
                         <!-- Price Section -->
@@ -111,7 +110,7 @@
                             class="flex flex-col sm:flex-row sm:items-center sm:space-x-4"
                         >
                             <div class="flex items-baseline space-x-2">
-                                <span class="text-3xl font-bold text-gray-900">
+                                <span class="text-3xl font-bold text-gray-900 dark:text-white">
                                     {{
                                         formatPrice(
                                             productStore.currentProduct
@@ -124,7 +123,7 @@
                                         productStore.currentProduct
                                             .discount_percentage > 0
                                     "
-                                    class="text-xl text-gray-500 line-through"
+                                    class="text-xl text-gray-500 line-through dark:text-gray-400"
                                 >
                                     {{
                                         formatPrice(
@@ -138,7 +137,7 @@
                                     productStore.currentProduct
                                         .discount_percentage > 0
                                 "
-                                class="mt-2 sm:mt-0 inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800"
+                                class="mt-2 sm:mt-0 inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300"
                             >
                                 Save
                                 {{
@@ -154,7 +153,7 @@
                                     productStore.currentProduct.stock_quantity >
                                     10
                                 "
-                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800"
+                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"
                             >
                                 In Stock
                             </span>
@@ -163,7 +162,7 @@
                                     productStore.currentProduct.stock_quantity >
                                     0
                                 "
-                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800"
+                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300"
                             >
                                 Only
                                 {{
@@ -173,28 +172,28 @@
                             </span>
                             <span
                                 v-else
-                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800"
+                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300"
                             >
                                 Out of Stock
                             </span>
-                            <span class="text-sm text-gray-500 ml-2">
+                            <span class="text-sm text-gray-500 ml-2 dark:text-gray-400">
                                 SKU: {{ productStore.currentProduct.sku }}
                             </span>
                         </div>
                         <!-- Quantity Selector -->
                         <div class="flex items-center space-x-4">
                             <label
-                                class="text-sm font-medium text-gray-700 whitespace-nowrap"
+                                class="text-sm font-medium text-gray-700 whitespace-nowrap dark:text-gray-300"
                                 >Quantity:</label
                             >
                             <div class="flex items-center space-x-2">
                                 <button
                                     @click="decreaseQuantity"
                                     :disabled="quantity <= 1"
-                                    class="p-1.5 rounded-md border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                    class="p-1.5 rounded-md border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors dark:border-gray-600 dark:hover:bg-gray-700 dark:bg-gray-700"
                                 >
                                     <svg
-                                        class="h-4 w-4"
+                                        class="h-4 w-4 dark:text-gray-300"
                                         fill="none"
                                         stroke="currentColor"
                                         viewBox="0 0 24 24"
@@ -208,16 +207,16 @@
                                     </svg>
                                 </button>
                                 <span
-                                    class="w-12 text-center text-sm font-medium text-gray-900"
+                                    class="w-12 text-center text-sm font-medium text-gray-900 dark:text-white"
                                     >{{ quantity }}</span
                                 >
                                 <button
                                     @click="increaseQuantity"
                                     :disabled="quantity >= maxQuantity"
-                                    class="p-1.5 rounded-md border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                    class="p-1.5 rounded-md border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors dark:border-gray-600 dark:hover:bg-gray-700 dark:bg-gray-700"
                                 >
                                     <svg
-                                        class="h-4 w-4"
+                                        class="h-4 w-4 dark:text-gray-300"
                                         fill="none"
                                         stroke="currentColor"
                                         viewBox="0 0 24 24"
@@ -243,7 +242,7 @@
                                     productStore.currentProduct
                                         .stock_quantity === 0
                                 "
-                                class="flex-1 bg-primary-600 text-white py-3 px-6 rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center"
+                                class="flex-1 bg-primary-600 text-white py-3 px-6 rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center dark:bg-primary-700 dark:hover:bg-primary-800"
                             >
                                 <span
                                     v-if="isAddingToCart"
@@ -274,11 +273,11 @@
                             </button>
                             <button
                                 @click="toggleWishlist"
-                                class="px-6 py-3 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors flex items-center justify-center"
+                                class="px-6 py-3 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors flex items-center justify-center dark:border-gray-600 dark:text-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600"
                                 :class="{
-                                    'text-red-600 border-red-300 bg-red-50 hover:bg-red-100':
+                                    'text-red-600 border-red-300 bg-red-50 hover:bg-red-100 dark:text-red-400 dark:border-red-600 dark:bg-red-900/30 dark:hover:bg-red-900/50':
                                         isInWishlist,
-                                    'text-gray-700 border-gray-300 bg-white hover:bg-gray-50':
+                                    'text-gray-700 border-gray-300 bg-white hover:bg-gray-50 dark:text-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:hover:bg-gray-600':
                                         !isInWishlist,
                                 }"
                             >
@@ -315,9 +314,9 @@
                             v-if="
                                 productStore.currentProduct.categories?.length
                             "
-                            class="pt-4 border-t border-gray-200"
+                            class="pt-4 border-t border-gray-200 dark:border-gray-700"
                         >
-                            <h4 class="text-sm font-medium text-gray-500 mb-2">
+                            <h4 class="text-sm font-medium text-gray-500 mb-2 dark:text-gray-400">
                                 Categories
                             </h4>
                             <div class="flex flex-wrap gap-2">
@@ -325,25 +324,25 @@
                                     v-for="category in productStore
                                         .currentProduct.categories"
                                     :key="category.id"
-                                    class="px-3 py-1 bg-gray-100 text-gray-700 text-xs rounded-full"
+                                    class="px-3 py-1 bg-gray-100 text-gray-700 text-xs rounded-full dark:bg-gray-700 dark:text-gray-300"
                                 >
                                     {{ category.name }}
                                 </span>
                             </div>
                         </div>
                         <!-- Specifications -->
-                        <div class="pt-4 border-t border-gray-200">
-                            <h4 class="text-sm font-medium text-gray-500 mb-2">
+                        <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
+                            <h4 class="text-sm font-medium text-gray-500 mb-2 dark:text-gray-400">
                                 Specifications
                             </h4>
                             <dl
                                 class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 text-sm"
                             >
                                 <div v-if="productStore.currentProduct.weight">
-                                    <dt class="font-medium text-gray-700">
+                                    <dt class="font-medium text-gray-700 dark:text-gray-300">
                                         Weight
                                     </dt>
-                                    <dd class="text-gray-600">
+                                    <dd class="text-gray-600 dark:text-gray-400">
                                         {{ productStore.currentProduct.weight }}
                                     </dd>
                                 </div>
@@ -352,10 +351,10 @@
                                         productStore.currentProduct.dimensions
                                     "
                                 >
-                                    <dt class="font-medium text-gray-700">
+                                    <dt class="font-medium text-gray-700 dark:text-gray-300">
                                         Dimensions
                                     </dt>
-                                    <dd class="text-gray-600">
+                                    <dd class="text-gray-600 dark:text-gray-400">
                                         {{
                                             productStore.currentProduct
                                                 .dimensions
@@ -369,19 +368,19 @@
                 <!-- Full Description -->
                 <div
                     v-if="productStore.currentProduct.description"
-                    class="border-t border-gray-200 p-6 md:p-8"
+                    class="border-t border-gray-200 p-6 md:p-8 dark:border-gray-700"
                 >
-                    <h3 class="text-xl font-semibold text-gray-900 mb-4">
+                    <h3 class="text-xl font-semibold text-gray-900 mb-4 dark:text-white">
                         Description
                     </h3>
                     <div
-                        class="prose prose-gray max-w-none"
+                        class="prose prose-gray max-w-none dark:prose-invert"
                         v-html="productStore.currentProduct.description"
                     ></div>
                 </div>
 
                 <!-- Reviews Section -->
-                <div class="border-t border-gray-200 p-6 md:p-8">
+                <div class="border-t border-gray-200 p-6 md:p-8 dark:border-gray-700">
                     <!-- Review List -->
                     <ReviewList :product-id="productStore.currentProduct.id" />
 
@@ -389,7 +388,7 @@
                     <div class="mt-6">
                         <button
                             @click="openReviewForm"
-                            class="px-4 py-2 bg-primary-600 text-white text-sm font-medium rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+                            class="px-4 py-2 bg-primary-600 text-white text-sm font-medium rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 dark:bg-primary-700 dark:hover:bg-primary-800"
                         >
                             Write a Review
                         </button>
@@ -408,7 +407,7 @@
                 <!-- Related Products Slider -->
                 <div
                     v-if="productStore.currentProduct.related_products?.length"
-                    class="border-t border-gray-200 p-6 md:p-8"
+                    class="border-t border-gray-200 p-6 md:p-8 dark:border-gray-700"
                 >
                     <ProductSlider
                         :products="productStore.currentProduct.related_products"
@@ -425,6 +424,7 @@
         </div>
     </div>
 </template>
+
 <script setup>
 import { ref, computed, onMounted, watch } from "vue";
 import { useRoute } from "vue-router";

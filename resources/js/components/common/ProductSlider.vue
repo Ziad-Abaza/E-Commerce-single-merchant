@@ -2,7 +2,7 @@
   <div class="product-slider relative">
     <!-- Title & Navigation -->
     <div class="flex items-center justify-between mb-6">
-      <h2 class="text-lg md:text-2xl font-bold text-gray-900">
+      <h2 class="text-lg md:text-2xl font-bold text-gray-900 dark:text-white">
         {{ title || 'Recommended Products' }}
       </h2>
       <div class="hidden md:flex items-center space-x-3">
@@ -76,41 +76,35 @@ const nextEl = ref(null)
 </script>
 
 <style scoped>
-/* الأزرار */
 .nav-btn {
-  @apply p-2 rounded-full bg-white shadow hover:shadow-md transition disabled:opacity-30;
+  @apply p-2 rounded-full bg-white shadow hover:shadow-md transition disabled:opacity-30 dark:bg-gray-700 dark:hover:bg-gray-600 dark:shadow-gray-800;
 }
 
-/* تخصيص النقاط */
 .custom-pagination .swiper-pagination-bullet {
-  @apply w-2.5 h-2.5 rounded-full bg-gray-300 transition;
+  @apply w-2.5 h-2.5 rounded-full bg-gray-300 transition dark:bg-gray-600;
 }
 .custom-pagination .swiper-pagination-bullet-active {
-  @apply bg-blue-600 scale-110;
+  @apply bg-blue-600 scale-110 dark:bg-blue-500;
 }
 
-/* الكاردات */
 .product-card {
-  @apply bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 flex flex-col;
+  @apply bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 flex flex-col dark:bg-gray-800 dark:hover:shadow-gray-700/20;
   height: 100%;
-  min-height: 420px; /* ارتفاع موحد */
-  /* max-height: 400px; علشان ما يتمددوش */
+  min-height: 420px;
   display: flex;
   justify-content: space-between;
   overflow: hidden;
 }
 
-/* الصور داخل الكارد */
 .product-card img {
   @apply w-full h-48 object-cover;
   border-top-left-radius: 0.75rem;
   border-top-right-radius: 0.75rem;
 }
 
-/* تحسين الموبايل */
 @media (max-width: 640px) {
   .nav-btn {
-    @apply hidden; /* نخفي الأسهم على الموبايل */
+    @apply hidden;
   }
   .product-card {
     min-height: 280px;
