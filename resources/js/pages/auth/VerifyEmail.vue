@@ -37,9 +37,11 @@ export default {
         return;
       }
 
+      console.error(response.data.message);
       this.error = response.data.message;
       this.loading = false;
     } catch (err) {
+      console.error(err);
       this.error = err.response?.data?.message || 'Verification failed.';
       this.loading = false;
     }
