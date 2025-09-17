@@ -17,11 +17,6 @@ class VerifyEmailController extends Controller
     public function __invoke(Request $request)
     {
 
-        Log::info("VerifyEmailController: " , [
-            'request' => $request->all(),
-            'id' => $request->route('id'),
-            'hash' => $request->route('hash')
-        ]);
         $user = User::findOrFail($request->route('id'));
 
         if ($user->hasVerifiedEmail()) {
@@ -45,7 +40,6 @@ class VerifyEmailController extends Controller
             ], 400);
         }
 
-        // التحقق من البريد
         if ($user->markEmailAsVerified()) {
             event(new Verified($user));
         }
