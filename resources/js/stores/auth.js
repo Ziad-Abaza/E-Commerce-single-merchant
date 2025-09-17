@@ -265,6 +265,60 @@ export const useAuthStore = defineStore("auth", {
             }
         },
 
+
+        /**
+         * Send password reset link to the user's email
+         */
+        async sendResetLink(email) {
+            this.loading = true;
+            this.error = null;
+            const toast = useToast();
+
+            try {
+                await axios.post("/forgot-password", { email });
+                toast.success("Password reset link sent to your email.");
+                return { success: true };
+            } catch (err) {
+                const message =
+                    err.response?.data?.message ||
+                    "Failed to send reset link. Please try again.";
+                this.error = message;
+                toast.error(message);
+                return { success: false, error: message };
+            } finally {
+                this.loading = false;
+            }
+        },
+
+        /**
+         * Reset password using token and new password
+         */
+        async resetPassword(payload) {
+            this.loading = true;
+            this.error = null;
+            const toast = useToast();
+
+            if (payload.password !== payload.password_confirmation) {
+                toast.error("Passwords do not match.");
+                this.loading = false;
+                return { success: false, error: "Passwords do not match." };
+            }
+
+            try {
+                await axios.post("/reset-password", payload);
+                toast.success("Your password has been updated successfully!");
+                return { success: true };
+            } catch (err) {
+                const message =
+                    err.response?.data?.message ||
+                    "Failed to reset password. Please try again.";
+                this.error = message;
+                toast.error(message);
+                return { success: false, error: message };
+            } finally {
+                this.loading = false;
+            }
+        },
         async updateProfile(profileData) {
             this.loading = true;
             this.error = null;
