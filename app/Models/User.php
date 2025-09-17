@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Notifications\CustomVerifyEmail;
+use App\Notifications\CustomResetPassword;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -13,7 +15,7 @@ use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Spatie\Permission\Traits\HasRoles;
 
-class User extends Authenticatable implements HasMedia
+class User extends Authenticatable implements HasMedia, MustVerifyEmail
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasApiTokens, HasRoles, HasFactory, Notifiable, SoftDeletes, InteractsWithMedia;
@@ -54,6 +56,11 @@ class User extends Authenticatable implements HasMedia
             'password' => 'hashed',
             'is_active' => 'boolean',
         ];
+    }
+
+    public function sendEmailVerificationNotification()
+    {
+            $this->notify(new CustomVerifyEmail());
     }
 
     /**
