@@ -21,12 +21,23 @@ export default {
       const { id, hash } = this.$route.params;
       const query = this.$route.query; // contains expires & signature
 
-      // نرسل كل البيانات (بما فيها توقيع URL)
-      await axios.get(`/api/verify-email/${id}/${hash}`, {
+      console.log("query from gmail: ", query);
+      console.log("id: ", id);
+      console.log("hash: ", hash);
+
+      const response = await axios.get(`/api/verify-email/${id}/${hash}`, {
         params: query
       });
 
-      this.success = true;
+      console.log("response: ", response.data);
+
+      if (response.data.success) {
+        this.success = true;
+        this.loading = false;
+        return;
+      }
+
+      this.error = response.data.message;
       this.loading = false;
     } catch (err) {
       this.error = err.response?.data?.message || 'Verification failed.';

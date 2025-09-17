@@ -17,16 +17,23 @@ class CustomVerifyEmail extends VerifyEmail implements ShouldQueue
      */
     public function toMail($notifiable)
     {
-        // $verificationUrl = $this->verificationUrl($notifiable); // هذا الرابط الأصلي
+        // $verificationUrl = $this->verificationUrl($notifiable);
 
-        // ننشئ رابطًا إلى واجهة Vue
-        $frontendUrl = config('app.frontend_url', 'https://online-shop.cbatu.com'); // مثلاً
+        $frontendUrl = config('app.frontend_url', 'https://online-shop.cbatu.com');
         $verifyRoute = "/email/verify/{$notifiable->getKey()}/{$this->verificationHash($notifiable)}";
         $verificationUrl = $frontendUrl . $verifyRoute;
 
         $siteName = \App\Models\Setting::get('site_name', 'E-Commerce Store');
         $logoUrl  = \App\Models\Setting::get('logo_url', asset('assets/image/brand/logo.png'));
         $supportEmail = \App\Models\Setting::get('contact_email', 'support@example.com');
+
+        Log::info("CustomVerifyEmail: " , [
+            'notifiable' => $notifiable,
+            'verificationUrl' => $verificationUrl,
+            'siteName' => $siteName,
+            'logoUrl' => $logoUrl,
+            'supportEmail' => $supportEmail
+        ]);
 
         return (new MailMessage)
             ->subject("Verify Your Email - Welcome to $siteName")

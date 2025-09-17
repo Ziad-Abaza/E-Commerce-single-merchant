@@ -10,11 +10,18 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Validation\SignatureException;
 use App\Models\User;
+use Illuminate\Support\Facades\Log;
 
 class VerifyEmailController extends Controller
 {
     public function __invoke(Request $request)
     {
+
+        Log::info("VerifyEmailController: " , [
+            'request' => $request->all(),
+            'id' => $request->route('id'),
+            'hash' => $request->route('hash')
+        ]);
         $user = User::findOrFail($request->route('id'));
 
         if ($user->hasVerifiedEmail()) {
@@ -24,7 +31,6 @@ class VerifyEmailController extends Controller
             ]);
         }
 
-        // التحقق من صحة التوقيع (مضمون من Laravel)
         if (! URL::hasValidSignature($request)) {
             return response()->json([
                 'message' => 'Invalid or expired verification link.',
