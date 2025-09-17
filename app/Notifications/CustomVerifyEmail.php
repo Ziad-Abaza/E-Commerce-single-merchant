@@ -17,15 +17,18 @@ class CustomVerifyEmail extends VerifyEmail implements ShouldQueue
      */
     public function toMail($notifiable)
     {
-        $verificationUrl = $this->verificationUrl($notifiable);
+        // $verificationUrl = $this->verificationUrl($notifiable); // هذا الرابط الأصلي
 
-        Log::info('Verification URL: ' . $verificationUrl);
+        // ننشئ رابطًا إلى واجهة Vue
+        $frontendUrl = config('app.frontend_url', 'https://online-shop.cbatu.com'); // مثلاً
+        $verifyRoute = "/email/verify/{$notifiable->getKey()}/{$this->verificationHash($notifiable)}";
+        $verificationUrl = $frontendUrl . $verifyRoute;
 
         $siteName = \App\Models\Setting::get('site_name', 'E-Commerce Store');
         $logoUrl  = \App\Models\Setting::get('logo_url', asset('assets/image/brand/logo.png'));
         $supportEmail = \App\Models\Setting::get('contact_email', 'support@example.com');
 
-        return (new \Illuminate\Notifications\Messages\MailMessage)
+        return (new MailMessage)
             ->subject("Verify Your Email - Welcome to $siteName")
             ->markdown('emails.verify-email', [
                 'verificationUrl' => $verificationUrl,
@@ -34,5 +37,10 @@ class CustomVerifyEmail extends VerifyEmail implements ShouldQueue
                 'logoUrl' => $logoUrl,
                 'supportEmail' => $supportEmail,
             ]);
+    }
+
+    private function verificationHash($notifiable)
+    {
+        return sha1($notifiable->getEmailForVerification());
     }
 }

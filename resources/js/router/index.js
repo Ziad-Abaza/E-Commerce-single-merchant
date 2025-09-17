@@ -26,6 +26,7 @@ import Category from "../pages/Category.vue";
 import About from "../pages/About.vue";
 import Contact from "../pages/Contact.vue";
 import NotFound from "../pages/NotFound.vue";
+import VerifyEmail from "../pages/auth/VerifyEmail.vue";
 
 // Import dashboard router
 import dashboardRouter from "./dashboard";
@@ -88,6 +89,12 @@ const routes = [
             { path: "register", name: "register", component: Register },
         ],
     },
+    {
+    path: '/email/verify/:id/:hash',
+    name: 'VerifyEmail',
+    component: VerifyEmail,
+    props: true
+},
     { path: "/:pathMatch(.*)*", name: "not-found", component: NotFound },
 ];
 
