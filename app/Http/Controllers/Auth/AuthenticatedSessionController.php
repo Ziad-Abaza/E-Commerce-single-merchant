@@ -47,7 +47,7 @@ class AuthenticatedSessionController extends Controller
                 'phone' => $user->phone,
                 'address' => $user->address,
                 'is_active' => $user->is_active,
-                'is_verified' => $user->is_verified ?? false,
+                'is_verified' => $user->email_verified_at ? true : false,
                 'created_at' => $user->created_at,
                 'updated_at' => $user->updated_at,
                 'avatar_url' => $user->getAvatarUrl() ?? null,
