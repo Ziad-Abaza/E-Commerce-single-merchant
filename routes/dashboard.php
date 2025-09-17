@@ -12,7 +12,7 @@ use App\Http\Controllers\Dashboard\SettingController as SiteSettingController;
 |--------------------------------------------------------------------------
 */
 
-Route::middleware('auth:sanctum')->prefix('dashboard')->name('dashboard.')->group(function () {
+Route::middleware(['auth:sanctum', 'verified'])->prefix('dashboard')->name('dashboard.')->group(function () {
 
     // Dashboard Home
     Route::controller(\App\Http\Controllers\Dashboard\HomeController::class)->group(function () {

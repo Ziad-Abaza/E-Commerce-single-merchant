@@ -24,6 +24,7 @@ const routes = [
         meta: {
             requiresAuth: true,
             requiresPermission: "view_dashboard",
+            requiresVerified: true,
         },
         children: [
             {

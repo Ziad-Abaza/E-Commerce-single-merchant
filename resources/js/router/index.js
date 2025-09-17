@@ -27,6 +27,7 @@ import About from "../pages/About.vue";
 import Contact from "../pages/Contact.vue";
 import NotFound from "../pages/NotFound.vue";
 import VerifyEmail from "../pages/auth/VerifyEmail.vue";
+import ReSendVerifyEmail from "../pages/auth/VerifyRequired.vue";
 
 // Import dashboard router
 import dashboardRouter from "./dashboard";
@@ -57,7 +58,7 @@ const routes = [
                 path: "/checkout",
                 name: "checkout",
                 component: Checkout,
-                meta: { requiresAuth: true },
+                meta: { requiresAuth: true, requiresVerified: true},
             },
             {
                 path: "/profile",
@@ -69,7 +70,7 @@ const routes = [
                 path: "/orders",
                 name: "orders",
                 component: Orders,
-                meta: { requiresAuth: true },
+                meta: { requiresAuth: true, requiresVerified: true },
             },
             {
                 path: "/wishlist",
@@ -90,11 +91,17 @@ const routes = [
         ],
     },
     {
-    path: '/email/verify/:id/:hash',
-    name: 'VerifyEmail',
-    component: VerifyEmail,
-    props: true
-},
+        path: "/email/verify/:id/:hash",
+        name: "VerifyEmail",
+        component: VerifyEmail,
+        props: true,
+    },
+    {
+        path: "/verify-required",
+        name: "VerifyRequired",
+        component: ReSendVerifyEmail,
+        meta: { requiresAuth: true},
+    },
     { path: "/:pathMatch(.*)*", name: "not-found", component: NotFound },
 ];
 
@@ -137,6 +144,15 @@ router.beforeEach(async (to, from, next) => {
             next({ name: "home" });
             return;
         }
+    }
+
+    if (
+        to.meta.requiresVerified &&
+        authStore.isAuthenticated &&
+        !authStore.isVerified
+    ) {
+        next({ name: "VerifyRequired" });
+        return;
     }
 
     // Check if route requires admin access (legacy support)

@@ -230,6 +230,41 @@ export const useAuthStore = defineStore("auth", {
             }
         },
 
+        /**
+         * Resend email verification link
+         */
+        async resendVerificationEmail() {
+            this.loading = true;
+            const toast = useToast();
+
+            try {
+                const response = await axios.post(
+                    "/email/verification-notification",
+                );
+
+                const data = response.data;
+
+                if (data.sent) {
+                    toast.success(data.message || "Verification link sent!");
+                } else {
+                    toast.info(
+                        data.message || "Your email is already verified.",
+                    );
+                }
+
+                return { success: true, message: data.message };
+            } catch (error) {
+                const message =
+                    error.response?.data?.message ||
+                    "Failed to send verification email. Please try again.";
+
+                toast.error(message);
+                return { success: false, message };
+            } finally {
+                this.loading = false;
+            }
+        },
+
         async updateProfile(profileData) {
             this.loading = true;
             this.error = null;

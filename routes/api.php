@@ -63,7 +63,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Profile routes
     // Profile routes
-    Route::middleware('auth:sanctum')->prefix('profile')->name('profile.')->controller(\App\Http\Controllers\Api\User\ProfileController::class)->group(function () {
+    Route::prefix('profile')->name('profile.')->controller(\App\Http\Controllers\Api\User\ProfileController::class)->group(function () {
         Route::get('/', 'show')->name('show');
         Route::post('/', 'update')->name('update');
         Route::post('/change-password', 'changePassword')->name('change-password');
@@ -80,7 +80,7 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     // Order routes
-    Route::prefix('orders')->name('orders.')->controller(\App\Http\Controllers\Api\OrderController::class)->group(function () {
+    Route::middleware('verified')->prefix('orders')->name('orders.')->controller(\App\Http\Controllers\Api\OrderController::class)->group(function () {
         Route::get('/', 'index')->name('index');
         Route::get('/{id}', 'show')->name('show');
         Route::post('/', 'store')->name('store');
@@ -89,7 +89,7 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     // Payment routes
-    Route::prefix('payments')->name('payments.')->controller(\App\Http\Controllers\Api\PaymentController::class)->group(function () {
+    Route::middleware('verified')->prefix('payments')->name('payments.')->controller(\App\Http\Controllers\Api\PaymentController::class)->group(function () {
         Route::get('/', 'index')->name('index');
         Route::get('/{id}', 'show')->name('show');
         Route::post('/', 'store')->name('store');
