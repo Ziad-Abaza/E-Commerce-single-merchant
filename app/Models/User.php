@@ -64,6 +64,14 @@ class User extends Authenticatable implements HasMedia, MustVerifyEmail
     }
 
     /**
+     * Send the password reset notification.
+     */
+    public function sendPasswordResetNotification($token)
+    {
+        $this->notify(new CustomResetPassword($token));
+    }
+
+    /**
      * Register media collections for the model.
      */
     public function registerMediaCollections(): void
