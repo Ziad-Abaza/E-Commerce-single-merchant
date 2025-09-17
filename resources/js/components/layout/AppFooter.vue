@@ -8,10 +8,14 @@
                 <div class="col-span-1 md:col-span-2">
                     <div class="flex items-center space-x-2 mb-4">
                         <div
-                            class="h-8 w-8 bg-primary-600 rounded-lg flex items-center justify-center"
+                            class="h-20 w-20 rounded-lg flex items-center justify-center"
                         >
-                            <svg
-                                class="h-5 w-5 text-white"
+                           <div v-if="siteStore.settings.logo_url" class="h-16 w-16 rounded-lg flex items-center justify-center">
+                            <img :src="siteStore.settings.logo_url" alt="Logo" class="h-full w-full">
+                           </div>
+                           <div v-else class="h-16 w-16 rounded-lg flex items-center justify-center bg-blue-700">
+                             <svg
+                                class="h-16 w-16 text-white"
                                 fill="none"
                                 stroke="currentColor"
                                 viewBox="0 0 24 24"
@@ -23,6 +27,7 @@
                                     d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
                                 />
                             </svg>
+                           </div>
                         </div>
                         <span class="text-xl font-bold">{{
                             siteStore.settings.site_name
