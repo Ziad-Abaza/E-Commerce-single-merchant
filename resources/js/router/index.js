@@ -28,6 +28,8 @@ import Contact from "../pages/Contact.vue";
 import NotFound from "../pages/NotFound.vue";
 import VerifyEmail from "../pages/auth/VerifyEmail.vue";
 import ReSendVerifyEmail from "../pages/auth/VerifyRequired.vue";
+import ForgotPassword from "../pages/auth/ForgotPassword.vue";
+import ResetPassword from "../pages/auth/ResetPassword.vue";
 
 // Import dashboard router
 import dashboardRouter from "./dashboard";
@@ -58,7 +60,7 @@ const routes = [
                 path: "/checkout",
                 name: "checkout",
                 component: Checkout,
-                meta: { requiresAuth: true, requiresVerified: true},
+                meta: { requiresAuth: true, requiresVerified: true },
             },
             {
                 path: "/profile",
@@ -88,6 +90,16 @@ const routes = [
         children: [
             { path: "login", name: "login", component: Login },
             { path: "register", name: "register", component: Register },
+            {
+                path: "forgot-password",
+                name: "forgot-password",
+                component: ForgotPassword,
+            },
+            {
+                path: "reset-password",
+                name: "reset-password",
+                component: ResetPassword,
+            },
         ],
     },
     {
@@ -100,7 +112,12 @@ const routes = [
         path: "/verify-required",
         name: "VerifyRequired",
         component: ReSendVerifyEmail,
-        meta: { requiresAuth: true},
+        meta: { requiresAuth: true },
+    },
+    {
+        path: "/auth/reset-password",
+        name: "ResetPassword",
+        component: () => import("../pages/auth/ResetPassword.vue"),
     },
     { path: "/:pathMatch(.*)*", name: "not-found", component: NotFound },
 ];

@@ -5,48 +5,31 @@
 
 # Reset Your Password 🔐
 
-Hi **{{ $user->name ?? 'there' }}**,
+Hi **{{ $user->name }}**,
 
-You're receiving this email because we received a password reset request for your **{{ $siteName }}** account.
+You requested to reset your password. Click the button below to choose a new one.
 
 ---
 
-## 🔄 Reset Your Password
-
-Click the button below to reset your password. This link will expire in 60 minutes.
-
-@component('mail::button', ['url' => $url, 'color' => 'warning'])
+@component('mail::button', ['url' => $resetUrl, 'color' => 'success'])
 Reset Password
 @endcomponent
 
 ---
 
-## Security Notice
-
-If you did not request a password reset, no further action is required. Your account remains secure.
-**Important:** Never share this link with anyone. {{ $siteName }} staff will never ask for your password or this reset
-link.
+### 🔗 Or use this link:
+[{{ $resetUrl }}]({{ $resetUrl }})
 
 ---
 
-## Need Help?
-
-If you’re having trouble clicking the button above, copy and paste the following URL into your web browser:
-
-[{{ $url }}]({{ $url }})
-
-For additional support, contact us at **{{ $supportEmail }}**.
-
----
+If you did not request a password reset, please ignore this email or contact support.
 
 Best regards,
-**The {{ $siteName }} Security Team**
-
----
+**The {{ $siteName }} Team**
 
 <div
     style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb; color: #6b7280; font-size: 12px;">
     <p>© {{ date('Y') }} {{ $siteName }}. All rights reserved.</p>
-    <p>This password reset link will expire in 60 minutes.</p>
+    <p>This email was sent to {{ $user->email }}</p>
 </div>
 @endcomponent

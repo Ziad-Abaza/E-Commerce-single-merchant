@@ -113,12 +113,12 @@
                 </div>
 
                 <div class="text-sm">
-                    <a
-                        href="#"
+                    <router-link
+                        to="/auth/forgot-password"
                         class="font-medium text-primary-600 hover:text-primary-500"
                     >
                         Forgot your password?
-                    </a>
+                    </router-link>
                 </div>
             </div>
 
