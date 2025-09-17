@@ -7,10 +7,6 @@ use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use App\Models\User;
-use Illuminate\Support\Facades\URL;
 
 //  api Auth Routes
 Route::post('/register', [RegisteredUserController::class, 'store'])
@@ -43,55 +39,3 @@ Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
     ->middleware('auth:sanctum')
     ->name('logout');
 
-
-Route::post('/email/verify-link', function (Request $request) {
-    $request->validate([
-        'url' => 'required|url'
-    ]);
-
-    $verificationUrl = urldecode($request->url);
-
-    // تحليل الرابط لاستخراج المعلمات
-    $parsedUrl = parse_url($verificationUrl);
-    parse_str($parsedUrl['query'] ?? '', $query);
-
-    $userId = $query['id'] ?? null;
-    $hash   = $query['hash'] ?? null;
-    $expires = $query['expires'] ?? null;
-    $signature = $query['signature'] ?? null;
-
-    if (!$userId || !$hash || !$expires || !$signature) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Invalid verification link.'
-        ]);
-    }
-
-    // إنشاء طلب مؤقت للتحقق من التوقيع
-    $tempRequest = Request::create($parsedUrl['path'] ?? '', 'GET', [
-        'id' => $userId,
-        'hash' => $hash,
-        'expires' => $expires,
-        'signature' => $signature,
-    ]);
-
-    if (!URL::hasValidSignature($tempRequest)) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Invalid or expired verification link.'
-        ]);
-    }
-
-    $user = User::find($userId);
-    if (!$user) {
-        return response()->json(['success' => false, 'message' => 'User not found.']);
-    }
-
-    if ($user->hasVerifiedEmail()) {
-        return response()->json(['success' => true, 'message' => 'Email already verified.']);
-    }
-
-    $user->markEmailAsVerified();
-
-    return response()->json(['success' => true, 'message' => 'Email verified successfully.']);
-});

@@ -17,7 +17,6 @@ import ProductDetail from "../pages/ProductDetail.vue";
 import Cart from "../pages/Cart.vue";
 import Checkout from "../pages/Checkout.vue";
 import Login from "../pages/auth/Login.vue";
-import VerifyEmail from "../pages/auth/VerifyEmail.vue";
 import Register from "../pages/auth/Register.vue";
 import Profile from "../pages/Profile.vue";
 import Orders from "../pages/Orders.vue";
@@ -88,12 +87,6 @@ const routes = [
             { path: "login", name: "login", component: Login },
             { path: "register", name: "register", component: Register },
         ],
-    },
-    {
-        path: "/verify-email",
-        name: "verify-email",
-        component: VerifyEmail,
-        props: (route) => ({ url: route.query.url }),
     },
     { path: "/:pathMatch(.*)*", name: "not-found", component: NotFound },
 ];

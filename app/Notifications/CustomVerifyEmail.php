@@ -6,7 +6,6 @@ use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
-use Illuminate\Support\Facades\URL;
 
 class CustomVerifyEmail extends VerifyEmail implements ShouldQueue
 {
@@ -17,14 +16,7 @@ class CustomVerifyEmail extends VerifyEmail implements ShouldQueue
      */
     public function toMail($notifiable)
     {
-        $verificationUrl = URL::temporarySignedRoute(
-            'verification.verify', // الاسم المستخدم في route
-            now()->addMinutes(config('auth.verification.expire', 60)),
-            ['id' => $notifiable->id, 'hash' => sha1($notifiable->getEmailForVerification())]
-        );
-
-        $frontendVerificationUrl = config('app.frontend_url') . '/verify-email?url=' . urlencode($verificationUrl);
-
+        $verificationUrl = $this->verificationUrl($notifiable);
 
         $siteName = \App\Models\Setting::get('site_name', 'E-Commerce Store');
         $logoUrl  = \App\Models\Setting::get('logo_url', asset('assets/image/brand/logo.png'));
@@ -33,7 +25,7 @@ class CustomVerifyEmail extends VerifyEmail implements ShouldQueue
         return (new \Illuminate\Notifications\Messages\MailMessage)
             ->subject("Verify Your Email - Welcome to $siteName")
             ->markdown('emails.verify-email', [
-                'verificationUrl' => $frontendVerificationUrl,
+                'verificationUrl' => $verificationUrl,
                 'user' => $notifiable,
                 'siteName' => $siteName,
                 'logoUrl' => $logoUrl,
