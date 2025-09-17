@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
 import axios from "../bootstrap";
+import { useToast } from "vue-toastification";
 
 export const useAuthStore = defineStore("auth", {
     state: () => ({
@@ -36,6 +37,8 @@ export const useAuthStore = defineStore("auth", {
         async login(credentials) {
             this.loading = true;
             this.error = null;
+            const toast = useToast();
+
             try {
                 const response = await axios.post("/login", credentials);
 
@@ -47,6 +50,12 @@ export const useAuthStore = defineStore("auth", {
                 }
                 if (!user) {
                     throw new Error("User data not found in response");
+                }
+
+                // check is verified and send email
+                if (!user.is_verified) {
+                    toast.info("Please check your email for verification.");
+                    await axios.post("/email/verification-notification");
                 }
 
                 this.token = token;
@@ -139,7 +148,8 @@ export const useAuthStore = defineStore("auth", {
                             "XSRF-TOKEN=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
                         document.cookie =
                             "laravel_session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-                        document.cookie = "remember_web_5=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+                        document.cookie =
+                            "remember_web_5=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
                     }
                 }
             } catch (error) {
@@ -187,6 +197,37 @@ export const useAuthStore = defineStore("auth", {
                 return false;
             } finally {
                 this.loading = false;
+            }
+        },
+
+        async refreshUser() {
+            if (!this.token) return;
+
+            try {
+                const response = await axios.get("/user");
+                const user = response.data.data;
+
+                this.user = user;
+                this.permissions = user.permissions || [];
+                this.roles = user.roles || [];
+                this.is_verified = user.is_verified || false;
+
+                // Update localStorage
+                localStorage.setItem("auth_user", JSON.stringify(user));
+                localStorage.setItem(
+                    "auth_permissions",
+                    JSON.stringify(this.permissions),
+                );
+                localStorage.setItem("auth_roles", JSON.stringify(this.roles));
+                localStorage.setItem(
+                    "auth_is_verified",
+                    JSON.stringify(this.is_verified),
+                );
+            } catch (error) {
+                console.error("Failed to refresh user:", error);
+                if (error.response?.status === 401) {
+                    this.logout();
+                }
             }
         },
 

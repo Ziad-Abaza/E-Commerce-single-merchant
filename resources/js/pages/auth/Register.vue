@@ -189,6 +189,7 @@ const handleSubmit = async () => {
 
     if (result.success) {
       toast.success('Account created successfully!')
+      toast.success('Please check your email to verify your account.')
       router.push('/')
     } else {
       toast.error(result.error)

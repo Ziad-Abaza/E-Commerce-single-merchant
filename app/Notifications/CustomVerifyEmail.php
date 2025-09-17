@@ -17,14 +17,14 @@ class CustomVerifyEmail extends VerifyEmail implements ShouldQueue
      */
     public function toMail($notifiable)
     {
-        // هذا سيُنشئ رابطًا كاملاً: /api/verify-email/{id}/{hash}?expires=...&signature=...
+        // original url
         $originalUrl = $this->verificationUrl($notifiable);
 
-        // نحوله إلى رابط Vue، لكن نحافظ على جميع المعاملات (expires, signature)
+        // frontend url
         $frontendUrl = config('app.frontend_url', 'https://online-shop.cbatu.com');
         $parsed = parse_url($originalUrl);
 
-        // استخراج المعاملات
+        // get expires and signature
         parse_str($parsed['query'] ?? '', $query);
         $expires = $query['expires'] ?? null;
         $signature = $query['signature'] ?? null;
@@ -33,10 +33,11 @@ class CustomVerifyEmail extends VerifyEmail implements ShouldQueue
             throw new \Exception('Missing expires or signature in verification URL');
         }
 
-        // نصنع رابط Vue مع نفس المعاملات
+        // final url with expires and signature
         $vueUrl = "{$frontendUrl}/email/verify/{$notifiable->getKey()}/{$this->verificationHash($notifiable)}";
         $finalUrl = $vueUrl . "?expires={$expires}&signature={$signature}";
 
+        // Get settings
         $siteName = \App\Models\Setting::get('site_name', 'E-Commerce Store');
         $logoUrl  = \App\Models\Setting::get('logo_url', asset('assets/image/brand/logo.png'));
         $supportEmail = \App\Models\Setting::get('contact_email', 'support@example.com');
@@ -51,7 +52,7 @@ class CustomVerifyEmail extends VerifyEmail implements ShouldQueue
                 'supportEmail' => $supportEmail,
             ]);
     }
-    
+
     private function verificationHash($notifiable)
     {
         return sha1($notifiable->getEmailForVerification());
