@@ -18,20 +18,24 @@ const loading = ref(true);
 const success = ref(false);
 const error = ref('');
 
-onMounted(() => {
-    const params = new URLSearchParams(window.location.search);
-    const id = params.get('id');
-    const hash = params.get('hash');
-    const expires = params.get('expires');
-    const signature = params.get('signature');
-
-    if (!id || !hash || !expires || !signature) {
+onMounted(async () => {
+    const verificationUrl = decodeURIComponent(route.query.url || '');
+    if (!verificationUrl) {
         error.value = 'Invalid verification link';
         loading.value = false;
         return;
     }
 
-    window.location.href = `/api/verify-email/${id}/${hash}?expires=${expires}&signature=${signature}`;
+    try {
+        const response = await axios.get(verificationUrl);
+        success.value = true;
+    } catch (err) {
+        error.value = err.response?.data?.message || 'Verification failed';
+    } finally {
+        loading.value = false;
+    }
 });
+
+
 
 </script>

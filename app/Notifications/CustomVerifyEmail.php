@@ -17,17 +17,13 @@ class CustomVerifyEmail extends VerifyEmail implements ShouldQueue
      */
     public function toMail($notifiable)
     {
-        $verificationUrl = $this->verificationUrl($notifiable);
+        $verificationUrl = URL::temporarySignedRoute(
+            'verification.verify', // الاسم المستخدم في route
+            now()->addMinutes(config('auth.verification.expire', 60)),
+            ['id' => $notifiable->id, 'hash' => sha1($notifiable->getEmailForVerification())]
+        );
 
-        $frontendVerificationUrl = config('app.frontend_url')
-            . '/verify-email?id=' . $notifiable->id
-            . '&hash=' . sha1($notifiable->getEmailForVerification())
-            . '&expires=' . now()->addMinutes(config('auth.verification.expire', 60))->timestamp
-            . '&signature=' . URL::temporarySignedRoute(
-                'verification.verify',
-                now()->addMinutes(config('auth.verification.expire', 60)),
-                ['id' => $notifiable->id, 'hash' => sha1($notifiable->getEmailForVerification())]
-            );
+        $frontendVerificationUrl = config('app.frontend_url') . '/verify-email?url=' . urlencode($verificationUrl);
 
 
         $siteName = \App\Models\Setting::get('site_name', 'E-Commerce Store');
