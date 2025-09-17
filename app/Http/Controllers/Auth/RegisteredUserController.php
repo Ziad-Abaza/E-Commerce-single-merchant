@@ -39,12 +39,6 @@ class RegisteredUserController extends Controller
             'is_active' => true,
         ]);
 
-        // if (app()->environment('production')) {
-        //     $user->sendEmailVerificationNotification();
-        // }else{
-        //     $user->markEmailAsVerified();
-        // }
-
         if ($request->hasFile('avatar')) {
             $user->setAvatar($request->file('avatar'));
         }
