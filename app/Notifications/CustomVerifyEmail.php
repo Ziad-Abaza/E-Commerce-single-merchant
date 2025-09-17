@@ -17,35 +17,41 @@ class CustomVerifyEmail extends VerifyEmail implements ShouldQueue
      */
     public function toMail($notifiable)
     {
-        // $verificationUrl = $this->verificationUrl($notifiable);
+        // هذا سيُنشئ رابطًا كاملاً: /api/verify-email/{id}/{hash}?expires=...&signature=...
+        $originalUrl = $this->verificationUrl($notifiable);
 
+        // نحوله إلى رابط Vue، لكن نحافظ على جميع المعاملات (expires, signature)
         $frontendUrl = config('app.frontend_url', 'https://online-shop.cbatu.com');
-        $verifyRoute = "/email/verify/{$notifiable->getKey()}/{$this->verificationHash($notifiable)}";
-        $verificationUrl = $frontendUrl . $verifyRoute;
+        $parsed = parse_url($originalUrl);
+
+        // استخراج المعاملات
+        parse_str($parsed['query'] ?? '', $query);
+        $expires = $query['expires'] ?? null;
+        $signature = $query['signature'] ?? null;
+
+        if (!$expires || !$signature) {
+            throw new \Exception('Missing expires or signature in verification URL');
+        }
+
+        // نصنع رابط Vue مع نفس المعاملات
+        $vueUrl = "{$frontendUrl}/email/verify/{$notifiable->getKey()}/{$this->verificationHash($notifiable)}";
+        $finalUrl = $vueUrl . "?expires={$expires}&signature={$signature}";
 
         $siteName = \App\Models\Setting::get('site_name', 'E-Commerce Store');
         $logoUrl  = \App\Models\Setting::get('logo_url', asset('assets/image/brand/logo.png'));
         $supportEmail = \App\Models\Setting::get('contact_email', 'support@example.com');
 
-        Log::info("CustomVerifyEmail: " , [
-            'notifiable' => $notifiable,
-            'verificationUrl' => $verificationUrl,
-            'siteName' => $siteName,
-            'logoUrl' => $logoUrl,
-            'supportEmail' => $supportEmail
-        ]);
-
         return (new MailMessage)
             ->subject("Verify Your Email - Welcome to $siteName")
             ->markdown('emails.verify-email', [
-                'verificationUrl' => $verificationUrl,
+                'verificationUrl' => $finalUrl,
                 'user' => $notifiable,
                 'siteName' => $siteName,
                 'logoUrl' => $logoUrl,
                 'supportEmail' => $supportEmail,
             ]);
     }
-
+    
     private function verificationHash($notifiable)
     {
         return sha1($notifiable->getEmailForVerification());
