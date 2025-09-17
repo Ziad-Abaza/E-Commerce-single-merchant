@@ -18,26 +18,20 @@ const loading = ref(true);
 const success = ref(false);
 const error = ref('');
 
-onMounted(async () => {
-    const verificationUrl = route.query.url;
-    if (!verificationUrl) {
+onMounted(() => {
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('id');
+    const hash = params.get('hash');
+    const expires = params.get('expires');
+    const signature = params.get('signature');
+
+    if (!id || !hash || !expires || !signature) {
         error.value = 'Invalid verification link';
         loading.value = false;
         return;
     }
 
-    try {
-        const response = await axios.post('/email/verify-link', { url: verificationUrl });
-
-        if (response.data.success) {
-            success.value = true;
-        } else {
-            error.value = response.data.message || 'Verification failed';
-        }
-    } catch (err) {
-        error.value = err.response?.data?.message || 'Server error';
-    } finally {
-        loading.value = false;
-    }
+    window.location.href = `/api/verify-email/${id}/${hash}?expires=${expires}&signature=${signature}`;
 });
+
 </script>
