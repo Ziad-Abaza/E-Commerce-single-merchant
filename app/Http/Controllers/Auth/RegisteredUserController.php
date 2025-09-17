@@ -41,6 +41,8 @@ class RegisteredUserController extends Controller
 
         if (app()->environment('production')) {
             $user->sendEmailVerificationNotification();
+        }else{
+            $user->markEmailAsVerified();
         }
 
         if ($request->hasFile('avatar')) {
@@ -53,7 +55,7 @@ class RegisteredUserController extends Controller
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
-            'message' => 'User registered successfully.',
+            'message' => 'User registered successfully, please check your email for verification.',
             'data' => [
                 'id' => $user->id,
                 'name' => $user->name,

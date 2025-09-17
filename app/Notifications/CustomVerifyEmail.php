@@ -18,6 +18,8 @@ class CustomVerifyEmail extends VerifyEmail implements ShouldQueue
     {
         $verificationUrl = $this->verificationUrl($notifiable);
 
+        $frontendVerificationUrl = config('app.frontend_url') . '/verify-email?url=' . urlencode($verificationUrl);
+
         $siteName = \App\Models\Setting::get('site_name', 'E-Commerce Store');
         $logoUrl  = \App\Models\Setting::get('logo_url', asset('assets/image/brand/logo.png'));
         $supportEmail = \App\Models\Setting::get('contact_email', 'support@example.com');
@@ -25,7 +27,7 @@ class CustomVerifyEmail extends VerifyEmail implements ShouldQueue
         return (new \Illuminate\Notifications\Messages\MailMessage)
             ->subject("Verify Your Email - Welcome to $siteName")
             ->markdown('emails.verify-email', [
-                'verificationUrl' => $verificationUrl,
+                'verificationUrl' => $frontendVerificationUrl,
                 'user' => $notifiable,
                 'siteName' => $siteName,
                 'logoUrl' => $logoUrl,

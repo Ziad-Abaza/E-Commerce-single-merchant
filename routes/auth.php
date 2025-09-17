@@ -7,6 +7,9 @@ use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\URL;
 
 //  api Auth Routes
 Route::post('/register', [RegisteredUserController::class, 'store'])
@@ -39,3 +42,37 @@ Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
     ->middleware('auth:sanctum')
     ->name('logout');
 
+
+Route::post('/email/verify-link', function (Request $request) {
+    $request->validate(['url' => 'required|url']);
+    $signedUrl = $request->url;
+
+    // تحليل الرابط
+    $parsedUrl = parse_url($signedUrl);
+    parse_str($parsedUrl['query'] ?? '', $query);
+
+    $userId = $query['id'] ?? null;
+    $hash = $query['hash'] ?? null;
+
+    if (!$userId || !$hash) {
+        return response()->json(['success' => false, 'message' => 'Invalid verification link.']);
+    }
+
+    // تحقق من صلاحية الرابط
+    if (! URL::hasValidSignature($request->merge(['id' => $userId, 'hash' => $hash]))) {
+        return response()->json(['success' => false, 'message' => 'Invalid or expired verification link.']);
+    }
+
+    $user = \App\Models\User::find($userId);
+    if (!$user) {
+        return response()->json(['success' => false, 'message' => 'User not found.']);
+    }
+
+    if ($user->hasVerifiedEmail()) {
+        return response()->json(['success' => true, 'message' => 'Email already verified.']);
+    }
+
+    $user->markEmailAsVerified();
+
+    return response()->json(['success' => true, 'message' => 'Email verified successfully.']);
+});
