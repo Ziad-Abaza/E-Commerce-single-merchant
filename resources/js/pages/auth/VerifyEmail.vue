@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import axios from 'axios';
+import axios from "../../bootstrap";
 
 export default {
   name: 'VerifyEmail',
@@ -25,7 +25,7 @@ export default {
       console.log("id: ", id);
       console.log("hash: ", hash);
 
-      const response = await axios.get(`/api/verify-email/${id}/${hash}`, {
+      const response = await axios.get(`/verify-email/${id}/${hash}`, {
         params: query
       });
 
