@@ -30,6 +30,12 @@ class AuthenticatedSessionController extends Controller
             ], 401);
         }
 
+        $isResendEmail = false;
+        if (!$user->hasVerifiedEmail() && env('APP_ENV') === 'production') {
+            $user->sendEmailVerificationNotification();
+            $isResendEmail = true;
+        }
+
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
@@ -50,6 +56,7 @@ class AuthenticatedSessionController extends Controller
             ],
             'token' => $token,
             'success' => true,
+            'resend_email' => $isResendEmail,
         ], 200);
     }
 

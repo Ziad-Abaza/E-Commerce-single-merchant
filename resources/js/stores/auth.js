@@ -53,9 +53,8 @@ export const useAuthStore = defineStore("auth", {
                 }
 
                 // check is verified and send email
-                if (!user.is_verified) {
+                if (response.data.resend_email) {
                     toast.info("Please check your email for verification.");
-                    await axios.post("/email/verification-notification");
                 }
 
                 this.token = token;
