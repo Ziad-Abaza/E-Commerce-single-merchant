@@ -88,15 +88,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/{id}', 'destroy')->name('destroy');
     });
 
-    // Payment routes
-    Route::middleware('verified')->prefix('payments')->name('payments.')->controller(\App\Http\Controllers\Api\PaymentController::class)->group(function () {
-        Route::get('/', 'index')->name('index');
-        Route::get('/{id}', 'show')->name('show');
-        Route::post('/', 'store')->name('store');
-        Route::post('/{id}', 'update')->name('update');
-        Route::delete('/{id}', 'destroy')->name('destroy');
-    });
-
     Route::prefix('reviews')->name('reviews.')->controller(\App\Http\Controllers\Api\User\ReviewController::class)->group(function () {
         Route::get('/{product_id}', 'index')->name('index');
         Route::post('/{product_id}', 'store')->name('store');

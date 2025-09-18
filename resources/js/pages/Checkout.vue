@@ -139,46 +139,12 @@
             </div>
           </div>
 
-          <!-- Payment Information -->
+          <!-- Order Confirmation -->
           <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 dark:bg-gray-800 dark:border-gray-700">
-            <h2 class="text-lg font-medium text-gray-900 mb-4 dark:text-white">Payment Information</h2>
-
-            <div>
-              <label for="card_number" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Card Number</label>
-              <input
-                id="card_number"
-                v-model="form.payment.card_number"
-                type="text"
-                required
-                placeholder="1234 5678 9012 3456"
-                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-              />
-            </div>
-
-            <div class="grid grid-cols-2 gap-4 mt-4">
-              <div>
-                <label for="expiry_date" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Expiry Date</label>
-                <input
-                  id="expiry_date"
-                  v-model="form.payment.expiry_date"
-                  type="text"
-                  required
-                  placeholder="MM/YY"
-                  class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                />
-              </div>
-              <div>
-                <label for="cvv" class="block text-sm font-medium text-gray-700 dark:text-gray-300">CVV</label>
-                <input
-                  id="cvv"
-                  v-model="form.payment.cvv"
-                  type="text"
-                  required
-                  placeholder="123"
-                  class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                />
-              </div>
-            </div>
+            <h2 class="text-lg font-medium text-gray-900 mb-4 dark:text-white">Order Confirmation</h2>
+            <p class="text-sm text-gray-600 dark:text-gray-300">
+              By placing this order, you agree to our terms and conditions. You'll receive an email confirmation once your order is processed.
+            </p>
           </div>
 
           <!-- Submit Button -->
@@ -193,7 +159,7 @@
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
             </span>
-            {{ loading ? 'Processing...' : `Complete Order - ${totalAmount.toFixed(2)}` }} {{ siteStore.settings.currency }}
+            {{ loading ? 'Placing Order...' : `Place Order - ${totalAmount.toFixed(2)}` }} {{ siteStore.settings.currency }}
           </button>
         </form>
       </div>
@@ -224,11 +190,6 @@ const form = reactive({
     state: '',
     zip_code: ''
   },
-  payment: {
-    card_number: '',
-    expiry_date: '',
-    cvv: ''
-  }
 })
 
 const shippingCost = computed(() => {
@@ -248,13 +209,9 @@ const handleSubmit = async () => {
   loading.value = true
 
   try {
-    // This would integrate with a payment processor like Stripe
-    // For now, we'll simulate a successful payment
-
     const orderData = {
       items: cartStore.items,
       shipping: form.shipping,
-      payment: form.payment,
       total: totalAmount.value
     }
 

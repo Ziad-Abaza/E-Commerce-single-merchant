@@ -30,7 +30,7 @@ class OrderController extends Controller
             'order' => 'nullable|in:asc,desc',
         ]);
 
-        $query = Order::with(['user', 'items.product', 'payment']);
+        $query = Order::with(['user', 'items.product']);
 
         // Filter by status
         if ($request->status) {
@@ -78,8 +78,7 @@ class OrderController extends Controller
             'shipped'        => Order::where('status', 'shipped')->count(),
             'delivered'      => Order::where('status', 'delivered')->count(),
             'cancelled'      => Order::where('status', 'cancelled')->count(),
-            'refunded'       => Order::where('status', 'refunded')->count(),
-            'total_revenue'  => Order::where('status', 'delivered')->sum('total_amount'),
+            'total_revenue'  => Order::whereIn('status', ['delivered', 'shipped'])->sum('total_amount'),
         ];
 
         return response()->json([
@@ -102,7 +101,7 @@ class OrderController extends Controller
      */
     public function show($id): JsonResponse
     {
-        $order = Order::with(['user', 'items.product', 'payment'])->find($id);
+        $order = Order::with(['user', 'items.product'])->find($id);
 
         if (!$order) {
             return response()->json([
@@ -150,7 +149,7 @@ class OrderController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Order updated successfully.',
-            'data' => new OrderResource($order->fresh(['user', 'items.product', 'payment'])),
+            'data' => new OrderResource($order->fresh(['user', 'items.product'])),
             'code' => 200,
         ]);
     }
@@ -217,7 +216,7 @@ class OrderController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Order status updated successfully.',
-            'data' => new OrderResource($order->fresh(['user', 'items.product', 'payment'])),
+            'data' => new OrderResource($order->fresh(['user', 'items.product'])),
             'code' => 200,
         ]);
     }
@@ -267,34 +266,9 @@ class OrderController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Order cancelled successfully.',
-            'data' => new OrderResource($order->fresh(['user', 'items.product', 'payment'])),
+            'data' => new OrderResource($order->fresh(['user', 'items.product'])),
             'code' => 200,
         ]);
     }
 
-    /**
-     * Handle expired pending orders (e.g., not paid, product deleted or out of stock)
-     */
-    public function handleExpiredPendingOrders(): JsonResponse
-    {
-        $expiredOrders = Order::where('status', 'pending')
-            ->where(function ($q) {
-                $q->where('payment_status', '!=', 'paid')
-                    ->orWhereHas('items.productDetail', function ($sub) {
-                        $sub->withTrashed()->where('stock', '<=', 0);
-                    });
-            })
-            ->get();
-
-        foreach ($expiredOrders as $order) {
-            $order->markAsCancelled();
-        }
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Expired pending orders processed successfully.',
-            'data' => OrderResource::collection($expiredOrders),
-            'code' => 200,
-        ]);
-    }
 }

@@ -28,15 +28,11 @@ class OrderController extends Controller
                 ], 401);
             }
 
-            $query = Order::with(['user', 'items.product', 'payment'])
+            $query = Order::with(['user', 'items.product'])
                 ->where('user_id', $user->id);
 
             if ($request->has('status')) {
                 $query->where('status', $request->status);
-            }
-
-            if ($request->has('payment_status')) {
-                $query->where('payment_status', $request->payment_status);
             }
 
             if ($request->has('date_from')) {
@@ -74,7 +70,7 @@ class OrderController extends Controller
     public function show($id)
     {
         try {
-            $order = Order::with(['user', 'items.product', 'payment'])
+            $order = Order::with(['user', 'items.product'])
                 ->where('user_id', Auth::id())
                 ->findOrFail($id);
 
@@ -106,7 +102,12 @@ class OrderController extends Controller
         try {
             DB::beginTransaction();
 
-            $data = $request->validated();
+            $validated = $request->validate([
+                'status' => 'sometimes|string|in:pending,processing,shipped,delivered,cancelled',
+                'shipping_address' => 'sometimes|string|max:500',
+                'notes' => 'nullable|string|max:1000',
+            ]);
+
             $data['order_number'] = $this->generateOrderNumber();
             $data['user_id'] = Auth::id();
 
@@ -128,7 +129,7 @@ class OrderController extends Controller
 
             return response()->json([
                 'message' => 'Order created successfully.',
-                'data' => new OrderResource($order->load(['user', 'items.product', 'payment'])),
+                'data' => new OrderResource($order->load(['user', 'items.product'])),
                 'errors' => null,
                 'code' => 201,
             ], 201);
@@ -169,7 +170,7 @@ class OrderController extends Controller
 
             return response()->json([
                 'message' => 'Order updated successfully.',
-                'data' => new OrderResource($order->fresh(['user', 'items.product', 'payment'])),
+                'data' => new OrderResource($order->fresh(['user', 'items.product'])),
                 'errors' => null,
                 'code' => 200,
             ], 200);
@@ -247,7 +248,7 @@ class OrderController extends Controller
 
             return response()->json([
                 'message' => 'Order marked as delivered successfully.',
-                'data' => new OrderResource($order->fresh(['user', 'items.product', 'payment'])),
+                'data' => new OrderResource($order->fresh(['user', 'items.product'])),
                 'errors' => null,
                 'code' => 200,
             ], 200);
@@ -286,7 +287,7 @@ class OrderController extends Controller
 
             return response()->json([
                 'message' => 'Order cancelled successfully.',
-                'data' => new OrderResource($order->fresh(['user', 'items.product', 'payment'])),
+                'data' => new OrderResource($order->fresh(['user', 'items.product'])),
                 'errors' => null,
                 'code' => 200,
             ], 200);

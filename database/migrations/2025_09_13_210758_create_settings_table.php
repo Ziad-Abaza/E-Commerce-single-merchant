@@ -22,8 +22,9 @@ return new class extends Migration
             $table->json('options')->nullable(); // For select/radio options
             $table->boolean('is_public')->default(false); // Can be accessed without auth
             $table->integer('sort_order')->default(0);
+            $table->boolean('is_protected')->default(false);
             $table->timestamps();
-            
+
             $table->index(['group', 'sort_order']);
         });
     }

@@ -32,8 +32,6 @@ class OrderStoreRequest extends FormRequest
             'currency' => 'required|string|max:3',
             'shipping_address' => 'required|string',
             'notes' => 'nullable|string',
-            'payment_method' => 'required|string|max:50',
-            'payment_status' => 'required|string|in:pending,paid,failed,refunded',
             'receipt' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:8192',
             'invoice' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:8192',
             'attachments' => 'nullable|array',

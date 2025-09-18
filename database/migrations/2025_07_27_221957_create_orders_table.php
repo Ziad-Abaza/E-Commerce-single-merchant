@@ -25,11 +25,8 @@ return new class extends Migration
                 $table->decimal('tax_amount', 8, 2)->default(0); // Tax amount like 10.00
                 $table->decimal('discount_amount', 8, 2)->default(0);
                 $table->char('currency', 3)->default('EGP');
-                $table->text('shipping_address'); 
+                $table->text('shipping_address');
                 $table->text('notes')->nullable();
-                $table->string('payment_method', 50);
-                $table->enum('payment_status', ['pending', 'paid', 'failed', 'refunded'])
-                    ->default('pending');
                 $table->timestamp('delivered_at')->nullable();
                 $table->timestamp('cancelled_at')->nullable();
                 $table->timestamps();
@@ -37,7 +34,6 @@ return new class extends Migration
                 $table->index('user_id', 'idx_orders_user');
                 $table->index('order_number', 'idx_orders_number');
                 $table->index('status', 'idx_orders_status');
-                $table->index('payment_status', 'idx_orders_payment_status');
                 $table->index('created_at', 'idx_orders_created');
             }
         );

@@ -108,23 +108,6 @@ Route::middleware(['auth:sanctum', 'verified'])->prefix('dashboard')->name('dash
             Route::patch('/{id}/cancel', 'cancel')->name('cancel');
         });
 
-    // Payments Management
-    Route::middleware(['can:manage_payments'])
-        ->prefix('payments')
-        ->name('payments.')
-        ->controller(\App\Http\Controllers\Dashboard\PaymentController::class)
-        ->group(function () {
-            Route::get('/', 'index')->name('index');
-            Route::get('/statistics', 'statistics')->name('statistics');
-            Route::get('/status/{status}', 'byStatus')->name('by-status')->where('status', '[a-zA-Z0-9_-]+');
-            Route::get('/failed', 'failedPayments')->name('failed');
-            Route::get('/revenue-analytics', 'revenueAnalytics')->name('revenue-analytics');
-            Route::get('/{id}', 'show')->name('show');
-            Route::post('/{id}', 'update')->name('update');
-            Route::post('/{id}/status', 'updateStatus')->name('update-status');
-            Route::post('/{id}/refund', 'refund')->name('refund');
-        });
-
     // Reviews Management
     Route::middleware(['can:manage_reviews'])
         ->prefix('reviews')

@@ -29,8 +29,6 @@ class Order extends Model implements HasMedia
         'currency',
         'shipping_address',
         'notes',
-        'payment_method',
-        'payment_status',
         'delivered_at',
         'cancelled_at',
     ];
@@ -101,14 +99,6 @@ class Order extends Model implements HasMedia
     }
 
     /**
-     * Get the payment for this order.
-     */
-    public function payment()
-    {
-        return $this->hasOne(Payment::class);
-    }
-
-    /**
      * Scope a query to only include pending orders.
      */
     public function scopePending($query)
@@ -146,22 +136,6 @@ class Order extends Model implements HasMedia
     public function scopeCancelled($query)
     {
         return $query->where('status', 'cancelled');
-    }
-
-    /**
-     * Scope a query to only include paid orders.
-     */
-    public function scopePaid($query)
-    {
-        return $query->where('payment_status', 'paid');
-    }
-
-    /**
-     * Scope a query to only include unpaid orders.
-     */
-    public function scopeUnpaid($query)
-    {
-        return $query->where('payment_status', 'pending');
     }
 
     /**
@@ -225,14 +199,6 @@ class Order extends Model implements HasMedia
     public function getFinalTotal()
     {
         return $this->total_amount + $this->shipping_cost + $this->tax_amount - $this->discount_amount;
-    }
-
-    /**
-     * Check if the order is paid.
-     */
-    public function isPaid()
-    {
-        return $this->payment_status === 'paid';
     }
 
     /**

@@ -103,7 +103,6 @@ class SettingController extends Controller
      */
     public function update(Request $request, Setting $setting)
     {
-        Log::info('request', $request->all());
         $validator = Validator::make($request->all(), [
             'key' => 'required|string|max:255|unique:settings,key,' . $setting->id,
             'type' => 'required|in:text,number,boolean,json,file,image,select,textarea',
@@ -113,7 +112,7 @@ class SettingController extends Controller
             'options' => 'nullable|array',
             'is_public' => 'nullable|boolean',
             'sort_order' => 'nullable|integer|min:0',
-            'file' => 'nullable|file|max:5120', // Max 5MB
+            'file' => 'nullable|file|max:5120',
         ]);
 
         if ($validator->fails()) {
@@ -125,10 +124,9 @@ class SettingController extends Controller
         }
 
         try {
+            // update data based on request
             $data = [
-                'key' => $request->input('key'),
                 'type' => $request->input('type'),
-                'group' => $request->input('group'),
                 'label' => $request->input('label'),
                 'description' => $request->input('description', $setting->description),
                 'options' => $request->input('options', $setting->options),
@@ -136,16 +134,33 @@ class SettingController extends Controller
                 'sort_order' => $request->input('sort_order', $setting->sort_order ?? 0),
             ];
 
-            // Handle file upload if present
+            // don't update key or group if it's protected
+            if (!$setting->is_protected) {
+                $data['key'] = $request->input('key');
+                $data['group'] = $request->input('group');
+            } else {
+                if ($request->input('key') && $request->input('key') !== $setting->key) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Cannot change the key of a protected setting.',
+                    ], 403);
+                }
+                if ($request->input('group') && $request->input('group') !== $setting->group) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Cannot change the group of a protected setting.',
+                    ], 403);
+                }
+            }
+
             if ($request->hasFile('file')) {
                 $data['value'] = $request->file('file');
-            } else if ($request->has('value')) {
+            } elseif ($request->has('value')) {
                 $data['value'] = $request->input('value');
             } else {
                 $data['value'] = $setting->value;
             }
 
-            // Update the setting
             $setting->update($data);
 
             return response()->json([
@@ -169,12 +184,19 @@ class SettingController extends Controller
      */
     public function destroy(Setting $setting)
     {
+        if ($setting->is_protected) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Cannot delete a protected setting.',
+            ], 403);
+        }
+
         try {
             $setting->delete();
 
             return response()->json([
                 'success' => true,
-                'message' => 'Setting deleted successfully',
+                'message' => 'Setting deleted successfully.',
             ]);
         } catch (\Exception $e) {
             return response()->json([

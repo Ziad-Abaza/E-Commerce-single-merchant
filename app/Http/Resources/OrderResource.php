@@ -21,8 +21,6 @@ class OrderResource extends JsonResource
             'currency' => $this->currency,
             'shipping_address' => $this->shipping_address,
             'notes' => $this->notes,
-            'payment_method' => $this->payment_method,
-            'payment_status' => $this->payment_status,
             'delivered_at' => $this->delivered_at?->toDateTimeString(),
             'cancelled_at' => $this->cancelled_at?->toDateTimeString(),
             'receipt_url' => $this->getReceiptUrl(),
@@ -30,7 +28,6 @@ class OrderResource extends JsonResource
             'attachment_url' => $this->getAttachmentUrl(),
             'subtotal' => $this->getSubtotal(),
             'final_total' => $this->getFinalTotal(),
-            'is_paid' => $this->isPaid(),
             'is_delivered' => $this->isDelivered(),
             'is_cancelled' => $this->isCancelled(),
             'can_be_cancelled' => $this->canBeCancelled(),
@@ -39,9 +36,6 @@ class OrderResource extends JsonResource
             }),
             'items' => $this->whenLoaded('items', function () {
                 return OrderItemResource::collection($this->items);
-            }),
-            'payment' => $this->whenLoaded('payment', function () {
-                return new PaymentResource($this->payment);
             }),
             'created_at' => $this->created_at?->toDateTimeString(),
             'updated_at' => $this->updated_at?->toDateTimeString(),

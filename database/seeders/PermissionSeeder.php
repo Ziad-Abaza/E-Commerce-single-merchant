@@ -13,7 +13,6 @@ class PermissionSeeder extends Seeder
             'manage_users',
             'manage_products',
             'manage_cart',
-            'manage_payment',
             'manage_orders',
             'manage_reviews',
             'manage_settings',

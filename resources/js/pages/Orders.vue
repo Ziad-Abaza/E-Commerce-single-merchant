@@ -123,17 +123,18 @@
                             {{ orderStore.getStatusText(orderStore.currentOrder.status) }}
                           </span>
                         </p>
-                        <p><span class="font-medium">Payment Status:</span> {{ orderStore.currentOrder.payment_status }}</p>
-                        <p><span class="font-medium">Payment Method:</span> {{ orderStore.currentOrder.payment_method }}</p>
                       </div>
                     </div>
 
                     <div>
                       <h4 class="font-medium text-gray-900 dark:text-white">Shipping Information</h4>
                       <div class="mt-2 space-y-2 text-sm text-gray-600 dark:text-gray-300">
-                        <p><span class="font-medium">Address:</span> {{ orderStore.currentOrder.shipping_address }}</p>
-                        <p v-if="orderStore.currentOrder.tracking_number">
-                          <span class="font-medium">Tracking Number:</span> {{ orderStore.currentOrder.tracking_number }}
+                        <p><span class="font-medium">Shipping Address:</span> {{ orderStore.currentOrder.shipping_address }}</p>
+                        <p v-if="orderStore.currentOrder.tracking_number" class="mt-2">
+                          <span class="font-medium">Tracking Number:</span>
+                          <a :href="getTrackingUrl(orderStore.currentOrder.tracking_number)" target="_blank" class="text-primary-600 hover:text-primary-800 dark:text-primary-400 dark:hover:text-primary-300 ml-1">
+                            {{ orderStore.currentOrder.tracking_number }}
+                          </a>
                         </p>
                       </div>
                     </div>
@@ -196,16 +197,21 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useOrderStore } from '../stores/orders'
+import { useSiteStore } from '../stores/site'
 const orderStore = useOrderStore()
+const siteStore = useSiteStore()
 
 const formatDate = (dateString) => {
-  return new Date(dateString).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  })
+  const options = { year: 'numeric', month: 'long', day: 'numeric' }
+  return new Date(dateString).toLocaleDateString(undefined, options)
+}
+
+const getTrackingUrl = (trackingNumber) => {
+  // This is a placeholder - you might want to use the actual shipping provider's tracking URL
+  // For example, if you use a specific shipping provider, you can add logic here
+  return `https://tracking.example.com/?tracking=${trackingNumber}`
 }
 
 const viewOrderDetails = async (order) => {

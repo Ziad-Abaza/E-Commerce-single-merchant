@@ -20,6 +20,7 @@ class Setting extends Model
         'options',
         'is_public',
         'sort_order',
+        'is_protected',
     ];
 
     protected $appends = ['typed_value', 'file_url'];
@@ -30,6 +31,7 @@ class Setting extends Model
         'options' => 'array',
         'is_public' => 'boolean',
         'sort_order' => 'integer',
+        'is_protected' => 'boolean',
     ];
 
     /**

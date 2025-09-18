@@ -9,7 +9,7 @@
             Orders Management
           </h1>
           <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">
-            Manage customer orders, track status, and process payments
+            Manage customer orders and track order status
           </p>
         </div>
         <div class="flex flex-col sm:flex-row gap-2">
@@ -57,7 +57,7 @@
     </div>
 
     <!-- Statistics Cards -->
-    <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
       <!-- Total Orders -->
       <div class="bg-white dark:bg-gray-800 rounded-lg p-3 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-all duration-300">
         <div class="flex items-center justify-between">
@@ -120,7 +120,7 @@
           </div>
           <div class="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
             <svg class="w-5 h-5 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4" />
             </svg>
           </div>
         </div>
@@ -155,23 +155,6 @@
           <div class="p-2 bg-red-100 dark:bg-red-900/30 rounded-lg">
             <svg class="w-5 h-5 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </div>
-        </div>
-      </div>
-
-      <!-- Refunded Orders -->
-      <div class="bg-white dark:bg-gray-800 rounded-lg p-3 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-all duration-300">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-gray-500 dark:text-gray-400 text-xs font-medium">Refunded</p>
-            <p class="text-lg font-bold text-indigo-600 dark:text-indigo-400 mt-1">
-              {{ ordersStore.statistics?.refunded }}
-            </p>
-          </div>
-          <div class="p-2 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg">
-            <svg class="w-5 h-5 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
             </svg>
           </div>
         </div>
@@ -350,14 +333,6 @@
                   <span :class="getStatusClass(currentOrder?.status)">{{ currentOrder?.status }}</span>
                 </div>
                 <div class="flex justify-between">
-                  <span class="text-gray-500 dark:text-gray-400">Payment Status:</span>
-                  <span :class="getPaymentStatusClass(currentOrder?.payment_status)">{{ currentOrder?.payment_status }}</span>
-                </div>
-                <div class="flex justify-between">
-                  <span class="text-gray-500 dark:text-gray-400">Payment Method:</span>
-                  <span class="font-medium capitalize">{{ currentOrder?.payment_method }}</span>
-                </div>
-                <div class="flex justify-between">
                   <span class="text-gray-500 dark:text-gray-400">Created At:</span>
                   <span class="font-medium">{{ formatDate(currentOrder?.created_at) }}</span>
                 </div>
@@ -387,81 +362,28 @@
               </div>
             </div>
 
-            <!-- Financial Summary -->
+            <!-- Order Items -->
             <div class="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-5">
-              <h4 class="font-semibold text-lg text-gray-900 dark:text-white mb-4">Financial Summary</h4>
-              <div class="space-y-3">
-                <div class="flex justify-between">
-                  <span class="text-gray-500 dark:text-gray-400">Subtotal:</span>
-                  <span class="font-medium">{{ formatCurrency(currentOrder?.subtotal) }}</span>
-                </div>
-                <div class="flex justify-between">
-                  <span class="text-gray-500 dark:text-gray-400">Shipping:</span>
-                  <span class="font-medium">{{ formatCurrency(currentOrder?.shipping_amount) }}</span>
-                </div>
-                <div class="flex justify-between">
-                  <span class="text-gray-500 dark:text-gray-400">Tax:</span>
-                  <span class="font-medium">{{ formatCurrency(currentOrder?.tax_amount) }}</span>
-                </div>
-                <div class="flex justify-between">
-                  <span class="text-gray-500 dark:text-gray-400">Discount:</span>
-                  <span class="font-medium text-red-600 dark:text-red-400">-{{ formatCurrency(currentOrder?.discount_amount) }}</span>
-                </div>
-                <div class="flex justify-between border-t pt-3 border-gray-200 dark:border-gray-700">
-                  <span class="text-gray-900 dark:text-white font-bold">Total:</span>
-                  <span class="font-bold text-lg text-gray-900 dark:text-white">{{ formatCurrency(currentOrder?.total_amount) }}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Order Items -->
-          <div class="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-5 mb-6">
-            <h4 class="font-semibold text-lg text-gray-900 dark:text-white mb-4">Order Items</h4>
-            <div class="overflow-x-auto">
-              <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                <thead class="bg-gray-50 dark:bg-gray-700">
-                  <tr>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Product</th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">SKU</th>
-                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Price</th>
-                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Quantity</th>
-                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Total</th>
-                  </tr>
-                </thead>
-                <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                  <tr v-for="item in currentOrder?.items" :key="item.id" class="hover:bg-gray-50 dark:hover:bg-gray-700">
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">{{ item.product_name }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ item.product_sku }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 text-right">{{ formatCurrency(item.unit_price) }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 text-right">{{ item.quantity }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white text-right">{{ formatCurrency(item.total_price) }}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-
-          <!-- Payment Details -->
-          <div class="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-5 mb-6">
-            <h4 class="font-semibold text-lg text-gray-900 dark:text-white mb-4">Payment Details</h4>
-            <div class="space-y-3">
-              <div class="flex justify-between">
-                <span class="text-gray-500 dark:text-gray-400">Transaction ID:</span>
-                <span class="font-medium">{{ currentOrder?.payment?.transaction_id || 'N/A' }}</span>
-              </div>
-              <div class="flex justify-between">
-                <span class="text-gray-500 dark:text-gray-400">Payment Status:</span>
-                <span :class="getPaymentStatusClass(currentOrder?.payment?.status)">{{ currentOrder?.payment?.status }}</span>
-              </div>
-              <div class="flex justify-between">
-                <span class="text-gray-500 dark:text-gray-400">Paid At:</span>
-                <span class="font-medium">{{ currentOrder?.payment?.paid_at ? formatDate(currentOrder?.payment?.paid_at) : 'N/A' }}</span>
-              </div>
-              <div class="flex justify-between">
-                <span class="text-gray-500 dark:text-gray-400">Amount:</span>
-                <span class="font-medium">{{ currentOrder?.payment?.formatted_amount || 'N/A' }}</span>
+              <h4 class="font-semibold text-lg text-gray-900 dark:text-white mb-4">Order Items</h4>
+              <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                  <thead class="bg-gray-50 dark:bg-gray-700">
+                    <tr>
+                      <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Product</th>
+                      <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">SKU</th>
+                      <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Quantity</th>
+                      <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Total</th>
+                    </tr>
+                  </thead>
+                  <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                    <tr v-for="item in currentOrder?.items" :key="item.id" class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">{{ item.product_name }}</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ item.product_sku }}</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 text-right">{{ item.quantity }}</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white text-right">{{ formatCurrency(item.total_price) }}</td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>
@@ -494,7 +416,7 @@
               class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-sm transition-all duration-200 flex items-center justify-center text-sm"
             >
               <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4" />
               </svg>
               Mark as Shipped
             </button>
@@ -562,7 +484,6 @@ const statusOptions = ref([
   { value: 'shipped', label: 'Shipped' },
   { value: 'delivered', label: 'Delivered' },
   { value: 'cancelled', label: 'Cancelled' },
-  { value: 'refunded', label: 'Refunded' },
 ]);
 
 // Table headers
@@ -570,8 +491,6 @@ const tableHeaders = ref([
   { key: 'order_number', label: 'Order #' },
   { key: 'customer', label: 'Customer' },
   { key: 'status', label: 'Status' },
-  { key: 'payment_status', label: 'Payment' },
-  { key: 'total', label: 'Total' },
   { key: 'date', label: 'Date' },
   { key: 'actions', label: 'Actions' },
 ]);
@@ -595,12 +514,6 @@ const tableRows = computed(() => {
       value: order.status,
       class: getStatusClass(order.status)
     },
-    payment_status: {
-      type: 'status',
-      value: order.payment_status,
-      class: getPaymentStatusClass(order.payment_status)
-    },
-    total: formatCurrency(order.total_amount),
     date: formatDate(order.created_at),
     actions: [
       {
@@ -644,18 +557,6 @@ function getStatusClass(status) {
   }
 }
 
-function getPaymentStatusClass(status) {
-  switch (status) {
-    case 'paid':
-      return 'px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
-    case 'unpaid':
-      return 'px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
-    case 'refunded':
-      return 'px-2 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-300'
-    default:
-      return 'px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300'
-  }
-}
 function formatCurrency(amount) {
   if (amount == null) return "0" + " " + siteStore.settings.currency
   return new Intl.NumberFormat("en-EG", {

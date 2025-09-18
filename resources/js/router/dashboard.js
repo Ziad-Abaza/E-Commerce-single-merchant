@@ -6,7 +6,7 @@ import { useAuthStore } from "../stores/auth";
 import DashboardLayout from "../pages/dashboard/layouts/DashboardLayout.vue";
 
 // Dashboard Pages
-import Dashboard from "../pages/dashboard/Dashboard.vue";
+import Dashboard from "../pages/dashboard/Overview.vue";
 import DashboardProducts from "../pages/dashboard/Products.vue";
 import ProductDetails from "../pages/dashboard/ProductDetails.vue";
 import Orders from "../pages/dashboard/Orders.vue";

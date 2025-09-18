@@ -18,7 +18,8 @@ class UserSeeder extends Seeder
                 'password' => Hash::make('123456789'),
                 'phone' => '0100640397',
                 'is_active' => true,
-                'address' => 'alex'
+                'address' => 'alex',
+                'email_verified_at' => now(),
             ]
         );
 
@@ -30,6 +31,10 @@ class UserSeeder extends Seeder
                 [
                     'name' => "User {$i}",
                     'password' => Hash::make('password'),
+                    'phone' => '010064039'.$i,
+                    'is_active' => true,
+                    'address' => 'alex, egypt',
+                    'email_verified_at' => now(),
                 ]
             );
         }

@@ -6,7 +6,6 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\ProductDetail;
 use App\Models\User;
-use App\Models\Payment;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 
@@ -35,10 +34,10 @@ class OrderSeeder extends Seeder
     {
         $user = $users->random();
         $orderDate = now()->subDays(rand(0, 180)); // Random date in last 6 months
-        
+
         // Generate order number
         $orderNumber = 'ORD-' . strtoupper(Str::random(8));
-        
+
         // Create order
         $order = Order::create([
             'user_id' => $user->id,
@@ -52,8 +51,6 @@ class OrderSeeder extends Seeder
             'currency' => 'USD',
             'shipping_address' => $this->generateShippingAddress(),
             'notes' => $this->getRandomOrderNotes(),
-            'payment_method' => $this->getRandomPaymentMethod(),
-            'payment_status' => 'pending',
             'created_at' => $orderDate,
             'updated_at' => $orderDate,
         ]);
@@ -92,14 +89,13 @@ class OrderSeeder extends Seeder
             'total_amount' => $totalAmount,
         ]);
 
-        // Create payment record
-        $this->createPaymentRecord($order, $orderDate);
+        // Order created successfully
     }
 
     private function getRandomOrderStatus($orderDate): string
     {
         $daysSinceOrder = now()->diffInDays($orderDate);
-        
+
         // Status probabilities based on order age
         if ($daysSinceOrder < 1) {
             return 'pending';
@@ -122,10 +118,10 @@ class OrderSeeder extends Seeder
     {
         $amounts = [0, 9.99, 14.99, 19.99]; // Free shipping, standard, express, overnight
         $weights = [40, 30, 20, 10]; // Probability weights
-        
+
         $totalWeight = array_sum($weights);
         $random = rand(1, $totalWeight);
-        
+
         $currentWeight = 0;
         foreach ($amounts as $index => $amount) {
             $currentWeight += $weights[$index];
@@ -133,7 +129,7 @@ class OrderSeeder extends Seeder
                 return $amount;
             }
         }
-        
+
         return 9.99; // Default
     }
 
@@ -143,7 +139,7 @@ class OrderSeeder extends Seeder
         if (rand(1, 10) <= 7) {
             return 0;
         }
-        
+
         $discounts = [5.00, 10.00, 15.00, 20.00, 25.00, 50.00];
         return $discounts[array_rand($discounts)];
     }
@@ -167,7 +163,7 @@ class OrderSeeder extends Seeder
             '357 Walnut Walk, Columbus, OH 43201',
             '468 Sycamore Street, Charlotte, NC 28201',
         ];
-        
+
         return $addresses[array_rand($addresses)];
     }
 
@@ -177,7 +173,7 @@ class OrderSeeder extends Seeder
         if (rand(0, 1)) {
             return $this->generateShippingAddress();
         }
-        
+
         // Different billing address
         $addresses = [
             '100 Business Blvd, Suite 200, New York, NY 10002',
@@ -186,14 +182,8 @@ class OrderSeeder extends Seeder
             '400 Executive Plaza, Houston, TX 77002',
             '500 Commerce Street, Phoenix, AZ 85002',
         ];
-        
-        return $addresses[array_rand($addresses)];
-    }
 
-    private function getRandomPaymentMethod(): string
-    {
-        $methods = ['credit_card', 'debit_card', 'paypal', 'apple_pay', 'google_pay'];
-        return $methods[array_rand($methods)];
+        return $addresses[array_rand($addresses)];
     }
 
     private function getRandomOrderNotes(): ?string
@@ -210,31 +200,9 @@ class OrderSeeder extends Seeder
             'Leave at back door',
             'Call upon arrival',
         ];
-        
+
         return $notes[array_rand($notes)];
     }
 
-    private function createPaymentRecord(Order $order, $orderDate): void
-    {
-        $paymentMethods = ['credit_card', 'debit_card', 'paypal', 'apple_pay', 'google_pay'];
-        $paymentStatuses = ['completed', 'pending', 'failed'];
-        
-        $paymentMethod = $paymentMethods[array_rand($paymentMethods)];
-        $paymentStatus = $paymentStatuses[array_rand($paymentStatuses)];
-        
-        // If order is delivered or shipped, payment should be completed
-        if (in_array($order->status, ['delivered', 'shipped'])) {
-            $paymentStatus = 'completed';
-        }
-        
-        Payment::create([
-            'order_id' => $order->id,
-            'payment_method' => $paymentMethod,
-            'status' => $paymentStatus,
-            'amount' => $order->total_amount,
-            'currency' => 'USD',
-            'transaction_id' => 'TXN-' . strtoupper(Str::random(12)),
-            'paid_at' => $paymentStatus === 'completed' ? $orderDate : null,
-        ]);
-    }
+    // Payment-related methods removed as we're not handling payments anymore
 }
