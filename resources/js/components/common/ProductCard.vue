@@ -2,7 +2,7 @@
   <div class="product-card h-full flex flex-col bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow duration-200 dark:bg-gray-800 dark:border-gray-700 dark:hover:shadow-gray-700/20">
     <!-- Product Image -->
     <div class="relative w-full h-48 md:h-56 lg:h-60 bg-gray-100 overflow-hidden dark:bg-gray-700">
-      <router-link :to="`/products/${product.id}`" class="absolute inset-0 z-10" :aria-label="t('app.product_card.view_details')"></router-link>
+      <router-link :to="`/products/${product.id}`" class="absolute inset-0 z-10" :aria-label="t('app.view_details')"></router-link>
       <img
         :src="productImage"
         :alt="product.name"
@@ -16,7 +16,7 @@
         @click.stop="toggleWishlist"
         class="absolute top-2 right-2 p-2 bg-white rounded-full shadow-md hover:shadow-lg transition z-20 dark:bg-gray-700 dark:hover:bg-gray-600"
         :class="{ 'text-red-500': isInWishlist, 'text-gray-400 dark:text-gray-300': !isInWishlist }"
-        :aria-label="isInWishlist ? t('app.product_card.remove_from_wishlist') : t('app.product_card.add_to_wishlist')"
+        :aria-label="isInWishlist ? t('app.remove_from_wishlist') : t('app.add_to_wishlist')"
         :disabled="isWishlistProcessing"
       >
         <svg v-if="isWishlistProcessing" class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -30,23 +30,23 @@
 
       <!-- Sale Badge -->
       <div v-if="product.discount_percentage > 0" class="absolute top-2 left-2 bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded">
-        {{ t('app.product_card.discount_percentage', { percentage: product.discount_percentage }) }}
+        {{ t('app.discount_percentage', { percentage: product.discount_percentage }) }}
       </div>
 
       <!-- Stock Status -->
       <div v-if="!product.in_stock" class="absolute top-2 left-2 bg-gray-800 text-white text-xs font-semibold px-2 py-1 rounded dark:bg-gray-600">
-        {{ t('app.product_card.out_of_stock') }}
+        {{ t('app.out_of_stock') }}
       </div>
       <div v-else-if="product.quantity <= 3" class="absolute top-2 left-2 bg-yellow-500 text-white text-xs font-semibold px-2 py-1 rounded">
-        {{ t('app.product_card.only_x_left', { qty: product.quantity }) }}
+        {{ t('app.only_x_left', { qty: product.quantity }) }}
       </div>
       <div v-else class="absolute top-2 left-2 bg-green-500 text-white text-xs font-semibold px-2 py-1 rounded">
-        {{ t('app.product_card.in_stock') }}
+        {{ t('app.in_stock') }}
       </div>
 
       <!-- Free Shipping Badge -->
       <div v-if="product.free_shipping" class="absolute bottom-2 right-2 bg-blue-500 text-white text-xs font-semibold px-2 py-1 rounded">
-        {{ t('app.product_card.free_shipping') }}
+        {{ t('app.free_shipping') }}
       </div>
     </div>
 
@@ -93,10 +93,10 @@
         <div class="flex items-center justify-between mb-2">
           <div class="flex items-baseline gap-2">
             <span class="text-lg font-bold text-primary-600 dark:text-primary-400">
-              {{ siteStore.formatPrice(product.price) }}
+              {{product.price }}
             </span>
             <span v-if="product.original_price > product.price" class="text-sm text-gray-500 line-through dark:text-gray-400">
-              {{ siteStore.formatPrice(product.original_price) }}
+              {{product.original_price }}
             </span>
           </div>
           <span v-if="product.rating" class="flex items-center text-sm text-yellow-500">
@@ -124,7 +124,7 @@
           <svg v-else class="-ml-1 mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
           </svg>
-          {{ isAddingToCart ? t('app.product_card.adding_to_cart') : (product.in_stock ? t('app.product_card.add_to_cart') : t('app.product_card.out_of_stock')) }}
+          {{ isAddingToCart ? t('app.adding_to_cart') : (product.in_stock ? t('app.add_to_cart') : t('app.out_of_stock')) }}
         </button>
 
         <router-link
@@ -132,7 +132,7 @@
           :to="`/products/${product.id}`"
           class="flex items-center justify-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
         >
-          {{ t('app.product_card.view_details') }}
+          {{ t('app.view_details') }}
         </router-link>
       </div>
     </div>
@@ -236,10 +236,10 @@ const toggleWishlist = async () => {
   try {
     if (isInWishlist.value) {
       await wishlistStore.removeFromWishlist(props.product.id)
-      toast.success(t('app.product_card.removed_from_wishlist'))
+      toast.success(t('app.removed_from_wishlist'))
     } else {
       await wishlistStore.addToWishlist(props.product.id)
-      toast.success(t('app.product_card.added_to_wishlist'))
+      toast.success(t('app.added_to_wishlist'))
     }
   } catch (error) {
     console.error('Wishlist toggle error:', error)
