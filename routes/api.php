@@ -9,6 +9,9 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 */
 
+// Translation routes
+Route::get('/translations/{locale}', [\App\Http\Controllers\Api\TranslationController::class, 'getTranslations']);
+
 // Public routes (no authentication required)
 Route::prefix('public')->name('public.')->group(function () {
     // Home routes

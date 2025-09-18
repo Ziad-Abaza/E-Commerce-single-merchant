@@ -1,0 +1,26 @@
+<?php
+
+return [
+    'shopping_cart' => 'Shopping Cart',
+    'your_cart' => 'Your Cart',
+    'items_in_cart' => 'item(s) in your cart',
+    'empty_cart' => 'Your cart is empty',
+    'empty_cart_message' => 'Start adding some items to your cart.',
+    'continue_shopping' => 'Continue Shopping',
+    'clear_cart' => 'Clear Cart',
+    'product' => 'Product',
+    'price' => 'Price',
+    'quantity' => 'Quantity',
+    'total' => 'Total',
+    'remove' => 'Remove',
+    'subtotal' => 'Subtotal',
+    'checkout' => 'Proceed to Checkout',
+    'update_cart' => 'Update Cart',
+    'cart_updated' => 'Cart updated successfully',
+    'cart_cleared' => 'Cart cleared successfully',
+    'item_removed' => 'Item removed from cart',
+    'quantity_updated' => 'Quantity updated',
+    'failed_to_remove' => 'Failed to remove item',
+    'failed_to_clear' => 'Failed to clear cart',
+    'clear_confirmation' => 'Are you sure you want to clear your cart? This action cannot be undone.',
+];

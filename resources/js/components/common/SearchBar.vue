@@ -2,7 +2,9 @@
 import { ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useSearchStore } from '../../stores/search'
+import { useTranslation } from "@/composables/useTranslation";
 
+const { t } = useTranslation();
 const searchStore = useSearchStore()
 const router = useRouter()
 
@@ -30,7 +32,7 @@ const handleSearchSubmit = () => {
     <input
       v-model="searchStore.query"
       type="text"
-      placeholder="Search products..."
+      :placeholder="t('app.search_placeholder')"
       class="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
       @focus="isFocused = true"
       @blur="isFocused = false"
@@ -67,7 +69,7 @@ const handleSearchSubmit = () => {
       class="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg z-50"
     >
       <div class="px-4 py-2 text-xs text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-700">
-        Recent Searches
+        {{ t('app.recent_searches') }}
       </div>
       <div
         v-for="r in searchStore.recentSearches"

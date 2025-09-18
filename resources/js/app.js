@@ -4,11 +4,13 @@ import router from './router/index.js'
 import App from './App.vue'
 import './bootstrap'
 import './style.css'
+import i18n, { loadTranslations } from "@/i18n/i18n.js";
 
 // Import toast notification
 import Toast from 'vue-toastification'
 import 'vue-toastification/dist/index.css'
 
+async function bootstrap() {
 // Create Vue app
 const app = createApp(App)
 
@@ -25,5 +27,13 @@ app.use(Toast, {
   newestOnTop: true
 })
 
+// Load translations
+app.use(i18n);
+ const savedLocale = localStorage.getItem("locale") || "en";
+ await loadTranslations(savedLocale);
+
 // Mount the app
 app.mount('#app')
+}
+
+bootstrap()

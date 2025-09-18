@@ -3,7 +3,7 @@
   <div class="bg-white rounded-lg shadow border border-gray-200 dark:bg-gray-800 dark:border-gray-700">
     <!-- Header with Stats -->
     <div class="p-6 border-b border-gray-200 dark:border-gray-700">
-      <h3 class="text-lg font-medium text-gray-900 dark:text-white">Customer Reviews</h3>
+      <h3 class="text-lg font-medium text-gray-900 dark:text-white">{{ t('app.customer_reviews') }}</h3>
 
       <div v-if="stats" class="mt-4 space-y-4">
         <!-- Average Rating & Total -->
@@ -12,13 +12,13 @@
             <StarRating :model-value="stats.average_rating" :size="24" :show-rating="true" class="text-yellow-500" />
             <span class="ml-2 text-2xl font-bold text-gray-900 dark:text-white">{{ stats.average_rating }}</span>
             <span class="mx-1 text-gray-500 dark:text-gray-400">•</span>
-            <span class="text-sm text-gray-600 dark:text-gray-300">({{ stats.total_reviews }} reviews)</span>
+            <span class="text-sm text-gray-600 dark:text-gray-300">({{ stats.total_reviews }} {{ t('app.reviews') }})</span>
           </div>
         </div>
 
         <!-- Rating Distribution Bars -->
         <div class="space-y-3">
-          <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300">Rating Breakdown</h4>
+          <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ t('app.rating_breakdown') }}</h4>
           <div class="space-y-2">
             <div v-for="star in [5, 4, 3, 2, 1]" :key="star" class="flex items-center space-x-3">
               <!-- Star Icon + Number (SVG inline) -->
@@ -56,7 +56,7 @@
 
     <!-- No Reviews -->
     <div v-else-if="reviews.length === 0" class="p-6 text-center text-gray-500 dark:text-gray-400">
-      No reviews yet. Be the first to write a review!
+      {{ t('app.no_reviews') }}
     </div>
 
     <!-- Reviews List -->
@@ -82,7 +82,7 @@
             <div class="flex items-center mt-1">
               <StarRating :model-value="review.rating" />
               <span v-if="review.is_verified_purchase" class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
-                Verified Purchase
+                {{ t('app.verified_user_comment') }}
               </span>
             </div>
 
@@ -100,7 +100,7 @@
         :disabled="loadingMore"
         class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 dark:bg-primary-700 dark:hover:bg-primary-800"
       >
-        <span v-if="!loadingMore">Load More</span>
+        <span v-if="!loadingMore">{{ t('app.show_more') }}</span>
         <div v-else class="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
       </button>
     </div>
@@ -111,6 +111,7 @@
 import { ref, onMounted, computed } from 'vue'
 import { useReviewStore } from '../../stores/reviews'
 import StarRating from './StarRating.vue'
+import { useTranslation } from "@/composables/useTranslation";
 
 const props = defineProps({
   productId: {
@@ -119,6 +120,7 @@ const props = defineProps({
   },
 })
 
+const { t } = useTranslation();
 const reviewStore = useReviewStore()
 const loading = ref(false)
 const loadingMore = ref(false)

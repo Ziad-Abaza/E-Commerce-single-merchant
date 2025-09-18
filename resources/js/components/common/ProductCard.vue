@@ -2,12 +2,13 @@
   <div class="product-card h-full flex flex-col bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow duration-200 dark:bg-gray-800 dark:border-gray-700 dark:hover:shadow-gray-700/20">
     <!-- Product Image -->
     <div class="relative w-full h-48 md:h-56 lg:h-60 bg-gray-100 overflow-hidden dark:bg-gray-700">
-      <router-link :to="`/products/${product.id}`" class="absolute inset-0 z-10" aria-label="View product details"></router-link>
+      <router-link :to="`/products/${product.id}`" class="absolute inset-0 z-10" :aria-label="t('app.product_card.view_details')"></router-link>
       <img
         :src="productImage"
         :alt="product.name"
         class="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
         @error="handleImageError"
+        loading="lazy"
       />
       <!-- Wishlist Button -->
       <button
@@ -15,19 +16,37 @@
         @click.stop="toggleWishlist"
         class="absolute top-2 right-2 p-2 bg-white rounded-full shadow-md hover:shadow-lg transition z-20 dark:bg-gray-700 dark:hover:bg-gray-600"
         :class="{ 'text-red-500': isInWishlist, 'text-gray-400 dark:text-gray-300': !isInWishlist }"
+        :aria-label="isInWishlist ? t('app.product_card.remove_from_wishlist') : t('app.product_card.add_to_wishlist')"
+        :disabled="isWishlistProcessing"
       >
-        <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+        <svg v-if="isWishlistProcessing" class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        <svg v-else class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
           <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
         </svg>
       </button>
+
       <!-- Sale Badge -->
       <div v-if="product.discount_percentage > 0" class="absolute top-2 left-2 bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded">
-        -{{ product.discount_percentage }}%
+        {{ t('app.product_card.discount_percentage', { percentage: product.discount_percentage }) }}
       </div>
 
       <!-- Stock Status -->
       <div v-if="!product.in_stock" class="absolute top-2 left-2 bg-gray-800 text-white text-xs font-semibold px-2 py-1 rounded dark:bg-gray-600">
-        Out of Stock
+        {{ t('app.product_card.out_of_stock') }}
+      </div>
+      <div v-else-if="product.quantity <= 3" class="absolute top-2 left-2 bg-yellow-500 text-white text-xs font-semibold px-2 py-1 rounded">
+        {{ t('app.product_card.only_x_left', { qty: product.quantity }) }}
+      </div>
+      <div v-else class="absolute top-2 left-2 bg-green-500 text-white text-xs font-semibold px-2 py-1 rounded">
+        {{ t('app.product_card.in_stock') }}
+      </div>
+
+      <!-- Free Shipping Badge -->
+      <div v-if="product.free_shipping" class="absolute bottom-2 right-2 bg-blue-500 text-white text-xs font-semibold px-2 py-1 rounded">
+        {{ t('app.product_card.free_shipping') }}
       </div>
     </div>
 
@@ -48,7 +67,7 @@
       <!-- Description -->
       <p v-if="product.description" class="text-xs md:text-sm text-gray-600 mb-2 line-clamp-2 dark:text-gray-300">
         <router-link :to="`/products/${product.id}`" class="hover:text-primary-600 transition-colors dark:hover:text-primary-400">
-        {{ product.description }}
+          {{ product.description }}
         </router-link>
       </p>
 
@@ -70,77 +89,129 @@
       </div>
 
       <!-- Price -->
-      <div class="flex items-center justify-between mb-3">
-        <div class="flex items-center space-x-2">
-          <span class="text-sm md:text-base font-bold text-gray-900 dark:text-white">{{ product.price }} {{ siteStore.settings.currency }}</span>
-          <span v-if="product.discount_percentage > 0" class="text-xs md:text-sm text-gray-500 line-through dark:text-gray-400">{{ product.original_price }} {{ siteStore.settings.currency }}</span>
+      <div class="mt-auto">
+        <div class="flex items-center justify-between mb-2">
+          <div class="flex items-baseline gap-2">
+            <span class="text-lg font-bold text-primary-600 dark:text-primary-400">
+              {{ siteStore.formatPrice(product.price) }}
+            </span>
+            <span v-if="product.original_price > product.price" class="text-sm text-gray-500 line-through dark:text-gray-400">
+              {{ siteStore.formatPrice(product.original_price) }}
+            </span>
+          </div>
+          <span v-if="product.rating" class="flex items-center text-sm text-yellow-500">
+            <span class="font-medium">{{ product.rating.toFixed(1) }}</span>
+            <svg class="w-4 h-4 ml-0.5" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+            </svg>
+          </span>
         </div>
       </div>
 
-      <!-- Add to Cart Button -->
-      <button
-        @click.stop="addToCart"
-        :disabled="cartStore.loading || !product.in_stock"
-        class="mt-auto w-full py-2 px-4 rounded-md transition-colors flex items-center justify-center text-sm md:text-base"
-        :class="product.in_stock ? 'bg-primary-600 text-white hover:bg-primary-700 dark:bg-primary-700 dark:hover:bg-primary-800' : 'bg-gray-300 text-gray-500 cursor-not-allowed dark:bg-gray-600 dark:text-gray-300'"
-      >
-        <svg v-if="cartStore.loading" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-        </svg>
-        <svg v-else class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m6-5v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6m8 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v4.01" />
-        </svg>
-        {{ cartStore.loading ? 'Adding...' : (product.in_stock ? 'Add to Cart' : 'Out of Stock') }}
-      </button>
+      <!-- Actions -->
+      <div class="mt-3 flex gap-2">
+        <button
+          v-if="showAddToCart"
+          @click="addToCart"
+          :disabled="!product.in_stock || isAddingToCart"
+          class="flex-1 flex items-center justify-center px-4 py-2 bg-primary-600 text-white text-sm font-medium rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          :class="{ 'opacity-50 cursor-not-allowed': !product.in_stock }"
+        >
+          <svg v-if="isAddingToCart" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          <svg v-else class="-ml-1 mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
+          </svg>
+          {{ isAddingToCart ? t('app.product_card.adding_to_cart') : (product.in_stock ? t('app.product_card.add_to_cart') : t('app.product_card.out_of_stock')) }}
+        </button>
+
+        <router-link
+          v-if="showViewDetails"
+          :to="`/products/${product.id}`"
+          class="flex items-center justify-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
+        >
+          {{ t('app.product_card.view_details') }}
+        </router-link>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useAuthStore } from '../../stores/auth'
-import { useCartStore } from '../../stores/cart'
 import { useWishlistStore } from '../../stores/wishlist'
-import { useSiteStore } from "../../stores/site";
+import { useCartStore } from '../../stores/cart'
+import { useI18n } from 'vue-i18n'
 import { useToast } from 'vue-toastification'
+import { useSiteStore } from "../../stores/site";
+
+const { t } = useI18n()
+const authStore = useAuthStore()
+const wishlistStore = useWishlistStore()
+const cartStore = useCartStore()
+const siteStore = useSiteStore();
+const toast = useToast()
 
 const props = defineProps({
   product: {
     type: Object,
     required: true
+  },
+  showAddToCart: {
+    type: Boolean,
+    default: true
+  },
+  showViewDetails: {
+    type: Boolean,
+    default: true
+  },
+  isHorizontal: {
+    type: Boolean,
+    default: false
   }
 })
 
-const authStore = useAuthStore()
-const siteStore = useSiteStore();
-const cartStore = useCartStore()
-const wishlistStore = useWishlistStore()
-const toast = useToast()
-
-// Compute product image
+// Compute product image with fallback
 const productImage = computed(() => {
-  if (props.product.main_image_url) return props.product.main_image_url
-  if (props.product.gallery_images?.length) return props.product.gallery_images[0]
-  return '/images/placeholder-product.png'
+  return props.product.images?.[0]?.url || '/images/placeholder-product.png'
+})
+
+// Product stock status
+const stockStatus = computed(() => {
+  if (!props.product.in_stock) return 'out_of_stock'
+  if (props.product.quantity <= 3) return 'low_stock'
+  return 'in_stock'
 })
 
 // Handle image load error
 const handleImageError = (event) => {
-  event.target.src = productImage.value
+  event.target.src = '/images/placeholder-product.png'
+  event.target.alt = t('app.product_image_unavailable')
 }
 
 // Add product to cart
+const isAddingToCart = ref(false)
 const addToCart = async () => {
-  if (!props.product.in_stock) {
-    toast.warning('This product is currently out of stock')
+  if (!authStore.isAuthenticated) {
+    toast.error(t('auth.login_required'))
     return
   }
 
   try {
-     await cartStore.addToCart(props.product.id, 1)
+    isAddingToCart.value = true
+    await cartStore.addToCart({
+      product_id: props.product.id,
+      quantity: 1
+    })
+    toast.success(t('cart.added_to_cart'))
   } catch (error) {
-    toast.error('An unexpected error occurred')
+    console.error('Error adding to cart:', error)
+    toast.error(t('cart.add_to_cart_error'))
+  } finally {
+    isAddingToCart.value = false
   }
 }
 
@@ -150,29 +221,25 @@ const isInWishlist = computed(() => {
   return wishlistStore.isInWishlist(props.product.id)
 })
 
-
 // Toggle wishlist status
+const isWishlistProcessing = ref(false)
 const toggleWishlist = async () => {
   if (!authStore.isAuthenticated) {
-    toast.info('Please log in to use the wishlist feature.')
+    toast.error(t('auth.login_required'))
     return
   }
 
-  try {
-    // Ensure wishlist is initialized (loads categories and items)
-    if (wishlistStore.categories.length === 0) {
-      await wishlistStore.initializeWishlist()
-    }
+  if (isWishlistProcessing.value) return
 
+  isWishlistProcessing.value = true
+
+  try {
     if (isInWishlist.value) {
-      // Find the wishlist item ID for this product
-      const item = wishlistStore.getItemByProductId(props.product.id)
-      if (item) {
-        await wishlistStore.removeFromWishlist(item.id)
-      }
+      await wishlistStore.removeFromWishlist(props.product.id)
+      toast.success(t('app.product_card.removed_from_wishlist'))
     } else {
-      // Add to wishlist - wishlistStore will handle default category internally
       await wishlistStore.addToWishlist(props.product.id)
+      toast.success(t('app.product_card.added_to_wishlist'))
     }
   } catch (error) {
     console.error('Wishlist toggle error:', error)

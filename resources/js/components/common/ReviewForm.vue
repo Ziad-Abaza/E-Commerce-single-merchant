@@ -8,7 +8,7 @@
     <form @submit.prevent="handleSubmit" class="space-y-4">
       <!-- Rating -->
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300">Your Rating *</label>
+        <label class="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300">{{ t('app.your_rating') }} *</label>
         <StarRating
           v-model="form.rating"
           :interactive="true"
@@ -20,27 +20,27 @@
 
       <!-- Title -->
       <div>
-        <label for="title" class="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">Review Title</label>
+        <label for="title" class="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">{{ t('app.title_review') }} *</label>
         <input
           id="title"
           v-model="form.title"
           type="text"
           maxlength="255"
           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
-          placeholder="Give your review a title"
+          :placeholder="t('app.title_review_placeholder')"
         />
         <p v-if="errors.title" class="mt-1 text-sm text-red-600 dark:text-red-400">{{ errors.title }}</p>
       </div>
 
       <!-- Comment -->
       <div>
-        <label for="comment" class="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">Your Review *</label>
+        <label for="comment" class="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">{{ t('app.write_review') }} *</label>
         <textarea
           id="comment"
           v-model="form.comment"
           rows="5"
           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
-          placeholder="Share your thoughts about this product..."
+          :placeholder="t('app.share_your_review')"
         ></textarea>
         <p v-if="errors.comment" class="mt-1 text-sm text-red-600 dark:text-red-400">{{ errors.comment }}</p>
       </div>
@@ -53,7 +53,7 @@
           class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600"
           :disabled="loading"
         >
-          Cancel
+          {{ t('app.cancel') }}
         </button>
         <button
           type="submit"
@@ -79,6 +79,7 @@ import { ref, reactive, watch,computed } from 'vue'
 import { useToast } from 'vue-toastification'
 import StarRating from './StarRating.vue'
 import { useReviewStore } from '@/stores/reviews'
+import { useTranslation } from "@/composables/useTranslation";
 
 const props = defineProps({
   productId: {
@@ -93,6 +94,7 @@ const props = defineProps({
 
 const emit = defineEmits(['submitted', 'cancel'])
 
+const { t } = useTranslation();
 const toast = useToast()
 const loading = ref(false)
 const errors = ref({})
