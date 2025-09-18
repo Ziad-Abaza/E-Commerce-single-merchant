@@ -42,14 +42,7 @@ export async function registerPushSubscription() {
 
         console.log("New Push subscription object:", subscription);
 
-        await axios.post("/push/subscribe", subscription, {
-            headers: {
-                "Content-Type": "application/json",
-                Accept: "application/json",
-                "X-Requested-With": "XMLHttpRequest",
-                Authorization: `Bearer ${authStore.token}`,
-            },
-        });
+        await axios.post("/push/subscribe", subscription);
 
         console.log("Subscription saved successfully.");
     } catch (error) {
