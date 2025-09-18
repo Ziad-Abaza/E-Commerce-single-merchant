@@ -301,7 +301,6 @@ const handleSubmit = async () => {
 
       // Redirect to order confirmation page
       router.push(`/orders`)
-      console.log('Order created successfully:', data)
     } else {
       throw new Error(error || 'Failed to create order')
     }

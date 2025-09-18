@@ -4,9 +4,6 @@ import router from './router/index.js'
 import App from './App.vue'
 import './bootstrap'
 import './style.css'
-import { registerPushSubscription } from "./stores/push-subscription";
-
-
 // Import toast notification
 import Toast from 'vue-toastification'
 import 'vue-toastification/dist/index.css'
@@ -29,7 +26,3 @@ app.use(Toast, {
 
 // Mount the app
 app.mount('#app')
-
-setTimeout(() => {
-    registerPushSubscription();
-}, 5000);

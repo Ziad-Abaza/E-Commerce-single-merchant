@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import axios from "../bootstrap";
 import { useToast } from "vue-toastification";
+import { registerPushSubscription } from "./push-subscription";
 
 export const useAuthStore = defineStore("auth", {
     state: () => ({
@@ -75,6 +76,11 @@ export const useAuthStore = defineStore("auth", {
                     JSON.stringify(this.is_verified),
                 );
 
+                // Register push subscription after successful login
+                setTimeout(() => {
+                    registerPushSubscription();
+                }, 5000);
+
                 return { success: true, data: response.data };
             } catch (error) {
                 console.error("Login error:", error);
@@ -110,6 +116,11 @@ export const useAuthStore = defineStore("auth", {
                     "auth_is_verified",
                     JSON.stringify(this.is_verified),
                 );
+
+                // Register push subscription after successful registration
+                setTimeout(() => {
+                    registerPushSubscription();
+                }, 5000);
 
                 return { success: true, data: response.data };
             } catch (error) {
