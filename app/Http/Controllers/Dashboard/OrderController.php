@@ -7,6 +7,8 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\ProductDetail;
 use App\Http\Resources\OrderResource;
+use App\Notifications\OrderStatusUpdatedNotification;
+use App\Events\OrderStatusUpdatedEvent;
 use App\Http\Requests\OrderUpdateRequest;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -145,7 +147,7 @@ class OrderController extends Controller
 
         $validated = $request->validated();
         $order->update($validated);
-    
+
         // Remove payment_status and payment_method logic
         unset($validated['payment_status'], $validated['payment_method']);
 
@@ -215,6 +217,10 @@ class OrderController extends Controller
                 'notes' => $request->notes,
             ])
             ->log('Order status updated');
+
+        // Send notification
+        $order->user->notify(new OrderStatusUpdatedNotification($order, $oldStatus, $request->notes));
+        OrderStatusUpdatedEvent::dispatch($order, $oldStatus, $request->notes);
 
         return response()->json([
             'success' => true,

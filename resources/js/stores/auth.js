@@ -79,7 +79,7 @@ export const useAuthStore = defineStore("auth", {
                 // Register push subscription after successful login
                 setTimeout(() => {
                     registerPushSubscription();
-                }, 5000);
+                }, 1000);
 
                 return { success: true, data: response.data };
             } catch (error) {
@@ -120,7 +120,7 @@ export const useAuthStore = defineStore("auth", {
                 // Register push subscription after successful registration
                 setTimeout(() => {
                     registerPushSubscription();
-                }, 5000);
+                }, 1000);
 
                 return { success: true, data: response.data };
             } catch (error) {
