@@ -31,6 +31,7 @@ class Order extends Model implements HasMedia
         'notes',
         'delivered_at',
         'cancelled_at',
+        'phone',
     ];
 
     /**

@@ -145,6 +145,9 @@ class OrderController extends Controller
 
         $validated = $request->validated();
         $order->update($validated);
+    
+        // Remove payment_status and payment_method logic
+        unset($validated['payment_status'], $validated['payment_method']);
 
         return response()->json([
             'success' => true,

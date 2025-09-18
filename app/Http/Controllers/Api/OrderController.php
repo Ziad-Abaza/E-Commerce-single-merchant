@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
+use App\Models\Setting;
+use App\Models\ProductDetail;
 use App\Http\Resources\OrderResource;
 use App\Http\Requests\OrderStoreRequest;
 use App\Http\Requests\OrderUpdateRequest;
@@ -14,6 +16,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use App\Events\NewOrderEvent;
 use App\Notifications\NewOrderNotification;
+use Illuminate\Support\Str;
 
 class OrderController extends Controller
 {
@@ -105,17 +108,35 @@ class OrderController extends Controller
         try {
             DB::beginTransaction();
 
-            $validated = $request->validate([
-                'status' => 'sometimes|string|in:pending,processing,shipped,delivered,cancelled',
-                'shipping_address' => 'sometimes|string|max:500',
-                'notes' => 'nullable|string|max:1000',
-            ]);
+            $validated = $request->validated();
 
-            $data['order_number'] = $this->generateOrderNumber();
-            $data['user_id'] = Auth::id();
+            // Calculate order amounts and get items with calculated prices
+            $orderData = $this->calculateOrderAmounts($request->items);
+
+            // Prepare order data
+            $data = [
+                'order_number' => $this->generateOrderNumber(),
+                'user_id' => Auth::id(),
+                'status' => 'pending', // Default status
+                'shipping_address' => $validated['shipping_address'],
+                'phone' => $validated['phone'],
+                'notes' => $validated['notes'] ?? null,
+                'subtotal' => $orderData['subtotal'],
+                'shipping_cost' => $orderData['shipping_cost'],
+                'tax_amount' => $orderData['tax_amount'],
+                'total_amount' => $orderData['total_amount'],
+                'currency' => $orderData['currency'],
+                'discount_amount' => 0, // Can be updated later if needed
+            ];
 
             $order = Order::create($data);
 
+            // Save order items with calculated prices
+            if (!empty($orderData['items'])) {
+                $order->items()->createMany($orderData['items']);
+            }
+
+            // Handle file uploads
             if ($request->hasFile('receipt')) {
                 $order->setReceipt($request->file('receipt'));
             }
@@ -136,7 +157,6 @@ class OrderController extends Controller
             foreach ($owners as $owner) {
                 $owner->notify(new NewOrderNotification($order));
             }
-
 
             NewOrderEvent::dispatch($order);
 
@@ -162,11 +182,20 @@ class OrderController extends Controller
         try {
             $order = Order::where('user_id', Auth::id())->findOrFail($id);
 
+            // Pass the order to the request for validation
+            $request->merge(['order' => $order]);
+
             DB::beginTransaction();
 
             $data = $request->validated();
             $order->update($data);
 
+            // Update or create order items
+            if ($request->has('items') && is_array($request->items)) {
+                $this->updateOrderItems($order, $request->items);
+            }
+
+            // Handle file uploads
             if ($request->hasFile('receipt')) {
                 $order->setReceipt($request->file('receipt'));
             }
@@ -208,10 +237,16 @@ class OrderController extends Controller
     public function destroy($id)
     {
         try {
-            $order = Order::where('user_id', Auth::id())->findOrFail($id);
+            $order = Order::where('user_id', Auth::id())->with('items')->findOrFail($id);
 
             DB::beginTransaction();
 
+            // Delete all associated order items
+            if ($order->items->isNotEmpty()) {
+                $order->items()->delete();
+            }
+
+            // Delete the order and its media
             $order->delete();
             $order->setReceipt(null);
             $order->setInvoice(null);
@@ -321,12 +356,167 @@ class OrderController extends Controller
         }
     }
 
-    private function generateOrderNumber()
+    /**
+     * Save order items for a new order.
+     *
+     * @param \App\Models\Order $order
+     * @param array $items
+     * @return void
+     */
+    protected function saveOrderItems(Order $order, array $items)
     {
-        do {
-            $orderNumber = 'ORD-' . date('Ymd') . '-' . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT);
-        } while (Order::where('order_number', $orderNumber)->exists());
+        $orderItems = [];
 
-        return $orderNumber;
+        foreach ($items as $item) {
+            $orderItems[] = [
+                'product_detail_id' => $item['product_detail_id'],
+                'product_name' => $item['product_name'],
+                'product_sku' => $item['product_sku'],
+                'quantity' => $item['quantity'],
+                'unit_price' => $item['unit_price'],
+                'total_price' => $item['quantity'] * $item['unit_price'],
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
+        }
+
+        $order->items()->createMany($orderItems);
+    }
+
+    /**
+     * Update order items for an existing order.
+     *
+     * @param \App\Models\Order $order
+     * @param array $items
+     * @return void
+     */
+    protected function updateOrderItems(Order $order, array $items)
+    {
+        // Recalculate order amounts with updated items
+        $orderData = $this->calculateOrderAmounts($items);
+
+        // Update order totals
+        $order->update([
+            'subtotal' => $orderData['subtotal'],
+            'shipping_cost' => $orderData['shipping_cost'],
+            'tax_amount' => $orderData['tax_amount'],
+            'total_amount' => $orderData['total_amount'] - $order->discount_amount, // Apply existing discount
+            'currency' => $orderData['currency'],
+        ]);
+
+        $existingItemIds = [];
+
+        foreach ($orderData['items'] as $item) {
+            $itemData = [
+                'product_detail_id' => $item['product_detail_id'],
+                'product_name' => $item['product_name'],
+                'product_sku' => $item['product_sku'],
+                'quantity' => $item['quantity'],
+                'unit_price' => $item['unit_price'],
+                'total_price' => $item['total_price'],
+                'updated_at' => now(),
+            ];
+
+            if (isset($item['id'])) {
+                // Update existing item
+                $order->items()->where('id', $item['id'])->update($itemData);
+                $existingItemIds[] = $item['id'];
+            } else {
+                // Create new item
+                $newItem = $order->items()->create($itemData);
+                $existingItemIds[] = $newItem->id;
+            }
+        }
+
+        // Delete items that were not included in the update
+        if (!empty($existingItemIds)) {
+            $order->items()->whereNotIn('id', $existingItemIds)->delete();
+        }
+
+        return $order->fresh(['items']);
+    }
+
+    /**
+     * Generate a unique order number.
+     *
+     * @return string
+     */
+    /**
+     * Get application settings with fallback to defaults
+     *
+     * @return array
+     */
+    protected function getOrderSettings()
+    {
+        return [
+            'currency' => Setting::where('key', 'currency')->value('value') ?? 'EGP',
+            'tax_rate' => (float)(Setting::where('key', 'tax_rate')->value('value') ?? 0.0), // 15% default
+            'shipping_rate' => (float)(Setting::where('key', 'shipping_rate')->value('value') ?? 0.1), // 10% default
+            'min_shipping_cost' => (float)(Setting::where('key', 'min_shipping_cost')->value('value') ?? null),
+            'max_shipping_cost' => (float)(Setting::where('key', 'max_shipping_cost')->value('value') ?? null),
+        ];
+    }
+
+    /**
+     * Calculate order amounts based on items and settings
+     *
+     * @param array $items
+     * @param array $settings
+     * @return array
+     */
+    protected function calculateOrderAmounts($items, $settings = null)
+    {
+        $settings = $settings ?? $this->getOrderSettings();
+        $subtotal = 0;
+        $calculatedItems = [];
+
+        foreach ($items as $item) {
+            $productDetail = ProductDetail::with('product')->findOrFail($item['product_detail_id']);
+            $unitPrice = $productDetail->price;
+            $quantity = $item['quantity'];
+            $itemTotal = $unitPrice * $quantity;
+
+            $calculatedItems[] = [
+                'product_detail_id' => $productDetail->id,
+                'product_name' => $productDetail->product->name,
+                'product_sku' => $productDetail->sku,
+                'quantity' => $quantity,
+                'unit_price' => $unitPrice,
+                'total_price' => $itemTotal,
+            ];
+
+            $subtotal += $itemTotal;
+        }
+
+        // Calculate shipping cost (percentage of subtotal with min/max)
+        $shippingCost = min(
+            max($subtotal * $settings['shipping_rate'], $settings['min_shipping_cost']),
+            $settings['max_shipping_cost']
+        );
+
+        // Calculate tax
+        $taxAmount = $subtotal * $settings['tax_rate'];
+
+        // Calculate total amount
+        $totalAmount = $subtotal + $shippingCost + $taxAmount;
+
+        return [
+            'subtotal' => $subtotal,
+            'shipping_cost' => $shippingCost,
+            'tax_amount' => $taxAmount,
+            'total_amount' => $totalAmount,
+            'currency' => $settings['currency'],
+            'items' => $calculatedItems,
+        ];
+    }
+
+    /**
+     * Generate a unique order number
+     *
+     * @return string
+     */
+    protected function generateOrderNumber()
+    {
+        return 'ORD-' . date('Ymd') . '-' . strtoupper(Str::random(8));
     }
 }

@@ -95,13 +95,43 @@ export const useOrdersStore = defineStore("dashboardOrders", {
             this.loading = true;
             this.error = null;
             try {
+                // Format the data to match the API expectations
+                const formattedData = { ...orderData };
+                
+                // Only include items if they are provided
+                if (orderData.items) {
+                    formattedData.items = orderData.items.map(item => ({
+                        id: item.id, // May be undefined for new items
+                        product_detail_id: item.product_detail_id,
+                        product_name: item.product_name,
+                        product_sku: item.product_sku,
+                        quantity: item.quantity,
+                        unit_price: item.unit_price,
+                        _destroy: item._destroy // For marking items for deletion
+                    }));
+                }
+
                 const response = await axios.post(
                     `/dashboard/orders/${id}`,
-                    orderData,
+                    formattedData,
+                    {
+                        headers: {
+                            'Content-Type': 'multipart/form-data'
+                        }
+                    }
                 );
+                
+                // Update in orders list
                 const index = this.orders.findIndex((o) => o.id === id);
-                if (index !== -1) this.orders[index] = response.data.data;
-                this.currentOrder = response.data.data;
+                if (index !== -1) {
+                    this.orders[index] = response.data.data;
+                }
+                
+                // Update current order if it's the same
+                if (this.currentOrder && this.currentOrder.id === id) {
+                    this.currentOrder = response.data.data;
+                }
+                
                 return response.data.data;
             } catch (err) {
                 this.error =

@@ -114,12 +114,30 @@ export const useOrderStore = defineStore("orders", {
 
         /**
          * Create new order
+         * @param {Object} orderData - Order data
+         * @param {string} orderData.shipping_address - Delivery address
+         * @param {string} orderData.phone - Contact phone number
+         * @param {string} [orderData.notes] - Optional order notes
+         * @param {Array} orderData.items - Array of order items
+         * @param {number} orderData.items[].product_detail_id - Product variant ID
+         * @param {number} orderData.items[].quantity - Item quantity
          */
         async createOrder(orderData) {
             this.loading = true;
             this.error = null;
             try {
-                const response = await axios.post("/orders", orderData);
+                // Format the data to match the API expectations
+                const formattedData = {
+                    shipping_address: orderData.shipping_address,
+                    phone: orderData.phone,
+                    notes: orderData.notes,
+                    items: orderData.items?.map(item => ({
+                        product_detail_id: item.product_detail_id,
+                        quantity: item.quantity
+                    })) || []
+                };
+
+                const response = await axios.post("/orders", formattedData);
 
                 // Add to orders list if we're on the list page
                 if (this.orders.length > 0) {
@@ -128,12 +146,22 @@ export const useOrderStore = defineStore("orders", {
 
                 const toast = useToast();
                 toast.success("Order created successfully");
-                return { success: true, data: response.data };
+                return { 
+                    success: true, 
+                    data: response.data,
+                    order: response.data.data // Return the created order with calculated fields
+                };
             } catch (error) {
-                this.error =
-                    error.response?.data?.message || "Failed to create order";
-                this.handleError(this.error);
-                return { success: false, error: this.error };
+                const errorMessage = error.response?.data?.message || 
+                                  error.response?.data?.errors || 
+                                  "Failed to create order";
+                this.error = errorMessage;
+                this.handleError(typeof errorMessage === 'string' ? errorMessage : 'Validation error occurred');
+                return { 
+                    success: false, 
+                    error: errorMessage,
+                    errors: error.response?.data?.errors
+                };
             } finally {
                 this.loading = false;
             }
@@ -141,12 +169,38 @@ export const useOrderStore = defineStore("orders", {
 
         /**
          * Update order
+         * @param {number} id - Order ID
+         * @param {Object} orderData - Order data
+         * @param {string} [orderData.shipping_address] - Delivery address
+         * @param {string} [orderData.phone] - Contact phone number
+         * @param {string} [orderData.notes] - Optional order notes
+         * @param {Array} [orderData.items] - Array of order items (optional for partial updates)
+         * @param {number} [orderData.items[].id] - Order item ID (for updates)
+         * @param {number} orderData.items[].product_detail_id - Product variant ID
+         * @param {number} orderData.items[].quantity - Item quantity
          */
         async updateOrder(id, orderData) {
             this.loading = true;
             this.error = null;
             try {
-                const response = await axios.post(`/orders/${id}`, orderData);
+                // Format the data to match the API expectations
+                const formattedData = {
+                    shipping_address: orderData.shipping_address,
+                    phone: orderData.phone,
+                    notes: orderData.notes,
+                    _method: 'PUT' // For Laravel to handle as PUT request
+                };
+                
+                // Only include items if they are provided
+                if (orderData.items) {
+                    formattedData.items = orderData.items.map(item => ({
+                        id: item.id, // May be undefined for new items
+                        product_detail_id: item.product_detail_id,
+                        quantity: item.quantity
+                    }));
+                }
+
+                const response = await axios.post(`/orders/${id}`, formattedData);
 
                 // Update in orders list
                 const index = this.orders.findIndex((order) => order.id === id);

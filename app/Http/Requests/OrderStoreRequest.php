@@ -22,20 +22,16 @@ class OrderStoreRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'user_id' => 'required|exists:users,id',
-            'status' => 'required|string|in:pending,confirmed,shipped,delivered,cancelled',
-            'total_amount' => 'required|numeric|min:0',
-            'shipping_amount' => 'nullable|numeric|min:0',
-            'shipping_cost' => 'nullable|numeric|min:0',
-            'tax_amount' => 'nullable|numeric|min:0',
-            'discount_amount' => 'nullable|numeric|min:0',
-            'currency' => 'required|string|max:3',
             'shipping_address' => 'required|string',
+            'phone' => 'required|string|max:20',
             'notes' => 'nullable|string',
             'receipt' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:8192',
             'invoice' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:8192',
             'attachments' => 'nullable|array',
             'attachments.*' => 'file|mimes:pdf,jpg,jpeg,png|max:8192',
+            'items' => 'required|array|min:1',
+            'items.*.product_detail_id' => 'required|exists:product_details,id',
+            'items.*.quantity' => 'required|integer|min:1',
         ];
     }
 
@@ -47,32 +43,12 @@ class OrderStoreRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'user_id.required' => 'User ID is required.',
-            'user_id.exists' => 'The selected user does not exist.',
-            'status.required' => 'Status is required.',
-            'status.in' => 'Status must be one of: pending, confirmed, shipped, delivered, cancelled.',
-            'total_amount.required' => 'Total amount is required.',
-            'total_amount.numeric' => 'Total amount must be a number.',
-            'total_amount.min' => 'Total amount must be at least 0.',
-            'shipping_amount.numeric' => 'Shipping amount must be a number.',
-            'shipping_amount.min' => 'Shipping amount must be at least 0.',
-            'shipping_cost.numeric' => 'Shipping cost must be a number.',
-            'shipping_cost.min' => 'Shipping cost must be at least 0.',
-            'tax_amount.numeric' => 'Tax amount must be a number.',
-            'tax_amount.min' => 'Tax amount must be at least 0.',
-            'discount_amount.numeric' => 'Discount amount must be a number.',
-            'discount_amount.min' => 'Discount amount must be at least 0.',
-            'currency.required' => 'Currency is required.',
-            'currency.string' => 'Currency must be a string.',
-            'currency.max' => 'Currency may not be greater than 3 characters.',
             'shipping_address.required' => 'Shipping address is required.',
             'shipping_address.string' => 'Shipping address must be a string.',
+            'phone.required' => 'Phone number is required.',
+            'phone.string' => 'Phone number must be a string.',
+            'phone.max' => 'Phone number may not be greater than 20 characters.',
             'notes.string' => 'Notes must be a string.',
-            'payment_method.required' => 'Payment method is required.',
-            'payment_method.string' => 'Payment method must be a string.',
-            'payment_method.max' => 'Payment method may not be greater than 50 characters.',
-            'payment_status.required' => 'Payment status is required.',
-            'payment_status.in' => 'Payment status must be one of: pending, paid, failed, refunded.',
             'receipt.file' => 'Receipt must be a file.',
             'receipt.mimes' => 'Receipt must be a file of type: pdf, jpg, jpeg, png.',
             'receipt.max' => 'Receipt may not be greater than 8192 kilobytes.',
@@ -83,6 +59,11 @@ class OrderStoreRequest extends FormRequest
             'attachments.*.file' => 'Each attachment must be a file.',
             'attachments.*.mimes' => 'Each attachment must be a file of type: pdf, jpg, jpeg, png.',
             'attachments.*.max' => 'Each attachment may not be greater than 8192 kilobytes.',
+            'items.required' => 'At least one order item is required.',
+            'items.*.product_detail_id.required' => 'Product detail ID is required for each item.',
+            'items.*.product_detail_id.exists' => 'The selected product detail is invalid.',
+            'items.*.quantity.required' => 'Quantity is required for each item.',
+            'items.*.quantity.min' => 'Quantity must be at least 1.',
         ];
     }
 }

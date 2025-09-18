@@ -23,6 +23,7 @@ return new class extends Migration
                 $table->decimal('shipping_amount', 8, 2)->default(0); // Shipping cost like 10.00
                 $table->decimal('shipping_cost', 8, 2); // Shipping cost like 10.00
                 $table->decimal('tax_amount', 8, 2)->default(0); // Tax amount like 10.00
+                $table->string('phone', 20)->nullable();
                 $table->decimal('discount_amount', 8, 2)->default(0);
                 $table->char('currency', 3)->default('EGP');
                 $table->text('shipping_address');

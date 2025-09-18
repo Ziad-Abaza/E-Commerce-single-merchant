@@ -42,24 +42,27 @@
                 <h3 class="text-sm font-medium text-gray-900 dark:text-white">
                   {{ item.name || `Product #${item.product_id || item.id}` }}
                 </h3>
-                
+
                 <div v-if="item.color || item.size" class="mt-1 text-xs text-gray-500">
                   <p v-if="item.color" class="truncate">{{ item.color }}</p>
                   <p v-if="item.size" class="truncate">{{ item.size }}</p>
                 </div>
-                
+
                 <p v-if="item.sku" class="mt-0.5 text-xs text-gray-400">
                   SKU: {{ item.sku }}
                 </p>
-                
+
                 <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
                   Quantity: {{ item.quantity }}
                 </p>
               </div>
-              
+
               <div class="text-right">
                 <div class="text-sm font-medium text-gray-900 dark:text-white whitespace-nowrap">
-                  {{ formatPrice(item.final_price || item.price, item.quantity) }}
+                  {{ formatPrice(item.product_detail.final_price * item.quantity) }}
+                </div>
+                <div v-if="item.quantity > 1" class="text-xs text-gray-500">
+                  {{ formatPrice(item.product_detail.final_price) }} each
                 </div>
               </div>
             </div>
@@ -69,19 +72,19 @@
           <div class="border-t border-gray-200 pt-4 space-y-2 dark:border-gray-600">
             <div class="flex justify-between text-sm">
               <span class="text-gray-600 dark:text-gray-300">Subtotal</span>
-              <span class="text-gray-900 dark:text-white">{{ formatPrice(cartStore.cartTotal) }}</span>
+              <span class="text-gray-900 dark:text-white">{{ formatPrice(cartStore.summary.subtotal) }}</span>
             </div>
             <div class="flex justify-between text-sm">
               <span class="text-gray-600 dark:text-gray-300">Shipping</span>
-              <span class="text-gray-900 dark:text-white">{{ formatPrice(shippingCost) }}</span>
+              <span class="text-gray-900 dark:text-white">{{ formatPrice(cartStore.shippingCost) }}</span>
             </div>
             <div class="flex justify-between text-sm">
-              <span class="text-gray-600 dark:text-gray-300">Tax</span>
-              <span class="text-gray-900 dark:text-white">{{ formatPrice(taxAmount) }}</span>
+              <span class="text-gray-600 dark:text-gray-300">Tax ({{ siteStore.settings.tax_rate ?? 0 }}%)</span>
+              <span class="text-gray-900 dark:text-white">{{ formatPrice(cartStore.taxAmount) }}</span>
             </div>
             <div class="flex justify-between text-lg font-medium border-t border-gray-200 pt-2 dark:border-gray-600">
               <span class="text-gray-900 dark:text-white">Total</span>
-              <span class="text-gray-900 dark:text-white">{{ formatPrice(totalAmount) }}</span>
+              <span class="text-gray-900 dark:text-white">{{ formatPrice(cartStore.grandTotal) }}</span>
             </div>
           </div>
         </div>
@@ -93,7 +96,7 @@
           <!-- Contact Information -->
           <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 dark:bg-gray-800 dark:border-gray-700">
             <h2 class="text-lg font-medium text-gray-900 mb-4 dark:text-white">Contact Information</h2>
-            
+
             <!-- Phone Number -->
             <div class="mb-4">
               <label for="phone" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -133,6 +136,23 @@
                 <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Please include any relevant landmarks or delivery instructions</p>
               </div>
             </div>
+
+            <!-- Order Notes -->
+            <div class="mt-6">
+              <label for="notes" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Order Notes (Optional)
+              </label>
+              <div class="mt-1">
+                <textarea
+                  id="notes"
+                  v-model="form.notes"
+                  rows="3"
+                  placeholder="Special instructions, delivery preferences, or notes about your order..."
+                  class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                ></textarea>
+                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Any special instructions for your order</p>
+              </div>
+            </div>
           </div>
 
           <!-- Order Confirmation -->
@@ -167,12 +187,14 @@
 import { reactive, ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useCartStore } from '../stores/cart'
+import { useOrderStore } from '../stores/orders'
 import { useToast } from 'vue-toastification'
 import { useSiteStore } from "../stores/site";
 
 const siteStore = useSiteStore();
 const router = useRouter()
 const cartStore = useCartStore()
+const orderStore = useOrderStore()
 const toast = useToast()
 
 const loading = ref(false)
@@ -184,7 +206,6 @@ onMounted(async () => {
     await cartStore.loadCart()
   } catch (error) {
     toast.error('Failed to load cart. Please try again.')
-    console.error('Error loading cart:', error)
   } finally {
     cartLoading.value = false
   }
@@ -192,7 +213,8 @@ onMounted(async () => {
 
 const form = reactive({
   phone: '',
-  address: ''
+  address: '',
+  notes: ''
 })
 
 const errors = reactive({
@@ -202,11 +224,11 @@ const errors = reactive({
 
 const validateForm = () => {
   let isValid = true
-  
+
   // Reset errors
   errors.phone = ''
   errors.address = ''
-  
+
   // Phone validation - basic international format (supports + and numbers)
   const phoneRegex = /^\+?[0-9\s-()]{8,20}$/
   if (!form.phone.trim()) {
@@ -216,7 +238,7 @@ const validateForm = () => {
     errors.phone = 'Please enter a valid phone number'
     isValid = false
   }
-  
+
   // Address validation
   if (!form.address.trim()) {
     errors.address = 'Address is required'
@@ -225,7 +247,7 @@ const validateForm = () => {
     errors.address = 'Please provide a more detailed address'
     isValid = false
   }
-  
+
   return isValid
 }
 
@@ -241,7 +263,7 @@ const shippingCost = computed(() => {
 })
 
 const taxAmount = computed(() => {
-  return cartStore.cartTotal * 0.08 // 8% tax
+  return cartStore.cartTotal * siteStore.settings.tax_rate
 })
 
 const totalAmount = computed(() => {
@@ -252,37 +274,39 @@ const handleSubmit = async () => {
   if (!validateForm()) {
     return
   }
-  
+
   loading.value = true
 
   try {
+    // Format order items for the API
+    const orderItems = cartStore.items.map(item => ({
+      product_detail_id: item.product_detail_id,
+      quantity: item.quantity
+    }))
+
+    // Prepare order data
     const orderData = {
-      items: cartStore.items,
-      contact: {
-        phone: form.phone,
-        address: form.address
-      },
-      total: totalAmount.value,
-      shipping: shippingCost.value,
-      tax: taxAmount.value
+      phone: form.phone,
+      shipping_address: form.address,
+      items: orderItems,
+      notes: form.notes
     }
 
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 2000))
+    // Create order using the store
+    const { success, data, error } = await orderStore.createOrder(orderData)
 
-    // Clear cart after successful order
-    await cartStore.clearCart()
+    if (success) {
+      // Clear cart after successful order
+      await cartStore.clearCart()
 
-    toast.success('Order placed successfully! You will receive a confirmation call shortly.', {
-      timeout: 5000
-    })
-    router.push('/orders')
-
+      // Redirect to order confirmation page
+      router.push(`/orders`)
+      console.log('Order created successfully:', data)
+    } else {
+      throw new Error(error || 'Failed to create order')
+    }
   } catch (error) {
     console.error('Order submission error:', error)
-    toast.error('Failed to process order. Please try again or contact support.', {
-      timeout: 5000
-    })
   } finally {
     loading.value = false
   }
