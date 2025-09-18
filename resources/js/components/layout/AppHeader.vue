@@ -23,15 +23,17 @@
                                     d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
                                 />
                             </svg>
-                            <img v-if="siteStore.settings.logo_url"
+                            <img
+                                v-if="siteStore.settings.logo_url"
                                 :src="siteStore.settings.logo_url"
                                 alt="Logo"
                                 class="h-full w-full object-contain rounded-lg"
                             />
                         </div>
-                        <span class="text-xl font-bold text-gray-900 dark:text-white">{{
-                            siteStore.settings.site_name
-                        }}</span>
+                        <span
+                            class="text-xl font-bold text-gray-900 dark:text-white"
+                            >{{ siteStore.settings.site_name }}</span
+                        >
                     </router-link>
                 </div>
 
@@ -39,7 +41,8 @@
                 <nav class="hidden md:flex items-center space-x-8 ml-4">
                     <router-link
                         to="/"
-                        class="text-gray-700 dark:text-gray-200 hover:text-primary-600 dark:hover:text-primary-400 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                        class="text-gray-700 dark:text-gray-200 hover:text-primary-600
+                        dark:hover:text-primary-400 px-3 py-2 rounded-md text-sm font-medium transition-colors"
                         :class="{
                             'text-primary-50 bg-primary-600 hover:text-primary-50 dark:hover:text-primary-50':
                                 $route.name === 'home',
@@ -69,7 +72,7 @@
 
                 <!-- Theme Toggle (hidden on mobile) -->
                 <div class="hidden md:block">
-                <ThemeToggle />
+                    <ThemeToggle />
                 </div>
 
                 <!-- Right Side Actions -->
@@ -107,18 +110,20 @@
                         class="p-2 text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors relative"
                     >
                         <svg
-                            class="h-6 w-6"
+                            xmlns="http://www.w3.org/2000/svg"
                             fill="none"
-                            stroke="currentColor"
                             viewBox="0 0 24 24"
+                            stroke-width="1.5"
+                            stroke="currentColor"
+                            class="size-6"
                         >
                             <path
                                 stroke-linecap="round"
                                 stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m6-5v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6m8 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v4.01"
+                                d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z"
                             />
                         </svg>
+
                         <span
                             v-if="cartStore.cartItemCount > 0"
                             class="absolute -top-1 -right-1 bg-primary-600 dark:bg-primary-700 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center"
