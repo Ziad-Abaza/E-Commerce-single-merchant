@@ -6,6 +6,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 use Illuminate\Notifications\Messages\BroadcastMessage;
 use NotificationChannels\WebPush\WebPushMessage;
+use NotificationChannels\WebPush\WebPushChannel;
 use App\Models\Order;
 
 class OrderStatusUpdatedNotification extends Notification
@@ -25,9 +26,8 @@ class OrderStatusUpdatedNotification extends Notification
 
     public function via($notifiable)
     {
-        return ['broadcast', 'webpush'];
+        return [WebPushChannel::class];
     }
-
 
     public function toBroadcast($notifiable)
     {
