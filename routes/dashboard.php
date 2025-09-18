@@ -4,8 +4,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Dashboard\SettingController as SiteSettingController;
 
-
-
 /*
 |--------------------------------------------------------------------------
 | Admin-Protected Routes

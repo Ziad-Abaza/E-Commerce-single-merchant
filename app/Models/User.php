@@ -14,11 +14,13 @@ use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Spatie\Permission\Traits\HasRoles;
+use NotificationChannels\WebPush\HasPushSubscriptions;
+
 
 class User extends Authenticatable implements HasMedia, MustVerifyEmail
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasApiTokens, HasRoles, HasFactory, Notifiable, SoftDeletes, InteractsWithMedia;
+    use HasApiTokens, HasPushSubscriptions, HasRoles, HasFactory, Notifiable, SoftDeletes, InteractsWithMedia;
 
     /**
      * The attributes that are mass assignable.

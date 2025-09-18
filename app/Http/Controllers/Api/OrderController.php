@@ -11,6 +11,9 @@ use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use App\Events\NewOrderEvent;
+use App\Notifications\NewOrderNotification;
 
 class OrderController extends Controller
 {
@@ -126,6 +129,16 @@ class OrderController extends Controller
             }
 
             DB::commit();
+
+            $owners = \App\Models\User::role('owner')->get();
+            Log::info('[OrderController@store] Notifying owners', ['owners' => $owners->pluck('id')]);
+
+            foreach ($owners as $owner) {
+                $owner->notify(new NewOrderNotification($order));
+            }
+
+
+            NewOrderEvent::dispatch($order);
 
             return response()->json([
                 'message' => 'Order created successfully.',

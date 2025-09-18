@@ -2,7 +2,6 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-
 /*
 |--------------------------------------------------------------------------
 | Authenticated User Routes
@@ -120,3 +119,5 @@ Route::middleware('auth:sanctum')->group(function () {
 
 require __DIR__ . '/dashboard.php';
 require __DIR__ . '/auth.php';
+require __DIR__ . '/notification.php';
+
