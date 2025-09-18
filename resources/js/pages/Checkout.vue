@@ -18,6 +18,10 @@
       </div>
     </div>
 
+    <div v-if="cartLoading" class="text-center py-12">
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
+      <p class="mt-4 text-sm text-gray-600 dark:text-gray-300">Loading your cart...</p>
+    </div>
     <div v-else class="grid grid-cols-1 lg:grid-cols-2 gap-8">
       <!-- Order Summary -->
       <div class="lg:order-2">
@@ -26,18 +30,37 @@
 
           <!-- Cart Items -->
           <div class="space-y-4 mb-6">
-            <div v-for="item in cartStore.items" :key="item.id" class="flex items-center space-x-4">
-              <img
-                :src="item.product?.media?.[0]?.url || '/images/placeholder-product.jpg'"
-                :alt="item.product?.name"
-                class="w-16 h-16 object-cover rounded-md"
-              />
-              <div class="flex-1 min-w-0">
-                <h3 class="text-sm font-medium text-gray-900 truncate dark:text-white">{{ item.product?.name }}</h3>
-                <p class="text-sm text-gray-500 dark:text-gray-400">Quantity: {{ item.quantity }}</p>
+            <div v-for="item in cartStore.items" :key="item.id" class="flex items-start space-x-4 py-2">
+              <div class="flex-shrink-0">
+                <img
+                  :src="item.product?.media?.[0]?.url || '/images/placeholder-product.jpg'"
+                  :alt="item.name || `Product ${item.product_id || item.id}`"
+                  class="w-16 h-16 object-cover rounded-md"
+                />
               </div>
-              <div class="text-sm font-medium text-gray-900 dark:text-white">
-                {{ (item.price * item.quantity).toFixed(2) }} {{ siteStore.settings.currency }}
+              <div class="flex-1 min-w-0">
+                <h3 class="text-sm font-medium text-gray-900 dark:text-white">
+                  {{ item.name || `Product #${item.product_id || item.id}` }}
+                </h3>
+                
+                <div v-if="item.color || item.size" class="mt-1 text-xs text-gray-500">
+                  <p v-if="item.color" class="truncate">{{ item.color }}</p>
+                  <p v-if="item.size" class="truncate">{{ item.size }}</p>
+                </div>
+                
+                <p v-if="item.sku" class="mt-0.5 text-xs text-gray-400">
+                  SKU: {{ item.sku }}
+                </p>
+                
+                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                  Quantity: {{ item.quantity }}
+                </p>
+              </div>
+              
+              <div class="text-right">
+                <div class="text-sm font-medium text-gray-900 dark:text-white whitespace-nowrap">
+                  {{ formatPrice(item.final_price || item.price, item.quantity) }}
+                </div>
               </div>
             </div>
           </div>
@@ -46,19 +69,19 @@
           <div class="border-t border-gray-200 pt-4 space-y-2 dark:border-gray-600">
             <div class="flex justify-between text-sm">
               <span class="text-gray-600 dark:text-gray-300">Subtotal</span>
-              <span class="text-gray-900 dark:text-white">{{ cartStore.cartTotal.toFixed(2) }} {{ siteStore.settings.currency }}</span>
+              <span class="text-gray-900 dark:text-white">{{ formatPrice(cartStore.cartTotal) }}</span>
             </div>
             <div class="flex justify-between text-sm">
               <span class="text-gray-600 dark:text-gray-300">Shipping</span>
-              <span class="text-gray-900 dark:text-white">{{ shippingCost.toFixed(2) }} {{ siteStore.settings.currency }}</span>
+              <span class="text-gray-900 dark:text-white">{{ formatPrice(shippingCost) }}</span>
             </div>
             <div class="flex justify-between text-sm">
               <span class="text-gray-600 dark:text-gray-300">Tax</span>
-              <span class="text-gray-900 dark:text-white">{{ taxAmount.toFixed(2) }} {{ siteStore.settings.currency }}</span>
+              <span class="text-gray-900 dark:text-white">{{ formatPrice(taxAmount) }}</span>
             </div>
             <div class="flex justify-between text-lg font-medium border-t border-gray-200 pt-2 dark:border-gray-600">
               <span class="text-gray-900 dark:text-white">Total</span>
-              <span class="text-gray-900 dark:text-white">{{ totalAmount.toFixed(2) }} {{ siteStore.settings.currency }}</span>
+              <span class="text-gray-900 dark:text-white">{{ formatPrice(totalAmount) }}</span>
             </div>
           </div>
         </div>
@@ -67,74 +90,47 @@
       <!-- Checkout Form -->
       <div class="lg:order-1">
         <form @submit.prevent="handleSubmit" class="space-y-6">
-          <!-- Shipping Information -->
+          <!-- Contact Information -->
           <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 dark:bg-gray-800 dark:border-gray-700">
-            <h2 class="text-lg font-medium text-gray-900 mb-4 dark:text-white">Shipping Information</h2>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label for="first_name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">First Name</label>
+            <h2 class="text-lg font-medium text-gray-900 mb-4 dark:text-white">Contact Information</h2>
+            
+            <!-- Phone Number -->
+            <div class="mb-4">
+              <label for="phone" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Phone Number <span class="text-red-500">*</span>
+              </label>
+              <div class="mt-1 relative">
                 <input
-                  id="first_name"
-                  v-model="form.shipping.first_name"
-                  type="text"
-                  required
-                  class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                  id="phone"
+                  v-model="form.phone"
+                  type="tel"
+                  placeholder="+1 (555) 123-4567"
+                  class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                  :class="{ 'border-red-500': errors.phone }"
+                  @input="errors.phone = ''"
                 />
-              </div>
-              <div>
-                <label for="last_name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Last Name</label>
-                <input
-                  id="last_name"
-                  v-model="form.shipping.last_name"
-                  type="text"
-                  required
-                  class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                />
+                <p v-if="errors.phone" class="mt-1 text-sm text-red-600 dark:text-red-400">{{ errors.phone }}</p>
+                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">We'll use this to contact you about your order</p>
               </div>
             </div>
 
-            <div class="mt-4">
-              <label for="address" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Address</label>
-              <input
-                id="address"
-                v-model="form.shipping.address"
-                type="text"
-                required
-                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-              />
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-              <div>
-                <label for="city" class="block text-sm font-medium text-gray-700 dark:text-gray-300">City</label>
-                <input
-                  id="city"
-                  v-model="form.shipping.city"
-                  type="text"
-                  required
-                  class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                />
-              </div>
-              <div>
-                <label for="state" class="block text-sm font-medium text-gray-700 dark:text-gray-300">State</label>
-                <input
-                  id="state"
-                  v-model="form.shipping.state"
-                  type="text"
-                  required
-                  class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                />
-              </div>
-              <div>
-                <label for="zip_code" class="block text-sm font-medium text-gray-700 dark:text-gray-300">ZIP Code</label>
-                <input
-                  id="zip_code"
-                  v-model="form.shipping.zip_code"
-                  type="text"
-                  required
-                  class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                />
+            <!-- Shipping Address -->
+            <div>
+              <label for="address" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Delivery Address <span class="text-red-500">*</span>
+              </label>
+              <div class="mt-1">
+                <textarea
+                  id="address"
+                  v-model="form.address"
+                  rows="3"
+                  placeholder="123 Main St, Apartment 4B, City, Country"
+                  class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                  :class="{ 'border-red-500': errors.address }"
+                  @input="errors.address = ''"
+                ></textarea>
+                <p v-if="errors.address" class="mt-1 text-sm text-red-600 dark:text-red-400">{{ errors.address }}</p>
+                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Please include any relevant landmarks or delivery instructions</p>
               </div>
             </div>
           </div>
@@ -168,7 +164,7 @@
 </template>
 
 <script setup>
-import { reactive, ref, computed } from 'vue'
+import { reactive, ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useCartStore } from '../stores/cart'
 import { useToast } from 'vue-toastification'
@@ -180,17 +176,64 @@ const cartStore = useCartStore()
 const toast = useToast()
 
 const loading = ref(false)
+const cartLoading = ref(true)
+
+// Load cart when component mounts
+onMounted(async () => {
+  try {
+    await cartStore.loadCart()
+  } catch (error) {
+    toast.error('Failed to load cart. Please try again.')
+    console.error('Error loading cart:', error)
+  } finally {
+    cartLoading.value = false
+  }
+})
 
 const form = reactive({
-  shipping: {
-    first_name: '',
-    last_name: '',
-    address: '',
-    city: '',
-    state: '',
-    zip_code: ''
-  },
+  phone: '',
+  address: ''
 })
+
+const errors = reactive({
+  phone: '',
+  address: ''
+})
+
+const validateForm = () => {
+  let isValid = true
+  
+  // Reset errors
+  errors.phone = ''
+  errors.address = ''
+  
+  // Phone validation - basic international format (supports + and numbers)
+  const phoneRegex = /^\+?[0-9\s-()]{8,20}$/
+  if (!form.phone.trim()) {
+    errors.phone = 'Phone number is required'
+    isValid = false
+  } else if (!phoneRegex.test(form.phone)) {
+    errors.phone = 'Please enter a valid phone number'
+    isValid = false
+  }
+  
+  // Address validation
+  if (!form.address.trim()) {
+    errors.address = 'Address is required'
+    isValid = false
+  } else if (form.address.trim().length < 10) {
+    errors.address = 'Please provide a more detailed address'
+    isValid = false
+  }
+  
+  return isValid
+}
+
+// Format price with currency
+const formatPrice = (price, quantity = 1) => {
+  const total = parseFloat(price || 0) * (quantity || 1)
+  return `${total.toFixed(2)} ${siteStore.settings.currency}`
+}
 
 const shippingCost = computed(() => {
   // Free shipping for orders over $50
@@ -206,13 +249,22 @@ const totalAmount = computed(() => {
 })
 
 const handleSubmit = async () => {
+  if (!validateForm()) {
+    return
+  }
+  
   loading.value = true
 
   try {
     const orderData = {
       items: cartStore.items,
-      shipping: form.shipping,
-      total: totalAmount.value
+      contact: {
+        phone: form.phone,
+        address: form.address
+      },
+      total: totalAmount.value,
+      shipping: shippingCost.value,
+      tax: taxAmount.value
     }
 
     // Simulate API call
@@ -221,11 +273,16 @@ const handleSubmit = async () => {
     // Clear cart after successful order
     await cartStore.clearCart()
 
-    toast.success('Order placed successfully!')
+    toast.success('Order placed successfully! You will receive a confirmation call shortly.', {
+      timeout: 5000
+    })
     router.push('/orders')
 
   } catch (error) {
-    toast.error('Failed to process order. Please try again.')
+    console.error('Order submission error:', error)
+    toast.error('Failed to process order. Please try again or contact support.', {
+      timeout: 5000
+    })
   } finally {
     loading.value = false
   }

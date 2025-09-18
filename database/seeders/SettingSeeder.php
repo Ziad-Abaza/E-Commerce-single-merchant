@@ -23,6 +23,7 @@ class SettingSeeder extends Seeder
                 'label' => 'Site Name',
                 'description' => 'The name of your website displayed in the header and title',
                 'is_public' => true,
+                'is_protected' => true,
                 'sort_order' => 1,
             ],
             [
@@ -33,6 +34,7 @@ class SettingSeeder extends Seeder
                 'label' => 'Site Description',
                 'description' => 'Brief description of your website for SEO and social sharing',
                 'is_public' => true,
+                'is_protected' => true,
                 'sort_order' => 2,
             ],
             [
@@ -43,6 +45,7 @@ class SettingSeeder extends Seeder
                 'label' => 'Address',
                 'description' => 'Physical address of the store',
                 'is_public' => true,
+                'is_protected' => true,
                 'sort_order' => 4,
             ],
             [
@@ -53,6 +56,7 @@ class SettingSeeder extends Seeder
                 'label' => 'Business Hours',
                 'description' => 'Business hours for the store',
                 'is_public' => true,
+                'is_protected' => true,
                 'sort_order' => 5,
             ],
             // contact settings
@@ -64,6 +68,7 @@ class SettingSeeder extends Seeder
                 'label' => 'Contact Email',
                 'description' => 'Primary contact email address',
                 'is_public' => true,
+                'is_protected' => true,
                 'sort_order' => 1,
             ],
             [
@@ -74,6 +79,7 @@ class SettingSeeder extends Seeder
                 'label' => 'Contact Phone',
                 'description' => 'Primary contact phone number',
                 'is_public' => true,
+                'is_protected' => true,
                 'sort_order' => 2,
             ],
             [
@@ -84,6 +90,7 @@ class SettingSeeder extends Seeder
                 'label' => 'WhatsApp Number',
                 'description' => 'WhatsApp number for customer support',
                 'is_public' => true,
+                'is_protected' => true,
                 'sort_order' => 3,
             ],
             [
@@ -94,6 +101,7 @@ class SettingSeeder extends Seeder
                 'label' => 'Facebook URL',
                 'description' => 'URL to your Facebook page',
                 'is_public' => true,
+                'is_protected' => true,
                 'sort_order' => 4,
             ],
             [
@@ -104,6 +112,7 @@ class SettingSeeder extends Seeder
                 'label' => 'Twitter URL',
                 'description' => 'URL to your Twitter page',
                 'is_public' => true,
+                'is_protected' => true,
                 'sort_order' => 5,
             ],
             [
@@ -114,6 +123,7 @@ class SettingSeeder extends Seeder
                 'label' => 'Instagram URL',
                 'description' => 'URL to your Instagram page',
                 'is_public' => true,
+                'is_protected' => true,
                 'sort_order' => 6,
             ],
             [
@@ -124,6 +134,7 @@ class SettingSeeder extends Seeder
                 'label' => 'YouTube URL',
                 'description' => 'URL to your YouTube channel',
                 'is_public' => true,
+                'is_protected' => true,
                 'sort_order' => 7,
             ],
             [
@@ -134,6 +145,7 @@ class SettingSeeder extends Seeder
                 'label' => 'TikTok URL',
                 'description' => 'URL to your TikTok profile',
                 'is_public' => true,
+                'is_protected' => true,
                 'sort_order' => 8,
             ],
             [
@@ -144,6 +156,7 @@ class SettingSeeder extends Seeder
                 'label' => 'Logo URL',
                 'description' => 'URL to your site logo',
                 'is_public' => true,
+                'is_protected' => true,
                 'sort_order' => 2,
             ],
 
@@ -156,6 +169,7 @@ class SettingSeeder extends Seeder
                 'label' => 'Who We Are',
                 'description' => 'A short paragraph describing your business, shown in About Us section',
                 'is_public' => true,
+                'is_protected' => true,
                 'sort_order' => 1,
             ],
             [
@@ -166,6 +180,7 @@ class SettingSeeder extends Seeder
                 'label' => 'Our Story',
                 'description' => 'Tell the story of how your business started',
                 'is_public' => true,
+                'is_protected' => true,
                 'sort_order' => 2,
             ],
             [
@@ -176,6 +191,7 @@ class SettingSeeder extends Seeder
                 'label' => 'Our Commitment',
                 'description' => 'Describe your company’s mission and commitments',
                 'is_public' => true,
+                'is_protected' => true,
                 'sort_order' => 3,
             ],
             [
@@ -186,6 +202,7 @@ class SettingSeeder extends Seeder
                 'label' => 'Why Choose Us',
                 'description' => 'Explain why customers should choose your business over competitors',
                 'is_public' => true,
+                'is_protected' => true,
                 'sort_order' => 4,
             ],
             [
@@ -196,6 +213,7 @@ class SettingSeeder extends Seeder
                 'label' => 'About Image',
                 'description' => 'Image displayed in the About Us section',
                 'is_public' => true,
+                'is_protected' => true,
                 'sort_order' => 5,
             ],
 
@@ -214,6 +232,7 @@ class SettingSeeder extends Seeder
                     ['value' => 'EGP', 'label' => 'Egyptian Pound (EGP)'],
                 ],
                 'is_public' => true,
+                'is_protected' => true,
                 'sort_order' => 1,
             ],
         ];
