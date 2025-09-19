@@ -1,0 +1,1 @@
+/home/cbatgwdy/online-shop.cbatu.com/public/index.php
