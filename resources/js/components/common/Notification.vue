@@ -55,7 +55,7 @@
 <script setup>
 import { computed } from 'vue';
 import { useNotificationStore } from '@/stores/notification';
-import { BellIcon, ShoppingCartIcon, ExclamationCircleIcon } from '@heroicons/vue/24/outline';
+import { BellIcon, ShoppingCartIcon, ExclamationCircleIcon, XMarkIcon, StarIcon, ChatBubbleLeftRightIcon } from '@heroicons/vue/24/outline';
 
 const props = defineProps({
   notification: {
@@ -97,6 +97,9 @@ const getNotificationIcon = computed(() => {
 
   if (props.notification.data.title.includes('New Order')) return ShoppingCartIcon;
   if (props.notification.data.title.includes('Order Status')) return ExclamationCircleIcon;
+  if (props.notification.data.title.includes('Order Cancelled')) return XMarkIcon;
+  if (props.notification.data.title.includes('New Product Review')) return StarIcon;
+  if (props.notification.data.title.includes('New Contact Message')) return StarIcon;
   return BellIcon;
 });
 
@@ -105,6 +108,9 @@ const getNotificationIconClass = computed(() => {
 
   if (props.notification.data.title.includes('New Order')) return 'bg-blue-500';
   if (props.notification.data.title.includes('Order Status')) return 'bg-yellow-500';
+  if (props.notification.data.title.includes('Order Cancelled')) return 'bg-red-500';
+  if (props.notification.data.title.includes('New Product Review')) return 'bg-purple-500';
+  if (props.notification.data.title.includes('New Contact Message')) return 'bg-green-500';
   return 'bg-gray-500';
 });
 

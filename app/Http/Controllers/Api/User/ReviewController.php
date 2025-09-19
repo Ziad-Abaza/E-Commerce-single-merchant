@@ -4,12 +4,15 @@ namespace App\Http\Controllers\Api\User;
 
 use App\Http\Controllers\Controller;
 use App\Models\Review;
+use App\Models\User;
 use App\Http\Resources\ReviewResource;
 use App\Http\Requests\ReviewStoreRequest;
 use App\Http\Requests\ReviewUpdateRequest;
 use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use App\Events\NewReviewEvent;
 use Illuminate\Support\Facades\DB;
+use App\Notifications\owner\NewReviewNotification;
 
 class ReviewController extends Controller
 {
@@ -127,6 +130,15 @@ class ReviewController extends Controller
                 $code = 201;
 
             DB::commit();
+
+            $owners = User::role('owner')->get();
+            foreach ($owners as $owner) {
+                $owner->notify(new NewReviewNotification($review));
+            }
+
+            // After sending notifications to owners
+            NewReviewEvent::dispatch($review);
+
 
             return response()->json([
                 'success' => true,

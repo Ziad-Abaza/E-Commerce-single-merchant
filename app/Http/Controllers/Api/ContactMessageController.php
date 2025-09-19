@@ -4,14 +4,16 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\ContactMessage;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Str;
+use App\Notifications\owner\NewContactMessageNotification;
+use App\Events\NewContactMessageEvent;
 
 class ContactMessageController extends Controller
 {
-
     /**
      * Store a newly created resource in storage.
      */
@@ -41,6 +43,15 @@ class ContactMessageController extends Controller
             'ip_address' => $request->ip(),
             'status' => 'unread'
         ]);
+
+        // Get all owners and send notification
+        $owners = User::role('owner')->get();
+
+        foreach ($owners as $owner) {
+            $owner->notify(new NewContactMessageNotification($message));
+        }
+        // After sending notifications to owners
+        NewContactMessageEvent::dispatch($message);
 
         return response()->json([
             'message' => 'Contact message submitted successfully',
