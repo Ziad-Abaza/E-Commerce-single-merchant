@@ -24,6 +24,7 @@ class CategoryController extends Controller
             'message' => 'Categories retrieved successfully.',
             'data' => CategoryResource::collection($categories),
             'code' => 200,
+            'success' => true
         ]);
     }
 
@@ -40,6 +41,7 @@ class CategoryController extends Controller
             'message' => 'Category retrieved successfully.',
             'data' => new CategoryResource($category),
             'code' => 200,
+            'success' => true
         ]);
     }
 
@@ -90,6 +92,7 @@ class CategoryController extends Controller
             'category' => new CategoryResource($category),
             'products' => $products,
             'code' => 200,
+            'success' => true
         ]);
     }
 
@@ -108,6 +111,7 @@ class CategoryController extends Controller
             'message' => 'Parent categories retrieved successfully.',
             'data' => CategoryResource::collection($categories),
             'code' => 200,
+            'success' => true
         ]);
     }
 
@@ -117,7 +121,7 @@ class CategoryController extends Controller
     public function subcategories($id): JsonResponse
     {
         $parentCategory = Category::findOrFail($id);
-        
+
         $subcategories = Category::where('is_active', true)
             ->where('parent_id', $id)
             ->withCount('products')
@@ -129,6 +133,7 @@ class CategoryController extends Controller
             'parent_category' => new CategoryResource($parentCategory),
             'data' => CategoryResource::collection($subcategories),
             'code' => 200,
+            'success' => true
         ]);
     }
 
@@ -141,8 +146,8 @@ class CategoryController extends Controller
             ->whereNull('parent_id')
             ->with(['children' => function ($query) {
                 $query->where('is_active', true)
-                      ->withCount('products')
-                      ->orderBy('name');
+                    ->withCount('products')
+                    ->orderBy('name');
             }])
             ->withCount('products')
             ->orderBy('name')
@@ -152,6 +157,7 @@ class CategoryController extends Controller
             'message' => 'Category tree retrieved successfully.',
             'data' => CategoryResource::collection($categories),
             'code' => 200,
+            'success' => true
         ]);
     }
 }

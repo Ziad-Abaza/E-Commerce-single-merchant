@@ -7,6 +7,7 @@
                     class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 dark:border-primary-500"
                 ></div>
             </div>
+
             <!-- Not Found -->
             <div
                 v-else-if="!productStore.currentProduct"
@@ -25,8 +26,10 @@
                     View All Products
                 </router-link>
             </div>
+
             <!-- Product Detail -->
             <div
+                v-else
                 class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden dark:bg-gray-800 dark:border-gray-700"
             >
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 p-6 md:p-8">
@@ -38,7 +41,7 @@
                         >
                             <img
                                 :src="selectedImage || mainImageUrl"
-                                :alt="productStore.currentProduct.name"
+                                :alt="productStore.currentProduct?.name ?? 'Product Image'"
                                 class="w-full h-full object-contain"
                                 @error="handleImageError"
                             />
@@ -67,6 +70,7 @@
                             </button>
                         </div>
                     </div>
+
                     <!-- Product Info -->
                     <div class="space-y-6">
                         <!-- Breadcrumb -->
@@ -84,91 +88,74 @@
                                 >Products</router-link
                             >
                             <span class="mx-2">/</span>
-                            <span class="text-gray-900 dark:text-white">{{
-                                productStore.currentProduct.name
-                            }}</span>
+                            <span class="text-gray-900 dark:text-white">
+                                {{ productStore.currentProduct?.name ?? 'Unknown Product' }}
+                            </span>
                         </nav>
+
                         <!-- Brand & Name -->
                         <div>
                             <p
                                 class="text-sm text-gray-500 uppercase tracking-wide dark:text-gray-400"
                             >
-                                {{ productStore.currentProduct.brand }}
+                                {{ productStore.currentProduct?.brand ?? "Unknown Brand" }}
                             </p>
                             <h1
                                 class="text-2xl md:text-3xl font-bold text-gray-900 mt-1 dark:text-white"
                             >
-                                {{ productStore.currentProduct.name }}
+                                {{ productStore.currentProduct?.name ?? "Unknown Product" }}
                             </h1>
                         </div>
+
                         <!-- Short Description -->
                         <p class="text-gray-600 leading-relaxed dark:text-gray-300">
-                            {{ productStore.currentProduct.short_description }}
+                            {{ productStore.currentProduct?.short_description ?? "No description available." }}
                         </p>
+
                         <!-- Price Section -->
                         <div
                             class="flex flex-col sm:flex-row sm:items-center sm:space-x-4"
                         >
-                            <div class="flex items-baseline space-x-2">
+                            <div class="flex items-baseline space-x-2" v-if="productStore.currentProduct?.final_price">
                                 <span class="text-3xl font-bold text-gray-900 dark:text-white">
                                     {{
                                         formatPrice(
-                                            productStore.currentProduct
-                                                .final_price,
+                                            productStore.currentProduct.final_price,
                                         )
-                                    }} {{ siteStore.settings.currency }}
+                                    }} {{ siteStore.settings?.currency ?? 'USD' }}
                                 </span>
                                 <span
-                                    v-if="
-                                        productStore.currentProduct
-                                            .discount_percentage > 0
-                                    "
+                                    v-if="productStore.currentProduct.discount_percentage > 0"
                                     class="text-xl text-gray-500 line-through dark:text-gray-400"
                                 >
                                     {{
                                         formatPrice(
                                             productStore.currentProduct.price,
                                         )
-                                    }} {{ siteStore.settings.currency }}
+                                    }} {{ siteStore.settings?.currency ?? 'USD' }}
                                 </span>
                             </div>
                             <span
-                                v-if="
-                                    productStore.currentProduct
-                                        .discount_percentage > 0
-                                "
+                                v-if="productStore.currentProduct?.discount_percentage > 0"
                                 class="mt-2 sm:mt-0 inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300"
                             >
-                                Save
-                                {{
-                                    productStore.currentProduct
-                                        .discount_percentage
-                                }}%
+                                Save {{ productStore.currentProduct.discount_percentage }}%
                             </span>
                         </div>
+
                         <!-- Stock Status -->
                         <div class="flex items-center space-x-2">
                             <span
-                                v-if="
-                                    productStore.currentProduct.stock_quantity >
-                                    10
-                                "
+                                v-if="productStore.currentProduct?.stock_quantity > 10"
                                 class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"
                             >
                                 In Stock
                             </span>
                             <span
-                                v-else-if="
-                                    productStore.currentProduct.stock_quantity >
-                                    0
-                                "
+                                v-else-if="productStore.currentProduct?.stock_quantity > 0"
                                 class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300"
                             >
-                                Only
-                                {{
-                                    productStore.currentProduct.stock_quantity
-                                }}
-                                left
+                                Only {{ productStore.currentProduct.stock_quantity }} left
                             </span>
                             <span
                                 v-else
@@ -177,9 +164,10 @@
                                 Out of Stock
                             </span>
                             <span class="text-sm text-gray-500 ml-2 dark:text-gray-400">
-                                SKU: {{ productStore.currentProduct.sku }}
+                                SKU: {{ productStore.currentProduct?.sku ?? 'N/A' }}
                             </span>
                         </div>
+
                         <!-- Quantity Selector -->
                         <div class="flex items-center space-x-4">
                             <label
@@ -231,6 +219,7 @@
                                 </button>
                             </div>
                         </div>
+
                         <!-- Action Buttons -->
                         <div
                             class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4"
@@ -239,8 +228,8 @@
                                 @click="addToCart"
                                 :disabled="
                                     isAddingToCart ||
-                                    productStore.currentProduct
-                                        .stock_quantity === 0
+                                    !productStore.currentProduct ||
+                                    productStore.currentProduct.stock_quantity === 0
                                 "
                                 class="flex-1 bg-primary-600 text-white py-3 px-6 rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center dark:bg-primary-700 dark:hover:bg-primary-800"
                             >
@@ -309,11 +298,10 @@
                                 }}
                             </button>
                         </div>
+
                         <!-- Categories -->
                         <div
-                            v-if="
-                                productStore.currentProduct.categories?.length
-                            "
+                            v-if="productStore.currentProduct?.categories?.length"
                             class="pt-4 border-t border-gray-200 dark:border-gray-700"
                         >
                             <h4 class="text-sm font-medium text-gray-500 mb-2 dark:text-gray-400">
@@ -321,8 +309,7 @@
                             </h4>
                             <div class="flex flex-wrap gap-2">
                                 <span
-                                    v-for="category in productStore
-                                        .currentProduct.categories"
+                                    v-for="category in productStore.currentProduct.categories"
                                     :key="category.id"
                                     class="px-3 py-1 bg-gray-100 text-gray-700 text-xs rounded-full dark:bg-gray-700 dark:text-gray-300"
                                 >
@@ -330,6 +317,7 @@
                                 </span>
                             </div>
                         </div>
+
                         <!-- Specifications -->
                         <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
                             <h4 class="text-sm font-medium text-gray-500 mb-2 dark:text-gray-400">
@@ -338,7 +326,7 @@
                             <dl
                                 class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 text-sm"
                             >
-                                <div v-if="productStore.currentProduct.weight">
+                                <div v-if="productStore.currentProduct?.weight">
                                     <dt class="font-medium text-gray-700 dark:text-gray-300">
                                         Weight
                                     </dt>
@@ -347,27 +335,23 @@
                                     </dd>
                                 </div>
                                 <div
-                                    v-if="
-                                        productStore.currentProduct.dimensions
-                                    "
+                                    v-if="productStore.currentProduct?.dimensions"
                                 >
                                     <dt class="font-medium text-gray-700 dark:text-gray-300">
                                         Dimensions
                                     </dt>
                                     <dd class="text-gray-600 dark:text-gray-400">
-                                        {{
-                                            productStore.currentProduct
-                                                .dimensions
-                                        }}
+                                        {{ productStore.currentProduct.dimensions }}
                                     </dd>
                                 </div>
                             </dl>
                         </div>
                     </div>
                 </div>
+
                 <!-- Full Description -->
                 <div
-                    v-if="productStore.currentProduct.description"
+                    v-if="productStore.currentProduct?.description"
                     class="border-t border-gray-200 p-6 md:p-8 dark:border-gray-700"
                 >
                     <h3 class="text-xl font-semibold text-gray-900 mb-4 dark:text-white">
@@ -382,7 +366,10 @@
                 <!-- Reviews Section -->
                 <div class="border-t border-gray-200 p-6 md:p-8 dark:border-gray-700">
                     <!-- Review List -->
-                    <ReviewList :product-id="productStore.currentProduct.id" />
+                    <ReviewList
+                        v-if="productStore.currentProduct?.id"
+                        :product-id="productStore.currentProduct.id"
+                    />
 
                     <!-- Write Review Button -->
                     <div class="mt-6">
@@ -397,6 +384,7 @@
                     <!-- Review Form (Toggled) -->
                     <div v-if="showReviewForm" class="mt-6">
                         <ReviewForm
+                            v-if="productStore.currentProduct?.id"
                             :product-id="productStore.currentProduct.id"
                             @submitted="handleReviewSubmitted"
                             @cancel="closeReviewForm"
@@ -406,7 +394,7 @@
 
                 <!-- Related Products Slider -->
                 <div
-                    v-if="productStore.currentProduct.related_products?.length"
+                    v-if="productStore.currentProduct?.related_products?.length"
                     class="border-t border-gray-200 p-6 md:p-8 dark:border-gray-700"
                 >
                     <ProductSlider
@@ -426,15 +414,14 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from "vue";
-import { useRoute } from "vue-router";
+import { ref, computed, onMounted, watch, onBeforeUnmount } from "vue";
+import { useRoute, onBeforeRouteUpdate } from "vue-router";
 import { useProductStore } from "../stores/products";
 import { useCartStore } from "../stores/cart";
 import { useWishlistStore } from "../stores/wishlist";
 import { useToast } from "vue-toastification";
 import ProductSlider from "../components/common/ProductSlider.vue";
 import { useSiteStore } from "../stores/site";
-
 import ReviewList from "../components/common/ReviewList.vue";
 import ReviewForm from "../components/common/ReviewForm.vue";
 
@@ -449,16 +436,26 @@ const quantity = ref(1);
 const selectedImage = ref("");
 const isAddingToCart = ref(false);
 const isInWishlist = ref(false);
-
 const showReviewForm = ref(false);
 
-// Computed: Max quantity based on stock
+// Prevent memory leaks or outdated state
+onBeforeUnmount(() => {
+    productStore.resetCurrentProduct(); // إذا كان لديك دالة كهذه في الـ store
+});
+
+// Re-fetch product when route changes (e.g., from /product/1 to /product/2)
+onBeforeRouteUpdate(async (to, from) => {
+    if (to.params.id !== from.params.id) {
+        await fetchProduct(to.params.id);
+    }
+});
+
 const maxQuantity = computed(() => {
     return productStore.currentProduct?.stock_quantity || 0;
 });
 
 const handleImageError = (event) => {
-    const placeholder = "/public/images/placeholder-product.jpg";
+    const placeholder = "/images/placeholder-product.jpg";
     if (event.target.src !== window.location.origin + placeholder) {
         event.target.src = placeholder;
     }
@@ -468,7 +465,7 @@ const handleImageError = (event) => {
 const mainImageUrl = computed(() => {
     return (
         productStore.currentProduct?.main_image_url ||
-        "/public/images/placeholder-product.jpg"
+        "/images/placeholder-product.jpg"
     );
 });
 
@@ -478,7 +475,7 @@ const galleryImages = computed(() => {
     if (images.length > 0) return images;
     return productStore.currentProduct?.main_image_url
         ? [productStore.currentProduct.main_image_url]
-        : ["/public/images/placeholder-product.jpg"];
+        : ["/images/placeholder-product.jpg"];
 });
 
 // Format price to 2 decimals
@@ -492,7 +489,10 @@ const selectImage = (imageUrl) => {
 };
 
 const thumbFallback = (index) => {
-    // You can set a placeholder for thumbnail too if needed
+    const placeholder = "/images/placeholder-product.jpg";
+    return index < galleryImages.value.length
+        ? galleryImages.value[index]
+        : placeholder;
 };
 
 // Quantity controls
@@ -510,15 +510,22 @@ const decreaseQuantity = () => {
 
 // Add to cart
 const addToCart = async () => {
-    if (isAddingToCart.value || !productStore.currentProduct) return;
+    if (
+        isAddingToCart.value ||
+        !productStore.currentProduct ||
+        productStore.currentProduct.stock_quantity === 0
+    ) return;
+
     isAddingToCart.value = true;
     try {
         await cartStore.addToCart(
             productStore.currentProduct.id,
             quantity.value,
         );
+        toast.success("Product added to cart!");
     } catch (error) {
         console.error("Add to cart error:", error);
+        toast.error("Failed to add product to cart");
     } finally {
         isAddingToCart.value = false;
     }
@@ -527,27 +534,37 @@ const addToCart = async () => {
 // Toggle wishlist
 const toggleWishlist = async () => {
     if (!productStore.currentProduct) return;
+
     try {
         if (!wishlistStore.defaultCategory) {
             await wishlistStore.getDefaultCategory();
         }
+
         if (isInWishlist.value) {
             const item = wishlistStore.getItemByProductId(
                 productStore.currentProduct.id,
             );
             if (item) {
                 await wishlistStore.removeFromWishlist(item.id);
+                toast.success("Removed from wishlist");
             }
         } else {
             await wishlistStore.addToWishlist(productStore.currentProduct.id);
+            toast.success("Added to wishlist");
         }
+
         isInWishlist.value = !isInWishlist.value;
     } catch (error) {
+        console.error("Wishlist toggle error:", error);
         toast.error("Failed to update wishlist");
     }
 };
 
 const openReviewForm = () => {
+    if (!productStore.currentProduct) {
+        toast.error("Cannot write review for this product");
+        return;
+    }
     showReviewForm.value = true;
 };
 
@@ -557,28 +574,42 @@ const closeReviewForm = () => {
 
 const handleReviewSubmitted = (newReview) => {
     closeReviewForm();
-    productStore.currentProduct.reviews.push(newReview);
-    // refresh the reviews list
-    productStore.currentProduct.reviews = [
-        ...productStore.currentProduct.reviews,
-    ];
+    if (productStore.currentProduct?.reviews) {
+        productStore.currentProduct.reviews = [
+            ...productStore.currentProduct.reviews,
+            newReview,
+        ];
+    }
 };
 
-// Initialize
+// Fetch product and initialize state
+const fetchProduct = async (id) => {
+    if (!id) return;
+    try {
+        await productStore.getProduct(id);
+        selectedImage.value =
+            galleryImages.value[0] || "/images/placeholder-product.jpg";
+
+        if (wishlistStore.isAuthenticated && productStore.currentProduct) {
+            isInWishlist.value = wishlistStore.isInWishlist(
+                productStore.currentProduct.id,
+            );
+        } else {
+            isInWishlist.value = false;
+        }
+
+        if (!wishlistStore.defaultCategory) {
+            await wishlistStore.createDefaultCategory();
+        }
+    } catch (error) {
+        console.error("Failed to fetch product:", error);
+        // productStore.currentProduct will be null → handled by template
+    }
+};
+
+// Initialize on mount
 onMounted(async () => {
-    const productId = route.params.id;
-    await productStore.getProduct(productId);
-    selectedImage.value =
-        galleryImages.value[0] || "/public/images/placeholder-product.jpg";
-    await wishlistStore.initializeWishlist();
-    if (wishlistStore.isAuthenticated && productStore.currentProduct) {
-        isInWishlist.value = wishlistStore.isInWishlist(
-            productStore.currentProduct.id,
-        );
-    }
-    if (!wishlistStore.defaultCategory) {
-        await wishlistStore.createDefaultCategory();
-    }
+    await fetchProduct(route.params.id);
 });
 
 // Watch for auth changes to update wishlist status
@@ -593,8 +624,10 @@ watch(
             isInWishlist.value = false;
         }
     },
+    { immediate: true }
 );
 </script>
+
 <style scoped>
 .hide-scrollbar {
     -ms-overflow-style: none; /* IE and Edge */

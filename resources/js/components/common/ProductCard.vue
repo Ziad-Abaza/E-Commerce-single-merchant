@@ -1,11 +1,12 @@
 <template>
-  <div class="product-card h-full flex flex-col bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow duration-200 dark:bg-gray-800 dark:border-gray-700 dark:hover:shadow-gray-700/20">
+  <div v-if="product" class="product-card h-full flex flex-col bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow duration-200 dark:bg-gray-800 dark:border-gray-700 dark:hover:shadow-gray-700/20">
     <!-- Product Image -->
     <div class="relative w-full h-48 md:h-56 lg:h-60 bg-gray-100 overflow-hidden dark:bg-gray-700">
-      <router-link :to="`/products/${product.id}`" class="absolute inset-0 z-10" aria-label="View product details"></router-link>
+      <router-link v-if="product.id" :to="`/products/${product.id}`" class="absolute inset-0 z-10" aria-label="View product details"></router-link>
       <img
+        v-if="productImage"
         :src="productImage"
-        :alt="product.name"
+        :alt="product?.name || 'Product Image'"
         class="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
         @error="handleImageError"
       />
@@ -21,12 +22,12 @@
         </svg>
       </button>
       <!-- Sale Badge -->
-      <div v-if="product.discount_percentage > 0" class="absolute top-2 left-2 bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded">
+      <div v-if="product?.discount_percentage > 0" class="absolute top-2 left-2 bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded">
         -{{ product.discount_percentage }}%
       </div>
 
       <!-- Stock Status -->
-      <div v-if="!product.in_stock" class="absolute top-2 left-2 bg-gray-800 text-white text-xs font-semibold px-2 py-1 rounded dark:bg-gray-600">
+      <div v-if="product && !product.in_stock" class="absolute top-2 left-2 bg-gray-800 text-white text-xs font-semibold px-2 py-1 rounded dark:bg-gray-600">
         Out of Stock
       </div>
     </div>
@@ -34,26 +35,26 @@
     <!-- Product Info -->
     <div class="p-4 flex flex-col flex-1">
       <!-- Category -->
-      <span v-if="product.categories?.length" class="text-xs text-gray-500 mb-1 dark:text-gray-400">
-        {{ product.categories[0].name }}
+      <span v-if="firstCategoryName" class="text-xs text-gray-500 mb-1 dark:text-gray-400">
+        {{ firstCategoryName }}
       </span>
 
       <!-- Product Name -->
       <h3 class="text-sm md:text-base font-medium text-gray-900 mb-1 line-clamp-2 dark:text-white">
-        <router-link :to="`/products/${product.id}`" class="hover:text-primary-600 transition-colors dark:hover:text-primary-400">
-          {{ product.name }}
+        <router-link v-if="product.id" :to="`/products/${product.id}`" class="hover:text-primary-600 transition-colors dark:hover:text-primary-400">
+          {{ product?.name || 'No Name' }}
         </router-link>
       </h3>
 
       <!-- Description -->
-      <p v-if="product.description" class="text-xs md:text-sm text-gray-600 mb-2 line-clamp-2 dark:text-gray-300">
-        <router-link :to="`/products/${product.id}`" class="hover:text-primary-600 transition-colors dark:hover:text-primary-400">
-        {{ product.description }}
+      <p v-if="product?.description" class="text-xs md:text-sm text-gray-600 mb-2 line-clamp-2 dark:text-gray-300">
+        <router-link v-if="product.id" :to="`/products/${product.id}`" class="hover:text-primary-600 transition-colors dark:hover:text-primary-400">
+          {{ product.description }}
         </router-link>
       </p>
 
       <!-- Rating -->
-      <div v-if="product.rating > 0" class="flex items-center mb-2">
+      <div v-if="product?.rating > 0" class="flex items-center mb-2">
         <div class="flex items-center">
           <svg
             v-for="star in 5"
@@ -72,17 +73,17 @@
       <!-- Price -->
       <div class="flex items-center justify-between mb-3">
         <div class="flex items-center space-x-2">
-          <span class="text-sm md:text-base font-bold text-gray-900 dark:text-white">{{ product.price }} {{ siteStore.settings.currency }}</span>
-          <span v-if="product.discount_percentage > 0" class="text-xs md:text-sm text-gray-500 line-through dark:text-gray-400">{{ product.original_price }} {{ siteStore.settings.currency }}</span>
+          <span class="text-sm md:text-base font-bold text-gray-900 dark:text-white">{{ product?.price || 0 }} {{ siteStore.settings.currency }}</span>
+          <span v-if="product?.discount_percentage > 0" class="text-xs md:text-sm text-gray-500 line-through dark:text-gray-400">{{ product?.original_price || 0 }} {{ siteStore.settings.currency }}</span>
         </div>
       </div>
 
       <!-- Add to Cart Button -->
       <button
         @click.stop="addToCart"
-        :disabled="cartStore.loading || !product.in_stock"
+        :disabled="cartStore.loading || !product?.in_stock"
         class="mt-auto w-full py-2 px-4 rounded-md transition-colors flex items-center justify-center text-sm md:text-base"
-        :class="product.in_stock ? 'bg-primary-600 text-white hover:bg-primary-700 dark:bg-primary-700 dark:hover:bg-primary-800' : 'bg-gray-300 text-gray-500 cursor-not-allowed dark:bg-gray-600 dark:text-gray-300'"
+        :class="product?.in_stock ? 'bg-primary-600 text-white hover:bg-primary-700 dark:bg-primary-700 dark:hover:bg-primary-800' : 'bg-gray-300 text-gray-500 cursor-not-allowed dark:bg-gray-600 dark:text-gray-300'"
       >
         <svg v-if="cartStore.loading" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -91,7 +92,7 @@
         <svg v-else class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m6-5v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6m8 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v4.01" />
         </svg>
-        {{ cartStore.loading ? 'Adding...' : (product.in_stock ? 'Add to Cart' : 'Out of Stock') }}
+        {{ cartStore.loading ? 'Adding...' : (product?.in_stock ? 'Add to Cart' : 'Out of Stock') }}
       </button>
     </div>
   </div>
@@ -113,16 +114,23 @@ const props = defineProps({
 })
 
 const authStore = useAuthStore()
-const siteStore = useSiteStore();
+const siteStore = useSiteStore()
 const cartStore = useCartStore()
 const wishlistStore = useWishlistStore()
 const toast = useToast()
 
-// Compute product image
+const product = props.product
+
+// Compute product image safely
 const productImage = computed(() => {
-  if (props.product.main_image_url) return props.product.main_image_url
-  if (props.product.gallery_images?.length) return props.product.gallery_images[0]
+  if (product?.main_image_url) return product.main_image_url
+  if (product?.gallery_images?.length) return product.gallery_images[0]
   return '/images/placeholder-product.png'
+})
+
+// First category name safely
+const firstCategoryName = computed(() => {
+  return product?.categories?.[0]?.name || ''
 })
 
 // Handle image load error
@@ -132,13 +140,13 @@ const handleImageError = (event) => {
 
 // Add product to cart
 const addToCart = async () => {
-  if (!props.product.in_stock) {
+  if (!product?.in_stock) {
     toast.warning('This product is currently out of stock')
     return
   }
 
   try {
-     await cartStore.addToCart(props.product.id, 1)
+     await cartStore.addToCart(product.id, 1)
   } catch (error) {
     toast.error('An unexpected error occurred')
   }
@@ -146,10 +154,9 @@ const addToCart = async () => {
 
 // Check if product is in wishlist
 const isInWishlist = computed(() => {
-  if (!authStore.isAuthenticated) return false
-  return wishlistStore.isInWishlist(props.product.id)
+  if (!authStore.isAuthenticated || !product) return false
+  return wishlistStore.isInWishlist(product.id)
 })
-
 
 // Toggle wishlist status
 const toggleWishlist = async () => {
@@ -159,20 +166,17 @@ const toggleWishlist = async () => {
   }
 
   try {
-    // Ensure wishlist is initialized (loads categories and items)
     if (wishlistStore.categories.length === 0) {
       await wishlistStore.initializeWishlist()
     }
 
     if (isInWishlist.value) {
-      // Find the wishlist item ID for this product
-      const item = wishlistStore.getItemByProductId(props.product.id)
+      const item = wishlistStore.getItemByProductId(product.id)
       if (item) {
         await wishlistStore.removeFromWishlist(item.id)
       }
     } else {
-      // Add to wishlist - wishlistStore will handle default category internally
-      await wishlistStore.addToWishlist(props.product.id)
+      await wishlistStore.addToWishlist(product.id)
     }
   } catch (error) {
     console.error('Wishlist toggle error:', error)
@@ -182,7 +186,6 @@ const toggleWishlist = async () => {
 </script>
 
 <style scoped>
-
 .line-clamp-2 {
   display: -webkit-box;
   -webkit-line-clamp: 2;

@@ -8,6 +8,7 @@ use App\Models\ProductDetail;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
+use Carbon\Carbon;
 
 class OrderSeeder extends Seeder
 {
@@ -24,7 +25,7 @@ class OrderSeeder extends Seeder
             return;
         }
 
-        // Create orders for the last 6 months
+        // Create 50 random orders
         for ($i = 0; $i < 50; $i++) {
             $this->createRandomOrder($users, $productDetails);
         }
@@ -33,9 +34,10 @@ class OrderSeeder extends Seeder
     private function createRandomOrder($users, $productDetails): void
     {
         $user = $users->random();
-        $orderDate = now()->subDays(rand(0, 180)); // Random date in last 6 months
 
-        // Generate order number
+        // Random date in last 6 months, formatted for MySQL
+        $orderDate = Carbon::now()->subDays(rand(0, 180))->format('Y-m-d H:i:s');
+
         $orderNumber = 'ORD-' . strtoupper(Str::random(8));
 
         // Create order
@@ -43,11 +45,11 @@ class OrderSeeder extends Seeder
             'user_id' => $user->id,
             'order_number' => $orderNumber,
             'status' => $this->getRandomOrderStatus($orderDate),
-            'tax_amount' => 0, // Will be calculated
+            'tax_amount' => 0, // will update later
             'shipping_amount' => $this->getRandomShippingAmount(),
             'shipping_cost' => $this->getRandomShippingAmount(),
             'discount_amount' => $this->getRandomDiscountAmount(),
-            'total_amount' => 0, // Will be calculated
+            'total_amount' => 0, // will update later
             'currency' => 'USD',
             'shipping_address' => $this->generateShippingAddress(),
             'notes' => $this->getRandomOrderNotes(),
@@ -56,7 +58,7 @@ class OrderSeeder extends Seeder
         ]);
 
         // Create order items
-        $itemCount = rand(1, 5); // 1-5 items per order
+        $itemCount = rand(1, 5);
         $subtotal = 0;
 
         for ($j = 0; $j < $itemCount; $j++) {
@@ -80,35 +82,31 @@ class OrderSeeder extends Seeder
 
         // Calculate totals
         $taxRate = 0.08; // 8% tax
-        $taxAmount = $subtotal * $taxRate;
-        $totalAmount = $subtotal + $taxAmount + $order->shipping_amount - $order->discount_amount;
+        $taxAmount = round($subtotal * $taxRate, 2);
+        $totalAmount = round($subtotal + $taxAmount + $order->shipping_amount - $order->discount_amount, 2);
 
         // Update order with calculated totals
         $order->update([
             'tax_amount' => $taxAmount,
             'total_amount' => $totalAmount,
         ]);
-
-        // Order created successfully
     }
 
     private function getRandomOrderStatus($orderDate): string
     {
-        $daysSinceOrder = now()->diffInDays($orderDate);
+        $daysSinceOrder = Carbon::now()->diffInDays(Carbon::parse($orderDate));
 
-        // Status probabilities based on order age
         if ($daysSinceOrder < 1) {
             return 'pending';
         } elseif ($daysSinceOrder < 3) {
-            return rand(0, 1) ? 'pending' : 'processing';
+            return rand(0, 1) ? 'pending' : 'confirmed';
         } elseif ($daysSinceOrder < 7) {
-            $statuses = ['processing', 'shipped'];
+            $statuses = ['confirmed', 'shipped'];
             return $statuses[array_rand($statuses)];
         } elseif ($daysSinceOrder < 14) {
             $statuses = ['shipped', 'delivered'];
             return $statuses[array_rand($statuses)];
         } else {
-            // Older orders are mostly delivered, some cancelled
             $statuses = ['delivered', 'delivered', 'delivered', 'cancelled'];
             return $statuses[array_rand($statuses)];
         }
@@ -116,9 +114,8 @@ class OrderSeeder extends Seeder
 
     private function getRandomShippingAmount(): float
     {
-        $amounts = [0, 9.99, 14.99, 19.99]; // Free shipping, standard, express, overnight
-        $weights = [40, 30, 20, 10]; // Probability weights
-
+        $amounts = [0, 9.99, 14.99, 19.99];
+        $weights = [40, 30, 20, 10];
         $totalWeight = array_sum($weights);
         $random = rand(1, $totalWeight);
 
@@ -129,17 +126,14 @@ class OrderSeeder extends Seeder
                 return $amount;
             }
         }
-
-        return 9.99; // Default
+        return 9.99;
     }
 
     private function getRandomDiscountAmount(): float
     {
-        // 70% chance of no discount, 30% chance of discount
         if (rand(1, 10) <= 7) {
             return 0;
         }
-
         $discounts = [5.00, 10.00, 15.00, 20.00, 25.00, 50.00];
         return $discounts[array_rand($discounts)];
     }
@@ -167,29 +161,10 @@ class OrderSeeder extends Seeder
         return $addresses[array_rand($addresses)];
     }
 
-    private function generateBillingAddress(): string
-    {
-        // Sometimes billing address is same as shipping
-        if (rand(0, 1)) {
-            return $this->generateShippingAddress();
-        }
-
-        // Different billing address
-        $addresses = [
-            '100 Business Blvd, Suite 200, New York, NY 10002',
-            '200 Corporate Center, Los Angeles, CA 90211',
-            '300 Office Park, Chicago, IL 60602',
-            '400 Executive Plaza, Houston, TX 77002',
-            '500 Commerce Street, Phoenix, AZ 85002',
-        ];
-
-        return $addresses[array_rand($addresses)];
-    }
-
     private function getRandomOrderNotes(): ?string
     {
         $notes = [
-            null, // No notes
+            null,
             'Please leave package at front door',
             'Call before delivery',
             'Leave with neighbor if not home',
@@ -203,6 +178,4 @@ class OrderSeeder extends Seeder
 
         return $notes[array_rand($notes)];
     }
-
-    // Payment-related methods removed as we're not handling payments anymore
 }
