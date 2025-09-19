@@ -414,7 +414,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch, onBeforeUnmount } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import { useRoute, onBeforeRouteUpdate } from "vue-router";
 import { useProductStore } from "../stores/products";
 import { useCartStore } from "../stores/cart";
@@ -437,11 +437,6 @@ const selectedImage = ref("");
 const isAddingToCart = ref(false);
 const isInWishlist = ref(false);
 const showReviewForm = ref(false);
-
-// Prevent memory leaks or outdated state
-onBeforeUnmount(() => {
-    productStore.resetCurrentProduct(); // إذا كان لديك دالة كهذه في الـ store
-});
 
 // Re-fetch product when route changes (e.g., from /product/1 to /product/2)
 onBeforeRouteUpdate(async (to, from) => {
