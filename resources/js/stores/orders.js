@@ -146,19 +146,19 @@ export const useOrderStore = defineStore("orders", {
 
                 const toast = useToast();
                 toast.success("Order created successfully");
-                return { 
-                    success: true, 
+                return {
+                    success: true,
                     data: response.data,
                     order: response.data.data // Return the created order with calculated fields
                 };
             } catch (error) {
-                const errorMessage = error.response?.data?.message || 
-                                  error.response?.data?.errors || 
+                const errorMessage = error.response?.data?.message ||
+                                  error.response?.data?.errors ||
                                   "Failed to create order";
                 this.error = errorMessage;
                 this.handleError(typeof errorMessage === 'string' ? errorMessage : 'Validation error occurred');
-                return { 
-                    success: false, 
+                return {
+                    success: false,
                     error: errorMessage,
                     errors: error.response?.data?.errors
                 };
@@ -190,7 +190,7 @@ export const useOrderStore = defineStore("orders", {
                     notes: orderData.notes,
                     _method: 'PUT' // For Laravel to handle as PUT request
                 };
-                
+
                 // Only include items if they are provided
                 if (orderData.items) {
                     formattedData.items = orderData.items.map(item => ({
@@ -233,9 +233,7 @@ export const useOrderStore = defineStore("orders", {
             this.loading = true;
             this.error = null;
             try {
-                const response = await axios.post(`/orders/${id}`, {
-                    status: "cancelled",
-                });
+                const response = await axios.get(`/orders/${id}/cancel`);
 
                 // Update in orders list
                 const index = this.orders.findIndex((order) => order.id === id);

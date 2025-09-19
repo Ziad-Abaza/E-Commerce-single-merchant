@@ -17,6 +17,8 @@ use Illuminate\Support\Facades\Log;
 use App\Events\NewOrderEvent;
 use App\Notifications\owner\NewOrderNotification;
 use Illuminate\Support\Str;
+use App\Events\OrderCancelledEvent;
+use App\Notifications\owner\OrderCancelledNotification;
 
 class OrderController extends Controller
 {
@@ -246,6 +248,9 @@ class OrderController extends Controller
                 $order->items()->delete();
             }
 
+            // Get order data before deletion for notification
+            $orderData = $order->replicate();
+
             // Delete the order and its media
             $order->delete();
             $order->setReceipt(null);
@@ -253,6 +258,20 @@ class OrderController extends Controller
             $order->setAttachment([]);
 
             DB::commit();
+
+            // Send notification to user that their order was deleted
+            /**
+             * @var \App\Models\User $user
+             */
+            $user = Auth::user();
+            $user->notify(new OrderCancelledNotification(
+                $orderData,
+                'system',
+                'Order was permanently deleted'
+            ));
+
+            // Dispatch broadcast event
+            OrderCancelledEvent::dispatch($orderData, 'system', 'Order was permanently deleted');
 
             return response()->json([
                 'message' => 'Order deleted successfully.',
@@ -271,6 +290,64 @@ class OrderController extends Controller
             DB::rollBack();
             return response()->json([
                 'message' => 'Failed to delete order.',
+                'data' => null,
+                'errors' => ['server' => [$e->getMessage()]],
+                'code' => 500,
+            ], 500);
+        }
+    }
+
+    public function markAsCancelled($id)
+    {
+        try {
+            $order = Order::where('user_id', Auth::id())->findOrFail($id);
+
+            if (!$order->canBeCancelled()) {
+                return response()->json([
+                    'message' => 'Order cannot be cancelled.',
+                    'data' => null,
+                    'errors' => ['order' => ['Order status does not allow cancellation.']],
+                    'code' => 400,
+                ], 400);
+            }
+
+            DB::beginTransaction();
+
+            $order->markAsCancelled();
+
+            DB::commit();
+
+            // Send notification to user that their order was cancelled
+            /**
+             * @var \App\Models\User $user
+             */
+            $user = Auth::user();
+            $user->notify(new OrderCancelledNotification(
+                $order,
+                'customer',
+                'You cancelled this order'
+            ));
+
+            // Dispatch broadcast event
+            OrderCancelledEvent::dispatch($order, 'customer', 'You cancelled this order');
+
+            return response()->json([
+                'message' => 'Order cancelled successfully.',
+                'data' => new OrderResource($order->fresh(['user', 'items.product'])),
+                'errors' => null,
+                'code' => 200,
+            ], 200);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'message' => 'Order not found.',
+                'data' => null,
+                'errors' => ['order' => ['Order could not be found.']],
+                'code' => 404,
+            ], 404);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'message' => 'Failed to cancel order.',
                 'data' => null,
                 'errors' => ['server' => [$e->getMessage()]],
                 'code' => 500,
@@ -310,45 +387,6 @@ class OrderController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Failed to mark order as delivered.',
-                'data' => null,
-                'errors' => ['server' => [$e->getMessage()]],
-                'code' => 500,
-            ], 500);
-        }
-    }
-
-    public function markAsCancelled($id)
-    {
-        try {
-            $order = Order::where('user_id', Auth::id())->findOrFail($id);
-
-            if (!$order->canBeCancelled()) {
-                return response()->json([
-                    'message' => 'Order cannot be cancelled.',
-                    'data' => null,
-                    'errors' => ['order' => ['Order status does not allow cancellation.']],
-                    'code' => 400,
-                ], 400);
-            }
-
-            $order->markAsCancelled();
-
-            return response()->json([
-                'message' => 'Order cancelled successfully.',
-                'data' => new OrderResource($order->fresh(['user', 'items.product'])),
-                'errors' => null,
-                'code' => 200,
-            ], 200);
-        } catch (ModelNotFoundException $e) {
-            return response()->json([
-                'message' => 'Order not found.',
-                'data' => null,
-                'errors' => ['order' => ['Order could not be found.']],
-                'code' => 404,
-            ], 404);
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Failed to cancel order.',
                 'data' => null,
                 'errors' => ['server' => [$e->getMessage()]],
                 'code' => 500,
