@@ -7,7 +7,7 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\ProductDetail;
 use App\Http\Resources\OrderResource;
-use App\Notifications\OrderStatusUpdatedNotification;
+use App\Notifications\customer\OrderStatusUpdatedNotification;
 use App\Events\OrderStatusUpdatedEvent;
 use App\Http\Requests\OrderUpdateRequest;
 use Illuminate\Http\Request;

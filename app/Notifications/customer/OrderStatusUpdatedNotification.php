@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Notifications;
+namespace App\Notifications\customer;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
@@ -8,6 +8,7 @@ use Illuminate\Notifications\Messages\BroadcastMessage;
 use NotificationChannels\WebPush\WebPushMessage;
 use NotificationChannels\WebPush\WebPushChannel;
 use App\Models\Order;
+use Illuminate\Notifications\Channels\DatabaseChannel;
 
 class OrderStatusUpdatedNotification extends Notification
 {
@@ -26,9 +27,8 @@ class OrderStatusUpdatedNotification extends Notification
 
     public function via($notifiable)
     {
-        return [WebPushChannel::class];
+        return [DatabaseChannel::class, WebPushChannel::class];
     }
-
     public function toBroadcast($notifiable)
     {
         return new BroadcastMessage([
@@ -44,5 +44,18 @@ class OrderStatusUpdatedNotification extends Notification
             ->title('Order Status Updated')
             ->body("Your order status has changed from '{$this->oldStatus}' to '{$this->order->status}'" . ($this->notes ? " - Note: {$this->notes}" : ""))
             ->action('View Order', route('orders.show', $this->order->id));
+    }
+
+    public function toDatabase($notifiable)
+    {
+        return [
+            'title' => 'Order Status Updated',
+            'body' => "Your order status has changed from '{$this->oldStatus}' to '{$this->order->status}'" . ($this->notes ? " - Note: {$this->notes}" : ""),
+            'url' => route('orders.show', $this->order->id),
+            'order_id' => $this->order->id,
+            'type' => 'order_status_update',
+            'old_status' => $this->oldStatus,
+            'new_status' => $this->order->status,
+        ];
     }
 }

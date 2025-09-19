@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use App\Events\NewOrderEvent;
-use App\Notifications\NewOrderNotification;
+use App\Notifications\owner\NewOrderNotification;
 use Illuminate\Support\Str;
 
 class OrderController extends Controller

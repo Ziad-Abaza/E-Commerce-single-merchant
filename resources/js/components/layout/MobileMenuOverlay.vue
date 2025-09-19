@@ -341,6 +341,37 @@
                                     Profile
                                 </router-link>
                             </li>
+
+                            <!-- Notifications Link for Mobile -->
+                            <li>
+                                <router-link
+                                    to="/notifications"
+                                    @click="$emit('close')"
+                                    class="flex items-center px-3 py-2 text-gray-700 hover:text-primary-600 hover:bg-primary-50 rounded-md transition-colors dark:text-gray-400 dark:hover:text-primary-400 dark:hover:bg-gray-700"
+                                    :class="{
+                                        'text-primary-600 bg-primary-50 dark:text-primary-400 dark:bg-gray-700':
+                                            $route.path === '/notifications',
+                                    }"
+                                >
+                                    <svg
+                                        class="h-5 w-5 mr-3"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="2"
+                                            d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+                                        />
+                                    </svg>
+                                    <span>Notifications</span>
+                                    <span v-if="unreadCount > 0" class="ml-auto inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-red-500 rounded-full">
+                                        {{ unreadCount > 9 ? '9+' : unreadCount }}
+                                    </span>
+                                </router-link>
+                            </li>
                         </template>
                     </ul>
                 </nav>
@@ -419,11 +450,12 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, onMounted, onUnmounted } from "vue";
 import { useAuthStore } from "../../stores/auth";
 import { useSiteStore } from "../../stores/site";
 import { useCartStore } from "../../stores/cart";
 import { useProductStore } from "../../stores/products";
+import { useNotificationStore } from "../../stores/notification";
 import SearchBar from "../common/SearchBar.vue";
 import ThemeToggle from "../common/ThemeToggle.vue";
 
@@ -433,8 +465,10 @@ const authStore = useAuthStore();
 const cartStore = useCartStore();
 const siteStore = useSiteStore();
 const productStore = useProductStore();
+const notificationStore = useNotificationStore();
 
 const isAuthenticated = computed(() => authStore.isAuthenticated);
+const unreadCount = computed(() => notificationStore.unreadCount || 0);
 
 const showCategories = ref(false);
 const categories = computed(() => productStore.categories);
@@ -453,4 +487,22 @@ const logout = async () => {
         console.error("Logout failed:", error);
     }
 };
+
+// Fetch notifications count when component mounts
+onMounted(async () => {
+    if (isAuthenticated.value) {
+        try {
+            await notificationStore.fetchUnreadCount();
+            // Start polling for notifications
+            notificationStore.startPolling(300000); // Poll every 5 minutes
+        } catch (error) {
+            console.error("Error fetching notifications:", error);
+        }
+    }
+});
+
+// Clean up polling when component unmounts
+onUnmounted(() => {
+    notificationStore.stopPolling();
+});
 </script>

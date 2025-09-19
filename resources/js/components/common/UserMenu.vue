@@ -102,6 +102,21 @@
               </svg>
               Wishlist
             </router-link>
+
+            <!-- Notifications Link -->
+            <router-link
+              to="/notifications"
+              @click="closeMenu"
+              class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+            >
+              <svg class="h-4 w-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+              </svg>
+              <span>Notifications</span>
+              <span v-if="unreadCount > 0" class="ml-auto inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-red-500 rounded-full">
+                {{ unreadCount > 9 ? '9+' : unreadCount }}
+              </span>
+            </router-link>
           </div>
 
           <!-- Divider -->
@@ -143,13 +158,15 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, onBeforeMount, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
+import { useNotificationStore } from '../../stores/notification'
 import { useToast } from 'vue-toastification'
 
 const router = useRouter()
 const authStore = useAuthStore()
+const notificationStore = useNotificationStore()
 const toast = useToast()
 
 const menuRef = ref(null)
@@ -165,12 +182,28 @@ const userInitials = computed(() => {
   return names[0][0].toUpperCase()
 })
 
+// Get unread notifications count
+const unreadCount = computed(() => notificationStore.unreadCount || 0)
+
 const toggleMenu = () => {
   isOpen.value = !isOpen.value
+
+  // Fetch notifications when menu opens
+  if (isOpen.value) {
+    fetchNotifications()
+  }
 }
 
 const closeMenu = () => {
   isOpen.value = false
+}
+
+const fetchNotifications = async () => {
+  try {
+    await notificationStore.fetchUnreadCount()
+  } catch (error) {
+    console.error('Error fetching notifications count:', error)
+  }
 }
 
 const handleSettings = () => {
@@ -198,8 +231,19 @@ const handleClickOutside = (event) => {
   }
 }
 
+// Initialize polling for notifications
+onBeforeMount(() => {
+  notificationStore.startPolling(300000) // Poll every 5 minutes
+})
+
+onBeforeUnmount(() => {
+  notificationStore.stopPolling()
+})
+
 onMounted(() => {
   document.addEventListener('click', handleClickOutside)
+  // Initial fetch
+  fetchNotifications()
 })
 
 onUnmounted(() => {

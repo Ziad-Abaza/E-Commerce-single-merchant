@@ -135,6 +135,8 @@
                         </span>
                     </router-link>
 
+                    <!-- <NotificationDropdown v-if="isAuthenticated" class="hidden md:block" /> -->
+
                     <!-- User Menu (hidden on mobile - moved to sidebar) -->
                     <UserMenu v-if="isAuthenticated" class="hidden md:block" />
 
@@ -188,6 +190,7 @@ import CategoriesDropdown from "../common/CategoriesDropdown.vue";
 import SearchBar from "../common/SearchBar.vue";
 import UserMenu from "../common/UserMenu.vue";
 import ThemeToggle from "../common/ThemeToggle.vue";
+import NotificationDropdown from "../common/NotificationDropdown.vue";
 
 const siteStore = useSiteStore();
 const authStore = useAuthStore();

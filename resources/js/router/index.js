@@ -30,6 +30,7 @@ import VerifyEmail from "../pages/auth/VerifyEmail.vue";
 import ReSendVerifyEmail from "../pages/auth/VerifyRequired.vue";
 import ForgotPassword from "../pages/auth/ForgotPassword.vue";
 import ResetPassword from "../pages/auth/ResetPassword.vue";
+import Notification from "../pages/Notification.vue";
 
 // Import dashboard router
 import dashboardRouter from "./dashboard";
@@ -82,6 +83,12 @@ const routes = [
             },
             { path: "/about", name: "about", component: About },
             { path: "/contact", name: "contact", component: Contact },
+            {
+                path: "/notifications",
+                name: "notifications",
+                component: Notification,
+                meta: { requiresAuth: true },
+            },
         ],
     },
     {

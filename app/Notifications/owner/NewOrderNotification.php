@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Notifications;
+namespace App\Notifications\owner;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 use Illuminate\Notifications\Messages\BroadcastMessage;
 use NotificationChannels\WebPush\WebPushChannel;
 use NotificationChannels\WebPush\WebPushMessage;
-//  Log
+use Illuminate\Notifications\Channels\DatabaseChannel;
 use Illuminate\Support\Facades\Log;
 
 class NewOrderNotification extends Notification
@@ -29,9 +29,8 @@ class NewOrderNotification extends Notification
      */
     public function via($notifiable)
     {
-        return [WebPushChannel::class];
+        return [DatabaseChannel::class, WebPushChannel::class];
     }
-
 
     /**
      * Get the broadcast representation of the notification.
@@ -59,5 +58,16 @@ class NewOrderNotification extends Notification
             ->title('New Order Received')
             ->body('Order #' . $this->order->id . ' has been placed.')
             ->action('View Order', route('orders.show', $this->order->id));
+    }
+
+    public function toDatabase($notifiable)
+    {
+        return [
+            'title' => 'New Order Received',
+            'body' => 'Order #' . $this->order->id . ' has been placed.',
+            'url' => route('orders.show', $this->order->id),
+            'order_id' => $this->order->id,
+            'type' => 'new_order',
+        ];
     }
 }

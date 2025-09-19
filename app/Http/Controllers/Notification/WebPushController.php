@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Notification;
 
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 use NotificationChannels\WebPush\PushSubscription;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
