@@ -3,6 +3,7 @@
     <router-view />
     <MobileMenuOverlay v-if="showMobileMenu" @close="closeMobileMenu" />
     <LoadingOverlay v-if="isLoading" />
+    <WhatsAppChat v-if="!$route.path.startsWith('/dashboard')"/>
   </div>
 </template>
 
@@ -14,6 +15,7 @@ import { useSiteStore } from './stores/site'
 import { useCartStore } from './stores/cart'
 import LoadingOverlay from './components/LoadingOverlay.vue'
 import MobileMenuOverlay from './components/layout/MobileMenuOverlay.vue'
+import WhatsAppChat from './components/WhatsAppChat.vue'
 import { useTheme } from './composables/useTheme.js'
 
 const authStore = useAuthStore()

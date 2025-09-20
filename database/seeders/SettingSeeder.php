@@ -93,6 +93,18 @@ class SettingSeeder extends Seeder
                 'is_protected' => true,
                 'sort_order' => 3,
             ],
+            [
+                'key' => 'whatsapp_welcome_message',
+                'value' => 'Welcome to our store! We are happy to serve you.',
+                'type' => 'textarea',
+                'group' => 'general',
+                'label' => 'WhatsApp Welcome Message',
+                'description' => 'This message will be displayed as a welcome note to customers',
+                'is_public' => true,
+                'is_protected' => false,
+                'sort_order' => 6,
+            ],
+
             // Order Settings
             [
                 'key' => 'currency',
