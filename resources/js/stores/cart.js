@@ -77,6 +77,7 @@ export const useCartStore = defineStore('cart', {
         async addToCart(productDetailId, quantity = 1) {
             this.loading = true
             this.error = null
+            console.log(productDetailId, quantity);
             try {
                 const authStore = useAuthStore()
                 const response = await axios.post('/carts', {

@@ -112,8 +112,6 @@ class CartController extends Controller
      */
     public function store(CartStoreRequest $request)
     {
-        Log::info('CartController@store request:', $request->all());
-        Log::info('CartController@store user:', ['id' => Auth::id()]);
         try {
             $data = $request->validated();
             $userId = Auth::id();
