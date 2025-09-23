@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Str;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class Product extends Model
@@ -35,6 +36,18 @@ class Product extends Model
         'is_active' => 'boolean',
     ];
 
+    protected static function booted()
+    {
+        static::creating(function ($product) {
+            $product->slug = Str::slug($product->name);
+        });
+
+        static::updating(function ($product) {
+            if ($product->isDirty('name')) {
+                $product->slug = Str::slug($product->name);
+            }
+        });
+    }
     /**
      * Get the categories that belong to this product.
      */
