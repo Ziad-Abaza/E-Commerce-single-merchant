@@ -25,7 +25,7 @@ class NewReviewEvent implements ShouldBroadcast
     public function broadcastOn()
     {
         // Broadcast to a private channel for owners
-        return new PrivateChannel('reviews.owner');
+        return [new PrivateChannel('reviews.owner')];
     }
 
     public function broadcastWith()

@@ -107,7 +107,7 @@ export const useReviewStore = defineStore("reviews", {
 
             try {
                 const response = await axios.post(
-                    `/reviews/${reviewId}`,
+                    `/reviews/review/${reviewId}`,
                     reviewData,
                 );
                 // Find and update the review in state
@@ -134,7 +134,7 @@ export const useReviewStore = defineStore("reviews", {
             this.error = null;
 
             try {
-                await axios.delete(`/reviews/${reviewId}`);
+                await axios.delete(`/reviews/review/${reviewId}`);
                 // Remove from state
                 this.reviews = this.reviews.filter((r) => r.id !== reviewId);
                 return { success: true };
