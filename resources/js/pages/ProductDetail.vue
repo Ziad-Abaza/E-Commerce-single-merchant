@@ -536,6 +536,7 @@ const selectedImage = ref("");
 const isAddingToCart = ref(false);
 const isInWishlist = ref(false);
 const showReviewForm = ref(false);
+const selectedDetailId = ref(null);
 
 // Re-fetch product when route changes (e.g., from /product/1 to /product/2)
 onBeforeRouteUpdate(async (to, from) => {
@@ -545,7 +546,8 @@ onBeforeRouteUpdate(async (to, from) => {
 });
 
 const maxQuantity = computed(() => {
-    return productStore.currentProduct?.stock_quantity || 0;
+    const detail = productStore.currentProduct?.details?.find(d => d.id === selectedDetailId.value);
+    return detail?.stock_quantity || 0;
 });
 
 const handleImageError = (event) => {
@@ -606,21 +608,24 @@ const decreaseQuantity = () => {
 const addToCart = async () => {
     if (
         isAddingToCart.value ||
-        !productStore.currentProduct ||
-        productStore.currentProduct.stock_quantity === 0
+        !selectedDetailId.value || // Check if a detail is selected
+        maxQuantity.value === 0
     )
         return;
 
     isAddingToCart.value = true;
     try {
+        // Use the selectedDetailId.value instead of the parent product ID
         await cartStore.addToCart(
-            productStore.currentProduct.id,
+            selectedDetailId.value,
             quantity.value,
         );
         toast.success("Product added to cart!");
     } catch (error) {
         console.error("Add to cart error:", error);
-        toast.error("Failed to add product to cart");
+        // The error message from the backend will be more specific now if needed
+        const message = error.response?.data?.message || "Failed to add product to cart";
+        toast.error(message);
     } finally {
         isAddingToCart.value = false;
     }
@@ -692,6 +697,16 @@ const fetchProduct = async (id) => {
     if (!id) return;
     try {
         await productStore.getProduct(id);
+        
+        // --- This is the key part ---
+        // If the product has details, automatically select the first one.
+        if (productStore.currentProduct && productStore.currentProduct.details?.length > 0) {
+            selectedDetailId.value = productStore.currentProduct.details[0].id;
+        } else {
+            // Handle cases where a product might not have any details
+            selectedDetailId.value = null; 
+        }
+
         selectedImage.value =
             galleryImages.value[0] || "/images/placeholder-product.jpg";
 
@@ -703,12 +718,8 @@ const fetchProduct = async (id) => {
             isInWishlist.value = false;
         }
 
-        if (!wishlistStore.defaultCategory) {
-            await wishlistStore.createDefaultCategory();
-        }
     } catch (error) {
         console.error("Failed to fetch product:", error);
-        // productStore.currentProduct will be null → handled by template
     }
 };
 
