@@ -177,10 +177,15 @@ class ProductController extends Controller
      * @param Request $request
      * @return JsonResponse
      */
+    // In app/Http/Controllers/Api/Public/ProductController.php
+
     public function show(Request $request, $id): JsonResponse
     {
-        // Build the base query for active products
-        $query = Product::where('is_active', true);
+        // =================================================================
+        // STEP 1: ADD THE FIX HERE
+        // =================================================================
+        $query = Product::where('is_active', true)
+            ->whereNull('deleted_at'); // <-- ADD THIS LINE
 
         // Always load essential relations
         $product = $query->with(['categories', 'details'])->findOrFail($id);
@@ -191,9 +196,12 @@ class ProductController extends Controller
             ->map(fn($word) => "name LIKE '%" . addslashes($word) . "%'")
             ->implode(' OR ');
 
-        // Always fetch related products (by shared categories)
+        // =================================================================
+        // STEP 2: ADD THE SAME FIX TO THE RELATED PRODUCTS QUERY
+        // =================================================================
         $relatedProducts = Product::with(['categories', 'details'])
             ->where('is_active', true)
+            ->whereNull('deleted_at') // <-- ADD THIS LINE HERE AS WELL
             ->where('id', '!=', $id)
             ->when($product->categories->isNotEmpty(), function ($q) use ($product) {
                 $q->whereHas('categories', function ($subQuery) use ($product) {
