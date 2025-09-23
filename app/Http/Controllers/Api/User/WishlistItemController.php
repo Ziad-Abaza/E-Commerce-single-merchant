@@ -33,6 +33,7 @@ class WishlistItemController extends Controller
             }
 
             $query = WishlistItem::with(['category.user', 'product'])
+                ->whereHas('product') // Add this line
                 ->whereHas('category', function ($q) use ($userId) {
                     $q->where('user_id', $userId);
                 });
