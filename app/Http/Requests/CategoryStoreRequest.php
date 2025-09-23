@@ -23,7 +23,7 @@ class CategoryStoreRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255',
-            'slug' => 'required|string|max:255|unique:categories,slug',
+            'slug' => 'string|max:255|unique:categories,slug',
             'parent_id' => 'nullable|exists:categories,id',
             'description' => 'nullable|string',
             'is_active' => 'boolean',

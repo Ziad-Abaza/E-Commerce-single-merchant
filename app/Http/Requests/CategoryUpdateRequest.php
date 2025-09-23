@@ -25,7 +25,7 @@ class CategoryUpdateRequest extends FormRequest
         
         return [
             'name' => 'sometimes|required|string|max:255',
-            'slug' => 'sometimes|required|string|max:255|unique:categories,slug,' . $categoryId,
+            'slug' => 'required|string|max:255|unique:categories,slug,' . $categoryId,
             'parent_id' => 'nullable|exists:categories,id',
             'description' => 'nullable|string',
             'is_active' => 'nullable|boolean',

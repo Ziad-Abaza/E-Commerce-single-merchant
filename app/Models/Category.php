@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
+use Illuminate\Support\Str;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class Category extends Model implements HasMedia
@@ -37,9 +38,29 @@ class Category extends Model implements HasMedia
         'sort_order' => 'integer',
     ];
 
+      /**
+     * The "booted" method of the model.
+     * Automatically handles slug generation.
+     *
+     * @return void
+     */
+    protected static function booted()
+    {
+        static::creating(function ($category) {
+            $category->slug = Str::slug($category->name);
+        });
+
+        static::updating(function ($category) {
+            if ($category->isDirty('name')) {
+                $category->slug = Str::slug($category->name);
+            }
+        });
+    }
+
     /**
      * Register media collections for the model.
      */
+    
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection('thumbnail')
