@@ -1,0 +1,125 @@
+<?php
+
+namespace App\Http\Controllers\Api\User;
+
+use App\Http\Controllers\Controller;
+use App\Models\Cart;
+use App\Models\PromoCode;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+
+class PromoCodeController extends Controller
+{
+    /**
+     * Validate a promo code and return its details.
+     *
+     * @param string $code
+     * @return JsonResponse
+     */
+    public function show(string $code): JsonResponse
+    {
+        $promoCode = PromoCode::where('code', strtoupper($code))->first();
+
+        if (!$promoCode) {
+            return response()->json(['message' => 'Invalid promo code.'], 404);
+        }
+
+        // Check if the promo code is active and valid
+        if (
+            !$promoCode->is_active ||
+            ($promoCode->start_date && $promoCode->start_date->isFuture()) ||
+            ($promoCode->end_date && $promoCode->end_date->isPast()) ||
+            ($promoCode->usage_limit && $promoCode->usage_count >= $promoCode->usage_limit)
+        ) {
+            return response()->json(['message' => 'This promo code is expired or invalid.'], 422);
+        }
+
+        // Return public-safe data
+        return response()->json([
+            'message' => 'Promo code is valid.',
+            'data' => [
+                'code' => $promoCode->code,
+                'type' => $promoCode->type,
+                'value' => $promoCode->value,
+                'product_id' => $promoCode->product_id,
+            ]
+        ]);
+    }
+
+    /**
+     * Apply a promo code to the user's cart.
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function apply(Request $request): JsonResponse
+    {
+        $request->validate(['code' => 'required|string']);
+
+        $user = Auth::user();
+        $promoCode = PromoCode::where('code', strtoupper($request->code))->first();
+        // CORRECTED: Fetch all cart items for the user, not a single record.
+        $cartItems = Cart::with('productDetail.product')->where('user_id', $user->id)->get();
+
+        // 1. Basic validation
+        if (!$promoCode) {
+            return response()->json(['message' => 'Invalid promo code.'], 404);
+        }
+        if ($cartItems->isEmpty()) {
+            return response()->json(['message' => 'Your cart is empty.'], 422);
+        }
+
+        // 2. Check if the promo code is active and valid
+        if (
+            !$promoCode->is_active ||
+            ($promoCode->start_date && $promoCode->start_date->isFuture()) ||
+            ($promoCode->end_date && $promoCode->end_date->isPast()) ||
+            ($promoCode->usage_limit && $promoCode->usage_count >= $promoCode->usage_limit)
+        ) {
+            return response()->json(['message' => 'This promo code is expired or invalid.'], 422);
+        }
+
+        // 3. CORRECTED: Check if the promo code is applicable to any item in the cart collection
+        $applicableItem = $cartItems->firstWhere('productDetail.product.id', $promoCode->product_id);
+
+        if (!$applicableItem) {
+            return response()->json(['message' => 'This code is not valid for any items in your cart.'], 422);
+        }
+
+        // 4. Calculate discount based on the first applicable item
+        $discountValue = 0;
+        $itemPrice = $applicableItem->productDetail->final_price;
+        $itemQuantity = $applicableItem->quantity;
+
+        if ($promoCode->type === 'percentage') {
+            $discountValue = ($itemPrice * $itemQuantity) * ($promoCode->value / 100);
+        } else { // 'fixed'
+            $discountValue = min($promoCode->value, $itemPrice * $itemQuantity);
+        }
+
+        // 5. Save the promo code and discount to the user's session
+        session([
+            'promo_code' => $promoCode->code,
+            'discount' => round($discountValue, 2)
+        ]);
+
+        return response()->json([
+            'message' => 'Promo code applied successfully!',
+            'discount' => session('discount'),
+            'promo_code' => session('promo_code'),
+        ]);
+    }
+
+    /**
+     * Remove the promo code from the user's session.
+     *
+     * @return JsonResponse
+     */
+    public function remove(): JsonResponse
+    {
+        session()->forget(['promo_code', 'discount']);
+        return response()->json(['message' => 'Promo code removed.']);
+    }
+}
+
