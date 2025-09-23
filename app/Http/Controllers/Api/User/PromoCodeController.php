@@ -122,4 +122,3 @@ class PromoCodeController extends Controller
         return response()->json(['message' => 'Promo code removed.']);
     }
 }
-

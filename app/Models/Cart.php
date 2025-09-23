@@ -96,4 +96,9 @@ class Cart extends Model implements HasMedia
     {
         return $this->productDetail->discount_percentage;
     }
+
+    public function items()
+    {
+        return $this->hasMany(Cart::class, 'user_id', 'user_id');
+    }
 }

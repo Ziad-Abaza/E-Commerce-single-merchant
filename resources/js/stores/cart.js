@@ -87,8 +87,10 @@ export const useCartStore = defineStore('cart', {
                 await this.loadCart()
                 const toast = useToast()
                 toast.success('Product added to cart!')
+                console.log(response)
                 return { success: true, data: response.data }
             } catch (error) {
+                console.log(error)
                 this.error = error.response?.data?.message || 'Failed to add to cart'
                 this.handleError(this.error)
                 return { success: false, error: this.error }

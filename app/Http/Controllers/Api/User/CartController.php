@@ -112,9 +112,24 @@ class CartController extends Controller
      */
     public function store(CartStoreRequest $request)
     {
+        Log::info('CartController@store request:', $request->all());
+        Log::info('CartController@store user:', ['id' => Auth::id()]);
         try {
             $data = $request->validated();
-            $userId = Auth::id() ?? $data['user_id'];
+            $userId = Auth::id();
+            
+            if (!$userId && isset($data['user_id'])) {
+                $userId = $data['user_id'];
+            }
+            
+            if (!$userId) {
+                return response()->json([
+                    'message' => 'User not authenticated',
+                    'data' => null,
+                    'errors' => ['auth' => ['User must be logged in']],
+                    'code' => 401,
+                ], 401);
+            }
 
             DB::beginTransaction();
 
