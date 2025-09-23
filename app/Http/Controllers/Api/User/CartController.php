@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Log;
+use App\Models\ProductDetail; 
 
 class CartController extends Controller
 {
@@ -115,19 +116,33 @@ class CartController extends Controller
         try {
             $data = $request->validated();
             $userId = Auth::id();
-            
+
             if (!$userId && isset($data['user_id'])) {
                 $userId = $data['user_id'];
             }
-            
+
             if (!$userId) {
                 return response()->json([
                     'message' => 'User not authenticated',
-                    'data' => null,
                     'errors' => ['auth' => ['User must be logged in']],
-                    'code' => 401,
                 ], 401);
             }
+
+            // =================================================================
+            // NEW: Add this validation block to check the product's existence
+            // =================================================================
+            $productDetail = ProductDetail::with('product')->find($data['product_detail_id']);
+
+            if (!$productDetail || !$productDetail->product || $productDetail->product->deleted_at) {
+                return response()->json([
+                    'message' => 'The selected product is no longer available.',
+                    'errors' => ['product' => ['Product not found or has been removed.']],
+                ], 404); // 404 Not Found is a suitable error here
+            }
+            // =================================================================
+            // End of new validation block
+            // =================================================================
+
 
             DB::beginTransaction();
 
@@ -148,23 +163,21 @@ class CartController extends Controller
             }
 
             $cartItem->load('productDetail.product');
-            $cartItem->total_price = $cartItem->productDetail->final_price * $cartItem->quantity;
+            // This line is now safe because we validated the product above
+            $cartItem->total_price = $cartItem->productDetail->final_price * $cartItem->quantity; 
 
             DB::commit();
 
             return response()->json([
                 'message' => 'Cart item added/updated successfully.',
                 'data' => new CartResource($cartItem),
-                'errors' => null,
-                'code' => 201,
             ], 201);
+
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json([
                 'message' => 'Failed to add item to cart.',
-                'data' => null,
                 'errors' => ['server' => [$e->getMessage()]],
-                'code' => 500,
             ], 500);
         }
     }
