@@ -35,6 +35,8 @@ class ProductResource extends JsonResource
             'categories' => CategoryResource::collection($this->whenLoaded('categories')),
             'in_stock' => $this->details->sum('stock') > 0,
             'stock_quantity' => $this->details->sum('stock') ?? 0,
+            'details' => ProductDetailResource::collection($this->whenLoaded('details')),
+            'reviews' => ReviewResource::collection($this->whenLoaded('reviews')),
         ];
     }
 

@@ -145,9 +145,12 @@ const addToCart = async () => {
     toast.warning('This product is currently out of stock')
     return
   }
-
+  else if (product.details && product.details.length > 1) {
+    toast.warning('This product has more options. Please view the product details page to select options.')
+    return
+}
   try {
-     await cartStore.addToCart(product.id, 1)
+     await cartStore.addToCart(product.details[0].id, 1)
   } catch (error) {
     toast.error('An unexpected error occurred')
   }

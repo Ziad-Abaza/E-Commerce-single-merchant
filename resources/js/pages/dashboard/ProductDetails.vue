@@ -476,7 +476,7 @@ const hasActiveFilters = computed(() => {
 });
 
 const product = computed(() => productDetailsStore.product);
-
+console.log(productDetailsStore.details)
 const tableRows = computed(() => {
     return productDetailsStore.details.map((detail) => ({
         id: detail.id,

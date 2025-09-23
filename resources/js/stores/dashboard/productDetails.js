@@ -60,6 +60,8 @@ export const useProductDetailsStore = defineStore("dashboardProductDetails", {
                 );
 
                 this.details = response.data.data || [];
+                console.log(this.details);
+                console.log(response.data);
                 this.pagination = {
                     current_page: response.data.pagination.current_page,
                     per_page: response.data.pagination.per_page,

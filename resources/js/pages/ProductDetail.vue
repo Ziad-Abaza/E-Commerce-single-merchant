@@ -58,7 +58,7 @@
                                 class="hover:text-gray-700 dark:hover:text-gray-300">Products</router-link>
                             <span class="mx-2">/</span>
                             <span class="text-gray-900 dark:text-white">
-                                {{
+                                {{ 
                                     productStore.currentProduct?.name ??
                                     "Unknown Product"
                                 }}
@@ -68,13 +68,13 @@
                         <!-- Brand & Name -->
                         <div>
                             <p class="text-sm text-gray-500 uppercase tracking-wide dark:text-gray-400">
-                                {{
+                                {{ 
                                     productStore.currentProduct?.brand ??
                                     "Unknown Brand"
                                 }}
                             </p>
                             <h1 class="text-2xl md:text-3xl font-bold text-gray-900 mt-1 dark:text-white">
-                                {{
+                                {{ 
                                     productStore.currentProduct?.name ??
                                     "Unknown Product"
                                 }}
@@ -83,7 +83,7 @@
 
                         <!-- Short Description -->
                         <p class="text-gray-600 leading-relaxed dark:text-gray-300">
-                            {{
+                            {{ 
                                 productStore.currentProduct
                                     ?.short_description ??
                                 "No description available."
@@ -92,68 +92,60 @@
 
                         <!-- Price Section -->
                         <div class="flex flex-col sm:flex-row sm:items-center sm:space-x-4">
-                            <div class="flex items-baseline space-x-2" v-if="productStore.currentProduct?.final_price">
+                            <div class="flex items-baseline space-x-2" v-if="finalPrice">
                                 <span class="text-3xl font-bold text-gray-900 dark:text-white">
-                                    {{
-                                        formatPrice(
-                                            productStore.currentProduct
-                                                .final_price,
-                                        )
-                                    }}
+                                    {{ formatPrice(finalPrice) }}
                                     {{ siteStore.settings?.currency ?? "USD" }}
                                 </span>
-                                <span v-if="
-                                    productStore.currentProduct
-                                        .discount_percentage > 0
-                                " class="text-xl text-gray-500 line-through dark:text-gray-400">
-                                    {{
-                                        formatPrice(
-                                            productStore.currentProduct.price,
-                                        )
-                                    }}
+                                <span v-if="discountPercentage > 0"
+                                    class="text-xl text-gray-500 line-through dark:text-gray-400">
+                                    {{ formatPrice(originalPrice) }}
                                     {{ siteStore.settings?.currency ?? "USD" }}
                                 </span>
                             </div>
-                            <span v-if="
-                                productStore.currentProduct
-                                    ?.discount_percentage > 0
-                            "
+                            <span v-if="discountPercentage > 0"
                                 class="mt-2 sm:mt-0 inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300">
-                                Save
-                                {{
-                                    productStore.currentProduct
-                                        .discount_percentage
-                                }}%
+                                Save {{ discountPercentage }}%
                             </span>
+                        </div>
+
+                        <!-- Product Details Selection -->
+                        <div v-if="productDetails.length > 1" class="pt-4">
+                            <h4 class="text-sm font-medium text-gray-500 mb-2 dark:text-gray-400">Select Option</h4>
+                            <div class="flex flex-wrap gap-3">
+                                <label v-for="detail in productDetails" :key="detail.id"
+                                    class="flex items-center space-x-3 p-3 border rounded-lg cursor-pointer transition-colors dark:border-gray-600"
+                                    :class="{
+                                        'bg-primary-50 border-primary-500 dark:bg-primary-900/20 dark:border-primary-500': selectedDetail && selectedDetail.id === detail.id,
+                                        'bg-white hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700': !selectedDetail || selectedDetail.id !== detail.id
+                                    }">
+                                    <input type="radio" :value="detail" v-model="selectedDetail" name="product-detail"
+                                        class="form-radio h-4 w-4 text-primary-600 border-gray-300 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-700 dark:focus:ring-offset-gray-800">
+                                    <span class="text-sm font-medium text-gray-800 dark:text-gray-200">
+                                        <template v-if="detail.size">{{ detail.size }}</template>
+                                        <template v-if="detail.size && detail.color"> - </template>
+                                        <template v-if="detail.color">{{ detail.color }}</template>
+                                    </span>
+                                </label>
+                            </div>
                         </div>
 
                         <!-- Stock Status -->
                         <div class="flex items-center space-x-2">
-                            <span v-if="
-                                productStore.currentProduct
-                                    ?.stock_quantity > 10
-                            "
+                            <span v-if="stockQuantity > 10"
                                 class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
                                 In Stock
                             </span>
-                            <span v-else-if="
-                                productStore.currentProduct
-                                    ?.stock_quantity > 0
-                            "
+                            <span v-else-if="stockQuantity > 0"
                                 class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300">
-                                Only
-                                {{
-                                    productStore.currentProduct.stock_quantity
-                                }}
-                                left
+                                Only {{ stockQuantity }} left
                             </span>
                             <span v-else
                                 class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300">
                                 Out of Stock
                             </span>
                             <span class="text-sm text-gray-500 ml-2 dark:text-gray-400">
-                                SKU:
-                                {{ productStore.currentProduct?.sku ?? "N/A" }}
+                                SKU: {{ sku ?? "N/A" }}
                             </span>
                         </div>
 
@@ -172,7 +164,8 @@
                                     </svg>
                                 </button>
                                 <span class="w-12 text-center text-sm font-medium text-gray-900 dark:text-white">{{
-                                    quantity }}</span>
+                                    quantity }}
+                                </span>
                                 <button @click="increaseQuantity" :disabled="quantity >= maxQuantity"
                                     class="p-1.5 rounded-md border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors dark:border-gray-600 dark:hover:bg-gray-700 dark:bg-gray-700">
                                     <svg class="h-4 w-4 dark:text-gray-300" fill="none" stroke="currentColor"
@@ -188,20 +181,22 @@
                         <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
                             <button v-if="siteStore.settings && !siteStore.settings.orders_via_whatsapp_only"
                                 @click="addToCart" :disabled="isAddingToCart ||
-                                    !selectedDetailId ||
-                                    maxQuantity === 0
-                                    " class="flex-1 bg-primary-600 ...">
-                            <span v-if="isAddingToCart" class="flex items-center">
-                                <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
-                                        stroke-width="4"></circle>
-                                    <path class="opacity-75" fill="currentColor"
-                                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                                    </path>
-                                </svg>
-                                Adding...
-                            </span>
-                            <span v-else>Add to Cart</span>
+                                    !productStore.currentProduct ||
+                                    stockQuantity === 0
+                                    "
+                                class="flex-1 bg-primary-600 text-white py-3 px-6 rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center dark:bg-primary-700 dark:hover:bg-primary-800">
+                                <span v-if="isAddingToCart" class="flex items-center">
+                                    <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none"
+                                        viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                            stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor"
+                                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                        </path>
+                                    </svg>
+                                    Adding...
+                                </span>
+                                <span v-else>Add to Cart</span>
                             </button>
                             <button @click="toggleWishlist"
                                 class="px-6 py-3 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors flex items-center justify-center dark:border-gray-600 dark:text-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600"
@@ -218,7 +213,7 @@
                                     <path v-else stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
                                 </svg>
-                                {{
+                                {{ 
                                     isInWishlist
                                         ? "Remove from Wishlist"
                                         : "Add to Wishlist"
@@ -260,25 +255,68 @@
                                 Specifications
                             </h4>
                             <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 text-sm">
-                                <div v-if="productStore.currentProduct?.weight">
+                                <div v-if="weight">
                                     <dt class="font-medium text-gray-700 dark:text-gray-300">
                                         Weight
                                     </dt>
                                     <dd class="text-gray-600 dark:text-gray-400">
-                                        {{ productStore.currentProduct.weight }}
+                                        {{ weight }}
                                     </dd>
                                 </div>
-                                <div v-if="
-                                    productStore.currentProduct?.dimensions
-                                ">
+                                <div v-if="dimensions">
                                     <dt class="font-medium text-gray-700 dark:text-gray-300">
                                         Dimensions
                                     </dt>
                                     <dd class="text-gray-600 dark:text-gray-400">
-                                        {{
-                                            productStore.currentProduct
-                                                .dimensions
-                                        }}
+                                        {{ dimensions.length }} x {{ dimensions.width }} x {{ dimensions.height }}
+                                    </dd>
+                                </div>
+                                <div v-if="material">
+                                    <dt class="font-medium text-gray-700 dark:text-gray-300">
+                                        Material
+                                    </dt>
+                                    <dd class="text-gray-600 dark:text-gray-400">
+                                        {{ material }}
+                                    </dd>
+                                </div>
+                                <div v-if="volume">
+                                    <dt class="font-medium text-gray-700 dark:text-gray-300">
+                                        Volume
+                                    </dt>
+                                    <dd class="text-gray-600 dark:text-gray-400">
+                                        {{ volume }}
+                                    </dd>
+                                </div>
+                                <div v-if="origin">
+                                    <dt class="font-medium text-gray-700 dark:text-gray-300">
+                                        Origin
+                                    </dt>
+                                    <dd class="text-gray-600 dark:text-gray-400">
+                                        {{ origin }}
+                                    </dd>
+                                </div>
+                                <div v-if="quality">
+                                    <dt class="font-medium text-gray-700 dark:text-gray-300">
+                                        Quality
+                                    </dt>
+                                    <dd class="text-gray-600 dark:text-gray-400">
+                                        {{ quality }}
+                                    </dd>
+                                </div>
+                                <div v-if="packaging">
+                                    <dt class="font-medium text-gray-700 dark:text-gray-300">
+                                        Packaging
+                                    </dt>
+                                    <dd class="text-gray-600 dark:text-gray-400">
+                                        {{ packaging }}
+                                    </dd>
+                                </div>
+                                <div v-if="barcode">
+                                    <dt class="font-medium text-gray-700 dark:text-gray-300">
+                                        Barcode
+                                    </dt>
+                                    <dd class="text-gray-600 dark:text-gray-400">
+                                        {{ barcode }}
                                     </dd>
                                 </div>
                             </dl>
@@ -349,22 +387,19 @@ const toast = useToast();
 
 const quantity = ref(1);
 const selectedImage = ref("");
+const selectedDetail = ref(null);
 const isAddingToCart = ref(false);
 const isInWishlist = ref(false);
 const showReviewForm = ref(false);
-const selectedDetailId = ref(null);
 
-// Re-fetch product when route changes (e.g., from /product/1 to /product/2)
+// Re-fetch product when route changes
 onBeforeRouteUpdate(async (to, from) => {
     if (to.params.id !== from.params.id) {
         await fetchProduct(to.params.id);
     }
 });
 
-const maxQuantity = computed(() => {
-    const detail = productStore.currentProduct?.details?.find(d => d.id === selectedDetailId.value);
-    return detail?.stock_quantity || 0;
-});
+const productDetails = computed(() => productStore.currentProduct?.details || []);
 
 const handleImageError = (event) => {
     const placeholder = "/images/placeholder-product.jpg";
@@ -373,29 +408,44 @@ const handleImageError = (event) => {
     }
 };
 
-// Computed: Main image URL (fallback if null)
 const mainImageUrl = computed(() => {
     return (
+        selectedDetail.value?.main_image ||
         productStore.currentProduct?.main_image_url ||
         "/images/placeholder-product.jpg"
     );
 });
 
-// Computed: Gallery images (fallback to main image if empty)
 const galleryImages = computed(() => {
-    const images = productStore.currentProduct?.gallery_images || [];
-    if (images.length > 0) return images;
-    return productStore.currentProduct?.main_image_url
-        ? [productStore.currentProduct.main_image_url]
-        : ["/images/placeholder-product.jpg"];
+    const detailImages = selectedDetail.value?.images_url || [];
+    if (detailImages.length > 0) return detailImages;
+
+    const productImages = productStore.currentProduct?.gallery_images || [];
+    if (productImages.length > 0) return productImages;
+
+    const mainImage = productStore.currentProduct?.main_image_url;
+    return mainImage ? [mainImage] : ["/images/placeholder-product.jpg"];
 });
 
-// Format price to 2 decimals
-const formatPrice = (price) => {
-    return parseFloat(price || 0).toFixed(2);
-};
+const finalPrice = computed(() => selectedDetail.value?.final_price ?? productStore.currentProduct?.final_price);
+const originalPrice = computed(() => selectedDetail.value?.price ?? productStore.currentProduct?.price);
+const discountPercentage = computed(() => selectedDetail.value?.discount_percentage ?? productStore.currentProduct?.discount_percentage);
+const stockQuantity = computed(() => selectedDetail.value?.stock_quantity ?? productStore.currentProduct?.stock_quantity);
+const sku = computed(() => selectedDetail.value?.sku_variant ?? productStore.currentProduct?.sku);
+const weight = computed(() => selectedDetail.value?.weight ?? productStore.currentProduct?.weight);
+const dimensions = computed(() => selectedDetail.value?.dimensions ?? productStore.currentProduct?.dimensions);
+const material = computed(() => selectedDetail.value?.material ?? productStore.currentProduct?.material);
+const volume = computed(() => selectedDetail.value?.volume ?? productStore.currentProduct?.volume);
+const origin = computed(() => selectedDetail.value?.origin ?? productStore.currentProduct?.origin);
+const quality = computed(() => selectedDetail.value?.quality ?? productStore.currentProduct?.quality);
+const packaging = computed(() => selectedDetail.value?.packaging ?? productStore.currentProduct?.packaging);
+const barcode = computed(() => selectedDetail.value?.barcode ?? productStore.currentProduct?.barcode);
 
-// Select image from gallery
+
+const maxQuantity = computed(() => stockQuantity.value || 0);
+
+const formatPrice = (price) => parseFloat(price || 0).toFixed(2);
+
 const selectImage = (imageUrl) => {
     selectedImage.value = imageUrl;
 };
@@ -407,7 +457,6 @@ const thumbFallback = (index) => {
         : placeholder;
 };
 
-// Quantity controls
 const increaseQuantity = () => {
     if (quantity.value < maxQuantity.value) {
         quantity.value++;
@@ -420,34 +469,27 @@ const decreaseQuantity = () => {
     }
 };
 
-// Add to cart
 const addToCart = async () => {
-    if (
-        isAddingToCart.value ||
-        !selectedDetailId.value || // Check if a detail is selected
-        maxQuantity.value === 0
-    )
-        return;
+    if (isAddingToCart.value || !productStore.currentProduct || stockQuantity.value === 0) return;
 
     isAddingToCart.value = true;
     try {
-        // Use the selectedDetailId.value instead of the parent product ID
-        await cartStore.addToCart(
-            selectedDetailId.value,
-            quantity.value,
-        );
+        const detailId = selectedDetail.value ? selectedDetail.value.id : productDetails.value[0]?.id;
+        if (!detailId) {
+            toast.error("Please select a product option.");
+            return;
+        }
+
+        await cartStore.addToCart(detailId, quantity.value);
         toast.success("Product added to cart!");
     } catch (error) {
         console.error("Add to cart error:", error);
-        // The error message from the backend will be more specific now if needed
-        const message = error.response?.data?.message || "Failed to add product to cart";
-        toast.error(message);
+        toast.error(error.response?.data?.message || "Failed to add product to cart");
     } finally {
         isAddingToCart.value = false;
     }
 };
 
-// Toggle wishlist
 const toggleWishlist = async () => {
     if (!productStore.currentProduct) return;
 
@@ -456,19 +498,17 @@ const toggleWishlist = async () => {
             await wishlistStore.getDefaultCategory();
         }
 
+        const productId = productStore.currentProduct.id;
         if (isInWishlist.value) {
-            const item = wishlistStore.getItemByProductId(
-                productStore.currentProduct.id,
-            );
+            const item = wishlistStore.getItemByProductId(productId);
             if (item) {
                 await wishlistStore.removeFromWishlist(item.id);
                 toast.success("Removed from wishlist");
             }
         } else {
-            await wishlistStore.addToWishlist(productStore.currentProduct.id);
+            await wishlistStore.addToWishlist(productId);
             toast.success("Added to wishlist");
         }
-
         isInWishlist.value = !isInWishlist.value;
     } catch (error) {
         console.error("Wishlist toggle error:", error);
@@ -476,16 +516,19 @@ const toggleWishlist = async () => {
     }
 };
 
-// WhatsApp Order Function
 const openWhatsApp = () => {
     if (!productStore.currentProduct) return;
 
-    let phone = siteStore.settings?.whatsapp_number || ""
+    const phone = siteStore.settings?.whatsapp_number || "";
+    const defaultMessage = siteStore.settings?.whatsapp_message || "I would like to order the product:";
+    const productName = selectedDetail.value
+        ? `${productStore.currentProduct.name} (${selectedDetail.value.size || selectedDetail.value.color})` 
+        : productStore.currentProduct.name;
 
-    const default_message = siteStore.settings?.whatsapp_message || "أرغب في طلب المنتج:";
-    const message = `${default_message} ${productStore.currentProduct.name}\n\n${window.location.href}`;
+    const message = `${defaultMessage} ${productName}\n\n${window.location.href}`;
     window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, "_blank");
 };
+
 const openReviewForm = () => {
     if (!productStore.currentProduct) {
         toast.error("Cannot write review for this product");
@@ -501,30 +544,21 @@ const closeReviewForm = () => {
 const handleReviewSubmitted = (newReview) => {
     closeReviewForm();
     if (productStore.currentProduct?.reviews) {
-        productStore.currentProduct.reviews = [
-            ...productStore.currentProduct.reviews,
-            newReview,
-        ];
+        productStore.currentProduct.reviews.push(newReview);
     }
 };
 
-// Fetch product and initialize state
 const fetchProduct = async (id) => {
     if (!id) return;
     try {
         await productStore.getProduct(id);
+        console.log("Fetching product with ID:", productDetails.value);
 
-        // --- This is the key part ---
-        // If the product has details, automatically select the first one.
-        if (productStore.currentProduct && productStore.currentProduct.details?.length > 0) {
-            selectedDetailId.value = productStore.currentProduct.details[0].id;
-        } else {
-            // Handle cases where a product might not have any details
-            selectedDetailId.value = null;
+        if (productDetails.value.length > 0) {
+            selectedDetail.value = productDetails.value[0];
         }
 
-        selectedImage.value =
-            galleryImages.value[0] || "/images/placeholder-product.jpg";
+        selectedImage.value = galleryImages.value[0] || "/images/placeholder-product.jpg";
 
         if (wishlistStore.isAuthenticated && productStore.currentProduct) {
             isInWishlist.value = wishlistStore.isInWishlist(
@@ -534,17 +568,18 @@ const fetchProduct = async (id) => {
             isInWishlist.value = false;
         }
 
+        if (!wishlistStore.defaultCategory) {
+            await wishlistStore.createDefaultCategory();
+        }
     } catch (error) {
         console.error("Failed to fetch product:", error);
     }
 };
 
-// Initialize on mount
 onMounted(async () => {
     await fetchProduct(route.params.id);
 });
 
-// Watch for auth changes to update wishlist status
 watch(
     () => wishlistStore.isAuthenticated,
     async (isAuth) => {
@@ -558,18 +593,23 @@ watch(
     },
     { immediate: true },
 );
+
+watch(selectedDetail, (newDetail) => {
+    console.log("Selected detail changed:", newDetail);
+    if (newDetail) {
+        quantity.value = 1; // Reset quantity
+        selectedImage.value = newDetail.main_image || galleryImages.value[0] || "/images/placeholder-product.jpg";
+    }
+});
 </script>
 
 <style scoped>
 .hide-scrollbar {
-    -ms-overflow-style: none;
-    /* IE and Edge */
-    scrollbar-width: none;
-    /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
 }
 
 .hide-scrollbar::-webkit-scrollbar {
-    display: none;
-    /* Chrome, Safari, Opera */
+    display: none; /* Chrome, Safari, Opera */
 }
 </style>

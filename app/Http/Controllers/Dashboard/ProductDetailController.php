@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Dashboard;
 
 use App\Http\Controllers\Controller;
 use App\Models\ProductDetail;
-use App\Http\Resources\ProductDetailResource;
+use App\Http\Resources\ProductDetailsResource;
 use App\Http\Requests\ProductDetailStoreRequest;
 use App\Http\Requests\ProductDetailUpdateRequest;
 use App\Models\Product;
@@ -67,7 +67,7 @@ class ProductDetailController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Product details list retrieved successfully.',
-            'data' => ProductDetailResource::collection($details),
+            'data' => ProductDetailsResource::collection($details),
             'pagination' => [
                 'total' => $details->total(),
                 'count' => $details->count(),
@@ -103,7 +103,7 @@ class ProductDetailController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Product detail retrieved successfully.',
-            'data' => new ProductDetailResource($detail->load('product')),
+            'data' => new ProductDetailsResource($detail->load('product')),
             'errors' => null,
             'code' => 200,
         ], 200);
@@ -132,7 +132,7 @@ class ProductDetailController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Product detail created successfully.',
-                'data' => new ProductDetailResource($detail->load('product')),
+                'data' => new ProductDetailsResource($detail->load('product')),
                 'errors' => null,
                 'code' => 201,
             ], 201);
@@ -181,7 +181,7 @@ class ProductDetailController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Product detail updated successfully.',
-                'data' => new ProductDetailResource($detail->fresh('product')),
+                'data' => new ProductDetailsResource($detail->fresh('product')),
                 'errors' => null,
                 'code' => 200,
             ], 200);
@@ -300,7 +300,7 @@ class ProductDetailController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Product detail restored successfully.',
-                'data' => new ProductDetailResource($detail->load('product')),
+                'data' => new ProductDetailsResource($detail->load('product')),
                 'errors' => null,
                 'code' => 200,
             ], 200);

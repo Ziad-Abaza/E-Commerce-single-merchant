@@ -77,9 +77,10 @@ export const useCartStore = defineStore('cart', {
         async addToCart(productDetailId, quantity = 1) {
             this.loading = true
             this.error = null
-            console.log(productDetailId, quantity);
             try {
                 const authStore = useAuthStore()
+                console.log("Auth Store User:", authStore.user?.id);
+                console.log("product_detail_id:", productDetailId, "quantity:", quantity);
                 const response = await axios.post('/carts', {
                     user_id: authStore.user?.id,
                     product_detail_id: productDetailId,
@@ -88,10 +89,8 @@ export const useCartStore = defineStore('cart', {
                 await this.loadCart()
                 const toast = useToast()
                 toast.success('Product added to cart!')
-                console.log(response)
                 return { success: true, data: response.data }
             } catch (error) {
-                console.log(error)
                 this.error = error.response?.data?.message || 'Failed to add to cart'
                 this.handleError(this.error)
                 return { success: false, error: this.error }

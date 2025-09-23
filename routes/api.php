@@ -23,6 +23,12 @@ Route::prefix('public')->name('public.')->group(function () {
         Route::get('/{id}', 'show')->name('show');
     });
 
+    // Public review routes
+    Route::prefix('reviews')->name('reviews.')->controller(\App\Http\Controllers\Api\User\ReviewController::class)->group(function () {
+        Route::get('/{product_id}', 'index')->name('index');
+        Route::get('/{product_id}/stats', 'getProductRatingStats')->name('stats');
+    });
+
     // Contact form submission (public route)
     Route::post('/contact', [\App\Http\Controllers\Api\ContactMessageController::class, 'store'])->name('contact.store');
 
@@ -67,7 +73,6 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     // Profile routes
-    // Profile routes
     Route::prefix('profile')->name('profile.')->controller(\App\Http\Controllers\Api\User\ProfileController::class)->group(function () {
         Route::get('/', 'show')->name('show');
         Route::post('/', 'update')->name('update');
@@ -100,12 +105,10 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     Route::prefix('reviews')->name('reviews.')->controller(\App\Http\Controllers\Api\User\ReviewController::class)->group(function () {
-        Route::get('/{product_id}', 'index')->name('index');
         Route::post('/{product_id}', 'store')->name('store');
         Route::get('/review/{id}', 'show')->name('show');
         Route::post('/review/{id}', 'update')->name('update');
         Route::delete('/review/{id}', 'destroy')->name('destroy');
-        Route::get('/{product_id}/stats', 'getProductRatingStats')->name('stats');
     });
 
     // Wishlist routes
@@ -133,4 +136,3 @@ Route::middleware('auth:sanctum')->group(function () {
 require __DIR__ . '/dashboard.php';
 require __DIR__ . '/auth.php';
 require __DIR__ . '/notification.php';
-

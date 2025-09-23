@@ -7,7 +7,7 @@ use App\Models\Product;
 use App\Models\Category;
 use App\Http\Resources\ProductResource;
 use App\Http\Resources\CategoryResource;
-use App\Http\Resources\ProductDetailsResource;
+use App\Http\Resources\ProductDetailResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Http\Resources\ReviewResource;
@@ -177,15 +177,10 @@ class ProductController extends Controller
      * @param Request $request
      * @return JsonResponse
      */
-    // In app/Http/Controllers/Api/Public/ProductController.php
-
     public function show(Request $request, $id): JsonResponse
     {
-        // =================================================================
-        // STEP 1: ADD THE FIX HERE
-        // =================================================================
-        $query = Product::where('is_active', true)
-            ->whereNull('deleted_at'); // <-- ADD THIS LINE
+        // Build the base query for active products
+        $query = Product::where('is_active', true);
 
         // Always load essential relations
         $product = $query->with(['categories', 'details'])->findOrFail($id);
@@ -196,12 +191,9 @@ class ProductController extends Controller
             ->map(fn($word) => "name LIKE '%" . addslashes($word) . "%'")
             ->implode(' OR ');
 
-        // =================================================================
-        // STEP 2: ADD THE SAME FIX TO THE RELATED PRODUCTS QUERY
-        // =================================================================
+        // Always fetch related products (by shared categories)
         $relatedProducts = Product::with(['categories', 'details'])
             ->where('is_active', true)
-            ->whereNull('deleted_at') // <-- ADD THIS LINE HERE AS WELL
             ->where('id', '!=', $id)
             ->when($product->categories->isNotEmpty(), function ($q) use ($product) {
                 $q->whereHas('categories', function ($subQuery) use ($product) {
@@ -217,7 +209,7 @@ class ProductController extends Controller
         $response = [
             'message' => 'Product retrieved successfully.',
             'data' => [
-                'product' => new ProductDetailsResource($product),
+                'product' => new ProductDetailResource($product),
                 'related_products' => ProductResource::collection($relatedProducts),
             ],
             'code' => 200,

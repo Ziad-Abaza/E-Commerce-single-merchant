@@ -13,7 +13,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Log;
-use App\Models\ProductDetail; 
 
 class CartController extends Controller
 {
@@ -68,7 +67,7 @@ class CartController extends Controller
                         } else { // 'fixed'
                             $discount = min($promoCode->value, $itemPrice * $itemQuantity);
                         }
-                        
+
                         $discount = round($discount, 2);
                         $promoCodeValue = $promoCode->code;
                         // Update session with the potentially recalculated discount
@@ -111,6 +110,9 @@ class CartController extends Controller
     /**
      * Add item to cart or update quantity if exists
      */
+    /**
+     * Add item to cart or update quantity if exists
+     */
     public function store(CartStoreRequest $request)
     {
         try {
@@ -122,62 +124,53 @@ class CartController extends Controller
             }
 
             if (!$userId) {
-                return response()->json([
-                    'message' => 'User not authenticated',
-                    'errors' => ['auth' => ['User must be logged in']],
-                ], 401);
+                return response()->json(['message' => 'User not authenticated', 'code' => 401], 401);
             }
 
-            // =================================================================
-            // NEW: Add this validation block to check the product's existence
-            // =================================================================
-            $productDetail = ProductDetail::with('product')->find($data['product_detail_id']);
+            // Validate that the product detail exists and is active
+            $productDetail = \App\Models\ProductDetail::with('product')->find($data['product_detail_id']);
 
-            if (!$productDetail || !$productDetail->product || $productDetail->product->deleted_at) {
+            if (!$productDetail || !$productDetail->product || $productDetail->product->is_active == false) {
                 return response()->json([
                     'message' => 'The selected product is no longer available.',
-                    'errors' => ['product' => ['Product not found or has been removed.']],
-                ], 404); // 404 Not Found is a suitable error here
+                    'errors' => ['product' => ['Product not found or has been removed.']]
+                ], 404);
             }
-            // =================================================================
-            // End of new validation block
-            // =================================================================
-
 
             DB::beginTransaction();
 
-            $existingCartItem = Cart::where('user_id', $userId)
-                ->where('product_detail_id', $data['product_detail_id'])
-                ->first();
+            // Find the item or create a new instance
+            $cartItem = Cart::firstOrNew([
+                'user_id' => $userId,
+                'product_detail_id' => $data['product_detail_id']
+            ]);
 
-            if ($existingCartItem) {
-                $existingCartItem->quantity += $data['quantity'];
-                $existingCartItem->save();
-                $cartItem = $existingCartItem;
-            } else {
-                $cartItem = Cart::create([
-                    'user_id' => $userId,
-                    'product_detail_id' => $data['product_detail_id'],
-                    'quantity' => $data['quantity'],
-                ]);
-            }
+            // Add the new quantity to the existing quantity (if it's a new item, quantity will be 0)
+            $cartItem->quantity = ($cartItem->quantity ?? 0) + $data['quantity'];
 
-            $cartItem->load('productDetail.product');
-            // This line is now safe because we validated the product above
-            $cartItem->total_price = $cartItem->productDetail->final_price * $cartItem->quantity; 
+            // Save the item with ONLY the columns that exist in your database table.
+            $cartItem->save();
 
             DB::commit();
+
+            // Load relations for the JSON response
+            $cartItem->load('productDetail.product');
 
             return response()->json([
                 'message' => 'Cart item added/updated successfully.',
                 'data' => new CartResource($cartItem),
+                'errors' => null,
+                'code' => 201,
             ], 201);
 
         } catch (\Exception $e) {
             DB::rollBack();
+            Log::error('Failed to add item to cart', ['error' => $e->getMessage()]);
             return response()->json([
                 'message' => 'Failed to add item to cart.',
+                'data' => null,
                 'errors' => ['server' => [$e->getMessage()]],
+                'code' => 500,
             ], 500);
         }
     }
@@ -306,7 +299,7 @@ class CartController extends Controller
             }
 
             Cart::where('user_id', $userId)->delete();
-            
+
             // NEW: Also clear the promo code from the session
             session()->forget(['promo_code', 'discount']);
 

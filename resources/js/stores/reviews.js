@@ -35,7 +35,7 @@ export const useReviewStore = defineStore("reviews", {
             this.error = null;
 
             try {
-                const response = await axios.get(`/reviews/${productId}`, {
+                const response = await axios.get(`/public/reviews/${productId}`, {
                     params: { page, per_page: this.pagination.perPage },
                 });
 
@@ -156,7 +156,7 @@ export const useReviewStore = defineStore("reviews", {
             this.error = null;
 
             try {
-                const response = await axios.get(`/reviews/${productId}/stats`);
+                const response = await axios.get(`/public/reviews/${productId}/stats`);
                 return { success: true, data: response.data };
             } catch (error) {
                 this.error =
