@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('promo_codes', function (Blueprint $table) {
             $table->id();
             $table->foreignId('product_id')->constrained()->onDelete('cascade');
-            $table->string('code')->unique();
+            $table->string('code');
             $table->string('type')->default('percentage'); // percentage or fixed
             $table->decimal('value', 10, 2); // percentage or amount
             $table->integer('usage_limit')->nullable();

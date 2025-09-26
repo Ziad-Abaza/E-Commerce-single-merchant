@@ -131,19 +131,19 @@ class ReviewController extends Controller
 
             DB::commit();
 
-            // $owners = User::role('owner')->get();
-            // foreach ($owners as $owner) {
-            //     $owner->notify(new NewReviewNotification($review));
-            // }
+            $owners = User::role('owner')->get();
+            foreach ($owners as $owner) {
+                $owner->notify(new NewReviewNotification($review));
+            }
 
-            // // After sending notifications to owners
-            // NewReviewEvent::dispatch($review);
+            // After sending notifications to owners
+            NewReviewEvent::dispatch($review);
 
 
             return response()->json([
                 'success' => true,
                 'message' => $message,
-                'data' => new ReviewResource($review),
+                'data' => $review,
                 'errors' => null,
                 'code' => $code,
             ], $code);
