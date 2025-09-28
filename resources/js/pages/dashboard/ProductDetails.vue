@@ -182,7 +182,7 @@
                 <div class="flex-1">
                     <Search
                         v-model="productDetailsStore.filters.search"
-                        placeholder="Search by color, size, SKU, or barcode..."
+                        placeholder="Search by color, size, SKU..."
                         @submit="handleSearch"
                     />
                 </div>
@@ -600,6 +600,7 @@ const handleViewDetail = async (detail) => {
     }
 };
 
+
 const handleEdit = async (detail) => {
     isEditing.value = true;
     detailToDelete.value = detail;
@@ -617,7 +618,36 @@ const handleEdit = async (detail) => {
 };
 
 const initializeFormFields = (detail) => {
+    // Format attributes for the AttributeManager
+    const formatAttributes = (attributes) => {
+        if (!attributes || !Array.isArray(attributes)) return [];
+        
+        return attributes.map(attr => ({
+            id: attr.id || Date.now() + Math.random().toString(36).substr(2, 9),
+            name: attr.name || '',
+            code: attr.code || '',
+            type: attr.type || 'select',
+            values: attr.values ? attr.values.map(val => ({
+                id: val.id || Date.now() + Math.random().toString(36).substr(2, 9),
+                value: val.value || '',
+                is_visible: val.is_visible !== false,
+                is_variant: val.is_variant || 0,
+                is_filterable: val.is_filterable !== false
+            })) : []
+        }));
+    };
+
     formFields.value = [
+        // Attributes Section
+        {
+            id: "attributes",
+            label: "Product Attributes",
+            type: "attribute-selector",
+            value: formatAttributes(detail?.attributes) || [],
+            categoryId: 5,
+            required: false
+        },
+        // Color field (kept for backward compatibility)
         {
             id: "color",
             label: "Color",
@@ -625,78 +655,6 @@ const initializeFormFields = (detail) => {
             value: detail?.color || "",
             required: false,
             placeholder: "Enter color (e.g., Black, Red)",
-        },
-        {
-            id: "size",
-            label: "Size",
-            type: "text",
-            value: detail?.size || "",
-            required: false,
-            placeholder: "Enter size (e.g., S, M, L, XL)",
-        },
-        {
-            id: "material",
-            label: "Material",
-            type: "text",
-            value: detail?.material || "",
-            required: false,
-            placeholder: "Enter material",
-        },
-        {
-            id: "weight",
-            label: "Weight (kg)",
-            type: "number",
-            value: detail?.weight || 0,
-            required: false,
-            placeholder: "Enter weight in kg",
-        },
-        {
-            id: "length",
-            label: "Length (cm)",
-            type: "number",
-            value: detail?.dimensions?.length || 0,
-            required: false,
-            placeholder: "Enter length in cm",
-        },
-        {
-            id: "width",
-            label: "Width (cm)",
-            type: "number",
-            value: detail?.dimensions?.width || 0,
-            required: false,
-            placeholder: "Enter width in cm",
-        },
-        {
-            id: "height",
-            label: "Height (cm)",
-            type: "number",
-            value: detail?.dimensions?.height || 0,
-            required: false,
-            placeholder: "Enter height in cm",
-        },
-        {
-            id: "origin",
-            label: "Origin",
-            type: "text",
-            value: detail?.origin || "",
-            required: false,
-            placeholder: "Enter origin country",
-        },
-        {
-            id: "quality",
-            label: "Quality",
-            type: "text",
-            value: detail?.quality || "",
-            required: false,
-            placeholder: "Enter quality level",
-        },
-        {
-            id: "packaging",
-            label: "Packaging",
-            type: "text",
-            value: detail?.packaging || "",
-            required: false,
-            placeholder: "Enter packaging details",
         },
         {
             id: "price",
@@ -739,14 +697,6 @@ const initializeFormFields = (detail) => {
             placeholder: "Enter SKU variant",
         },
         {
-            id: "barcode",
-            label: "Barcode",
-            type: "text",
-            value: detail?.barcode || "",
-            required: false,
-            placeholder: "Enter barcode",
-        },
-        {
             id: "images",
             label: "Product Images",
             type: "files",
@@ -773,7 +723,6 @@ const handleDeleteClick = (detail) => {
 
 const handleSubmitForm = async (data) => {
     try {
-        // تحويل القيم الرقمية
         data.weight = parseFloat(data.weight) || 0;
         data.length = parseFloat(data.length) || 0;
         data.width = parseFloat(data.width) || 0;

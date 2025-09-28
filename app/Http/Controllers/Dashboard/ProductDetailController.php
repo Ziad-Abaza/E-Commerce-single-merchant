@@ -32,15 +32,15 @@ class ProductDetailController extends Controller
                 'code' => 404,
             ], 404);
         }
-        $query = $product->details()->with('product');
+        $query = $product->details()->with(['product', 'attributeValues.attribute']);
+        $attributesByCategory = $this->getAttributesByCategory($product);
 
         if ($request->has('search')) {
             $search = $request->input('search');
             $query->where(function ($q) use ($search) {
                 $q->where('color', 'like', "%$search%")
-                    ->orWhere('size', 'like', "%$search%")
                     ->orWhere('sku_variant', 'like', "%$search%")
-                    ->orWhere('barcode', 'like', "%$search%");
+                    ->orWhere('variant_identifier', 'like', "%$search%");
             });
         }
 
@@ -66,8 +66,9 @@ class ProductDetailController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Product details list retrieved successfully.',
+            'message' => 'Product variants list retrieved successfully.',
             'data' => ProductDetailsResource::collection($details),
+            'attributes_by_category' => $attributesByCategory,
             'pagination' => [
                 'total' => $details->total(),
                 'count' => $details->count(),
@@ -102,8 +103,8 @@ class ProductDetailController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Product detail retrieved successfully.',
-            'data' => new ProductDetailsResource($detail->load('product')),
+            'message' => 'Product variant retrieved successfully.',
+            'data' => new ProductDetailsResource($detail->load(['product', 'attributeValues.attribute'])),
             'errors' => null,
             'code' => 200,
         ], 200);
@@ -121,6 +122,15 @@ class ProductDetailController extends Controller
             $data = $request->validated();
             $data['product_id'] = $product->id;
 
+            // Generate SKU variant if not provided
+            if (empty($data['sku_variant'])) {
+                $data['sku_variant'] = ProductDetail::generateSkuVariant(
+                    $product->sku,
+                    $data['size'] ?? null,
+                    $data['color'] ?? null
+                );
+            }
+
             DB::beginTransaction();
             $detail = ProductDetail::create($data);
 
@@ -131,8 +141,8 @@ class ProductDetailController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Product detail created successfully.',
-                'data' => new ProductDetailsResource($detail->load('product')),
+                'message' => 'Product variant created successfully.',
+                'data' => new ProductDetailsResource($detail->load(['product', 'attributeValues.attribute'])),
                 'errors' => null,
                 'code' => 201,
             ], 201);
@@ -170,20 +180,32 @@ class ProductDetailController extends Controller
         try {
             $data = $request->validated();
 
+            // Generate SKU variant if not provided and either size or color has changed
+            if (empty($data['sku_variant']) && 
+                (isset($data['size']) && $data['size'] !== $detail->size) || 
+                (isset($data['color']) && $data['color'] !== $detail->color)) {
+                
+                $data['sku_variant'] = ProductDetail::generateSkuVariant(
+                    $product->sku,
+                    $data['size'] ?? $detail->size,
+                    $data['color'] ?? $detail->color
+                );
+            }
+
             DB::beginTransaction();
             $detail->update($data);
 
             if ($request->hasFile('images')) {
                 $detail->setImages($request->file('images'));
             }
+            
             DB::commit();
-
+            
             return response()->json([
                 'success' => true,
-                'message' => 'Product detail updated successfully.',
-                'data' => new ProductDetailsResource($detail->fresh('product')),
-                'errors' => null,
-                'code' => 200,
+                'message' => 'Product detail updated successfully',
+                'data' => $detail->toArray(),
+                'code' => 200
             ], 200);
         } catch (\Exception $e) {
             DB::rollBack();
@@ -192,7 +214,7 @@ class ProductDetailController extends Controller
                 'message' => 'Failed to update product detail.',
                 'data' => null,
                 'errors' => ['server' => [$e->getMessage()]],
-                'code' => 500,
+                'code' => 500
             ], 500);
         }
     }
@@ -299,8 +321,8 @@ class ProductDetailController extends Controller
             $detail->restore();
             return response()->json([
                 'success' => true,
-                'message' => 'Product detail restored successfully.',
-                'data' => new ProductDetailsResource($detail->load('product')),
+                'message' => 'Product variant restored successfully.',
+                'data' => new ProductDetailsResource($detail->load(['product', 'attributeValues.attribute'])),
                 'errors' => null,
                 'code' => 200,
             ], 200);
@@ -368,5 +390,50 @@ class ProductDetailController extends Controller
                 'code' => 500,
             ], 500);
         }
+    }
+
+    /**
+     * Fetch attributes grouped by category for a product
+     *
+     * @param Product $product
+     * @return \Illuminate\Support\Collection
+     */
+    protected function getAttributesByCategory(Product $product)
+    {
+        return $product->categories()
+            ->with(['attributes' => function ($query) {
+                $query->with(['values' => function ($query) {
+                    $query->orderBy('value');
+                }])
+                    ->orderBy('attribute_category.sort_order');
+            }])
+            ->get()
+            ->map(function ($category) {
+                return [
+                    'id' => $category->id,
+                    'name' => $category->name,
+                    'slug' => $category->slug,
+                    'attributes' => $category->attributes->map(function ($attribute) {
+                        return [
+                            'id' => $attribute->id,
+                            'name' => $attribute->name,
+                            'slug' => $attribute->slug,
+                            'type' => $attribute->type,
+                            'is_required' => (bool) $attribute->pivot->is_required,
+                            'is_filterable' => $attribute->is_filterable,
+                            'is_visible_on_frontend' => $attribute->is_visible_on_frontend,
+                            'sort_order' => $attribute->pivot->sort_order,
+                            'options' => $attribute->options,
+                            'values' => $attribute->values->map(function ($value) {
+                                return [
+                                    'id' => $value->id,
+                                    'value' => $value->value,
+                                    'slug' => $value->slug,
+                                ];
+                            }),
+                        ];
+                    })->sortBy('sort_order')->values(),
+                ];
+            });
     }
 }

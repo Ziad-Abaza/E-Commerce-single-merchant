@@ -109,6 +109,20 @@
                             </span>
                         </div>
 
+                        <!-- Product Attributes -->
+                        <div v-if="selectedDetail?.attributes?.length" class="space-y-4 pt-2">
+                            <div v-for="attribute in selectedDetail.attributes" :key="attribute.id" class="border-b border-gray-100 pb-4 last:border-0 last:pb-0 dark:border-gray-700">
+                                <div class="flex flex-wrap items-start">
+                                    <dt class="w-1/3 text-sm font-medium text-gray-500 dark:text-gray-400">
+                                        {{ attribute.name }}:
+                                    </dt>
+                                    <dd class="w-2/3 text-sm text-gray-900 dark:text-gray-200">
+                                        {{ attribute.value }}
+                                    </dd>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Product Details Selection -->
                         <div v-if="productDetails.length > 1" class="pt-4">
                             <h4 class="text-sm font-medium text-gray-500 mb-2 dark:text-gray-400">Select Option</h4>
@@ -528,6 +542,7 @@ const openWhatsApp = () => {
     const message = `${defaultMessage} ${productName}\n\n${window.location.href}`;
     window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, "_blank");
 };
+
 
 const openReviewForm = () => {
     if (!productStore.currentProduct) {

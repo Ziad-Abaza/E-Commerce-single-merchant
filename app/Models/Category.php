@@ -9,6 +9,7 @@ use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Illuminate\Support\Str;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Category extends Model implements HasMedia
 {
@@ -37,6 +38,32 @@ class Category extends Model implements HasMedia
         'is_active' => 'boolean',
         'sort_order' => 'integer',
     ];
+
+    /**
+     * The attributes that belong to the category.
+     */
+    public function attributes(): BelongsToMany
+    {
+        return $this->belongsToMany(Attribute::class)
+            ->withPivot(['is_required', 'sort_order'])
+            ->withTimestamps()
+            ->orderBy('attribute_category.sort_order');
+    }
+
+    /**
+     * Get all attributes including those from parent categories.
+     */
+   public function allAttributes()
+{
+    $attributes = $this->attributes()->withPivot(['is_required', 'sort_order'])->get();
+    
+    if ($this->parent) {
+        $attributes = $attributes->merge($this->parent->allAttributes());
+    }
+    
+    return $attributes->unique('id');
+}
+
 
       /**
      * The "booted" method of the model.

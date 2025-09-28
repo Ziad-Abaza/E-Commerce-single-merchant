@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
-| Authenticated User Routes
+| Public API Routes (no authentication required)
 |--------------------------------------------------------------------------
 */
 
@@ -47,6 +47,18 @@ Route::prefix('public')->name('public.')->group(function () {
         Route::get('/{id}/subcategories', 'subcategories')->name('subcategories');
     });
 });
+
+// Product Attributes Management
+Route::prefix('product-attributes')
+    ->name('product-attributes.')
+    ->controller(\App\Http\Controllers\Dashboard\ProductAttributeController::class)
+    ->group(function () {
+        Route::get('/{productDetailId}', 'index')->name('index');
+        Route::post('/{productDetailId}', 'update')->name('update');
+        Route::delete('/{productDetailId}/attribute/{attributeId}', 'destroy')->name('destroy');
+        Route::get('/{productDetailId}/category-attributes', 'getProductCategoryAttributes')->name('category-attributes');
+        Route::get('/product/{productId}/variant-attributes', 'getVariantAttributes')->name('variant-attributes');
+    });
 
 Route::middleware('auth:sanctum')->group(function () {
 

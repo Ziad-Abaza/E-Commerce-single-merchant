@@ -109,6 +109,12 @@ class ProductController extends Controller
     {
         try {
             $data = $request->validated();
+            
+            // Generate SKU if not provided
+            if (empty($data['sku'])) {
+                $data['sku'] = Product::generateSku($data['name'], $data['brand'] ?? null);
+            }
+            
             DB::beginTransaction();
             $product = Product::create($data);
             DB::commit();
@@ -142,6 +148,16 @@ class ProductController extends Controller
         try {
             $product = Product::findOrFail($id);
             $data = $request->validated();
+            
+            // Generate SKU if not provided and name or brand has changed
+            if (empty($data['sku']) && 
+                ($product->wasChanged('name') || $product->wasChanged('brand'))) {
+                $data['sku'] = Product::generateSku(
+                    $data['name'] ?? $product->name, 
+                    $data['brand'] ?? $product->brand
+                );
+            }
+            
             DB::beginTransaction();
             $product->update($data);
             DB::commit();

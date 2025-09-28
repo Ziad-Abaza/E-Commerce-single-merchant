@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Product extends Model
 {
@@ -47,7 +49,18 @@ class Product extends Model
                 $product->slug = Str::slug($product->name);
             }
         });
+
     }
+    /**
+     * Get the total stock by summing all product details' stock
+     *
+     * @return int
+     */
+    public function getTotalStockAttribute(): int
+    {
+        return (int) $this->details()->sum('stock');
+    }
+
     /**
      * Get the categories that belong to this product.
      */
@@ -57,9 +70,9 @@ class Product extends Model
     }
 
     /**
-     * Get the product details for this product.
+     * Get the product details (variants) for this product.
      */
-    public function details()
+    public function details(): HasMany
     {
         return $this->hasMany(ProductDetail::class);
     }
@@ -102,6 +115,7 @@ class Product extends Model
         return $this->hasMany(WishlistItem::class);
     }
 
+
     /**
      * Scope a query to only include active products.
      */
@@ -136,5 +150,36 @@ class Product extends Model
         $detail = $this->details->first();
         $media = $detail ? $detail->getMedia('images') : null;
         return $media ? $media->map->getUrl()->toArray() : [];
+    }
+
+    /**
+     * Generate a unique SKU for the product.
+     *
+     * @param string $name The product name
+     * @param string|null $brand The product brand (optional)
+     * @return string The generated SKU
+     */
+    public static function generateSku(string $name, ?string $brand = null): string
+    {
+        $prefix = '';
+        
+        // Use first 3 letters of brand (or PRD if no brand)
+        if ($brand) {
+            $prefix .= strtoupper(substr(preg_replace('/[^A-Za-z0-9]/', '', $brand), 0, 3));
+        }
+        
+        if (empty($prefix)) {
+            $prefix = 'PRD';
+        }
+        
+        // Add first 3 letters of product name
+        $prefix .= '-' . strtoupper(substr(preg_replace('/[^A-Za-z0-9]/', '', $name), 0, 3));
+        
+        // Generate a unique SKU
+        do {
+            $sku = $prefix . '-' . str_pad(rand(0, 9999), 4, '0', STR_PAD_LEFT);
+        } while (self::where('sku', $sku)->exists());
+        
+        return $sku;
     }
 }

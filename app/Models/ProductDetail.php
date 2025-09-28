@@ -3,16 +3,19 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
-use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Model;
 
 class ProductDetail extends Model implements HasMedia
 {
     use HasFactory, InteractsWithMedia, SoftDeletes;
-
     /**
      * The attributes that are mass assignable.
      *
@@ -20,22 +23,13 @@ class ProductDetail extends Model implements HasMedia
      */
     protected $fillable = [
         'product_id',
-        'size',
         'color',
-        'material',
-        'weight',
-        'length',
-        'width',
-        'height',
-        'origin',
-        'quality',
-        'packaging',
         'price',
         'discount',
         'stock',
         'min_stock_alert',
         'sku_variant',
-        'barcode',
+        'variant_identifier',
         'is_active',
     ];
 
@@ -46,22 +40,13 @@ class ProductDetail extends Model implements HasMedia
      */
     protected $casts = [
         'product_id' => 'integer',
-        'size' => 'string',
         'color' => 'string',
-        'material' => 'string',
-        'weight' => 'decimal:2',
-        'length' => 'decimal:2',
-        'width' => 'decimal:2',
-        'height' => 'decimal:2',
-        'origin' => 'string',
-        'quality' => 'string',
-        'packaging' => 'string',
+        'variant_identifier' => 'string',
         'price' => 'decimal:2',
         'discount' => 'decimal:2',
         'stock' => 'integer',
         'min_stock_alert' => 'integer',
         'sku_variant' => 'string',
-        'barcode' => 'string',
         'is_active' => 'boolean',
     ];
 
@@ -97,13 +82,114 @@ class ProductDetail extends Model implements HasMedia
             ->nonQueued();
     }
 
+    /**
+     * Generate a unique SKU variant for the product detail.
+     *
+     * @param string $productSku The base product SKU
+     * @param string|null $size The product size (optional)
+     * @param string|null $color The product color (optional)
+     * @return string The generated SKU variant
+     */
+    public static function generateSkuVariant(string $productSku, ?string $size = null, ?string $color = null): string
+    {
+        $baseSku = $productSku;
+        $variant = '';
+        
+        // Add size and color to variant if they exist
+        if ($size) {
+            $variant .= '-' . strtoupper(substr(preg_replace('/[^A-Za-z0-9]/', '', $size), 0, 3));
+        }
+        
+        if ($color) {
+            $variant .= '-' . strtoupper(substr(preg_replace('/[^A-Za-z0-9]/', '', $color), 0, 3));
+        }
+        
+        // If no size or color, add a random 2-digit number
+        if (empty($variant)) {
+            $variant = '-' . str_pad(rand(0, 99), 2, '0', STR_PAD_LEFT);
+        }
+        
+        // Generate a unique SKU variant
+        $counter = 1;
+        $skuVariant = $baseSku . $variant;
+        $originalSku = $skuVariant;
+        
+        while (self::where('sku_variant', $skuVariant)->exists()) {
+            $skuVariant = $originalSku . '-' . str_pad($counter, 2, '0', STR_PAD_LEFT);
+            $counter++;
+        }
+        
+        return $skuVariant;
+    }
+
     // ------------------------------
     // Relations
     // ------------------------------
 
-    public function product()
+    public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
+    }
+    
+    /**
+     * Get the attribute values for the product detail.
+     */
+    public function attributeValues(): HasMany
+    {
+        return $this->hasMany(AttributeValue::class);
+    }
+    
+    /**
+     * Get the attributes for the product detail.
+     */
+    public function attributes(): BelongsToMany
+    {
+        return $this->belongsToMany(Attribute::class, 'attribute_values')
+            ->using(AttributeValue::class)
+            ->withPivot(['value', 'value_type']);
+    }
+    
+    /**
+     * Get a specific product attribute value by slug.
+     *
+     * @param string $attributeSlug
+     * @return mixed
+     */
+    public function getProductAttributeValue(string $attributeSlug)
+    {
+        $attribute = $this->attributeValues()
+            ->whereHas('attribute', function($query) use ($attributeSlug) {
+                $query->where('slug', $attributeSlug);
+            })
+            ->first();
+
+        return $attribute ? $attribute->value : null;
+    }
+    
+    /**
+     * Set an attribute value for the product detail.
+     *
+     * @param string $attributeSlug
+     * @param mixed $value
+     * @return void
+     */
+    public function setAttributeValue(string $attributeSlug, $value)
+    {
+        $attribute = Attribute::where('slug', $attributeSlug)->firstOrFail();
+        
+        $valueType = gettype($value);
+        if ($valueType === 'array' || $valueType === 'object') {
+            $value = json_encode($value);
+            $valueType = 'array';
+        }
+
+        $this->attributeValues()->updateOrCreate(
+            ['attribute_id' => $attribute->id],
+            [
+                'value' => $value,
+                'value_type' => $valueType,
+            ]
+        );
     }
 
     public function orderItems()
@@ -114,6 +200,82 @@ class ProductDetail extends Model implements HasMedia
     public function cartItems()
     {
         return $this->hasMany(Cart::class, 'product_detail_id');
+    }
+    
+    /**
+     * Get the variant identifier (e.g., "Red / Large")
+     * 
+     * @return string
+     */
+    public function getVariantIdentifierAttribute()
+    {
+        if (!empty($this->attributes['variant_identifier'])) {
+            return $this->attributes['variant_identifier'];
+        }
+        
+        // If no variant_identifier is set, generate one from the variant attributes
+        return $this->generateVariantIdentifier();
+    }
+    
+    /**
+     * Generate a variant identifier based on the variant attributes
+     * 
+     * @return string
+     */
+    public function generateVariantIdentifier()
+    {
+        $identifiers = [];
+        
+        // Get variant attributes (those marked as is_variant = true)
+        $variantAttributes = $this->attributes()
+            ->where('is_variant', true)
+            ->orderBy('name')
+            ->get();
+            
+        foreach ($variantAttributes as $attribute) {
+            $value = $this->getAttributeValue($attribute->slug);
+            if (!empty($value)) {
+                if (is_array($value)) {
+                    $value = implode(', ', $value);
+                }
+                $identifiers[] = $value;
+            }
+        }
+        
+        // Fallback to color if no variant attributes are set
+        if (empty($identifiers) && !empty($this->color)) {
+            $identifiers[] = $this->color;
+        }
+        
+        return implode(' / ', $identifiers);
+    }
+    
+    /**
+     * Update the variant identifier based on current attributes
+     * 
+     * @return bool
+     */
+    public function updateVariantIdentifier()
+    {
+        $this->variant_identifier = $this->generateVariantIdentifier();
+        return $this->save();
+    }
+    
+    /**
+     * Get the display name for the variant (product name + variant identifier)
+     * 
+     * @return string
+     */
+    public function getDisplayNameAttribute()
+    {
+        $name = $this->product->name;
+        $variant = $this->variant_identifier;
+        
+        if (!empty($variant)) {
+            return "{$name} - {$variant}";
+        }
+        
+        return $name;
     }
 
     // ------------------------------

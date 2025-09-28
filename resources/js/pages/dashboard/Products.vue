@@ -269,57 +269,6 @@
             <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
                 <div class="p-6">
                     <Form :model-fields="formFields" @submit="handleSubmitForm" />
-
-                    <div v-if="isEditing" class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
-                        <div class="flex items-center justify-between mb-4">
-                            <h4 class="text-lg font-bold text-gray-900 dark:text-white">
-                                Promo Codes for this Product
-                            </h4>
-                            <button @click="handleOpenAddPromoCode"
-                                class="px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded-md text-sm">
-                                Add Promo Code
-                            </button>
-                        </div>
-
-                        <div v-if="promoCodesStore.loading" class="text-center text-gray-500">Loading codes...</div>
-
-                        <div v-else-if="promoCodesStore.productPromoCodes.length === 0"
-                            class="text-center py-6 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-                            <p class="text-gray-500 dark:text-gray-400">No promo codes found for this product.</p>
-                        </div>
-
-                        <ul v-else class="space-y-3">
-                            <li v-for="promo in promoCodesStore.productPromoCodes" :key="promo.id"
-                                class="p-3 bg-gray-100 dark:bg-gray-900/50 rounded-lg flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                                <div class="flex-1">
-                                    <div class="flex items-center gap-3">
-                                        <span class="font-mono text-base font-bold text-gray-800 dark:text-gray-200">{{
-                                            promo.code }}</span>
-                                        <span
-                                            :class="promo.is_active ? 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300' : 'bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300'"
-                                            class="px-2 py-0.5 text-xs font-medium rounded-full">
-                                            {{ promo.is_active ? 'Active' : 'Inactive' }}
-                                        </span>
-                                    </div>
-                                    <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                                        Discount: <strong>{{ promo.value }} {{ promo.type === 'percentage' ? '%' :
-                                            siteStore.settings.currency }}</strong>
-                                        | Used: {{ promo.usage_count }} / {{ promo.usage_limit || '∞' }}
-                                    </p>
-                                </div>
-                                <div class="flex items-center gap-2 flex-shrink-0">
-                                    <button @click="handleOpenEditPromoCode(promo)"
-                                        class="p-2 text-yellow-600 hover:bg-yellow-100 dark:hover:bg-yellow-900/50 rounded-md">
-                                        Edit
-                                    </button>
-                                    <button @click="handleDeletePromoCode(promo.id)"
-                                        class="p-2 text-red-600 hover:bg-red-100 dark:hover:bg-red-900/50 rounded-md">
-                                        Delete
-                                    </button>
-                                </div>
-                            </li>
-                        </ul>
-                    </div>
                 </div>
             </div>
         </div>
@@ -680,24 +629,8 @@ const initializeFormFields = (product) => {
             label: "SKU",
             type: "text",
             value: product?.sku || "",
-            required: true,
+            required: false,
             placeholder: "Enter SKU",
-        },
-        {
-            id: "price",
-            label: "Price",
-            type: "number",
-            value: product?.price || 0,
-            required: true,
-            placeholder: "Enter price",
-        },
-        {
-            id: "stock_quantity",
-            label: "Stock Quantity",
-            type: "number",
-            value: product?.stock_quantity || 0,
-            required: true,
-            placeholder: "Enter stock quantity",
         },
         {
             id: "is_active",
@@ -717,7 +650,7 @@ const initializeFormFields = (product) => {
         {
             id: "description",
             label: "Full Description",
-            type: "textarea",
+            type: "richtext",
             value: product?.description || "",
             required: false,
             placeholder: "Enter full description",

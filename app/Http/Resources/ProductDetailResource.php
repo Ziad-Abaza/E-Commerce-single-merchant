@@ -12,14 +12,12 @@ class ProductDetailResource extends JsonResource
      * Transform the resource into an array.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @return array<string, mixed>
+     * @return array<string, mixed>~
      */
     public function toArray($request)
     {
-        // $this now refers to the main Product model passed from the controller
-
         return [
-            // 1. Main Product Information
+            // Main Product Information
             'id' => $this->id,
             'name' => $this->name,
             'slug' => $this->slug,
@@ -34,42 +32,46 @@ class ProductDetailResource extends JsonResource
             'reviews_avg_rating' => $this->reviews_avg_rating,
             'reviews_count' => $this->reviews_count,
 
-            // 2. **THE FIX**: Embed the array of all variants (details).
             // We create a simple sub-resource here on-the-fly for each detail.
             'details' => $this->whenLoaded('details', function () {
                 return $this->details->map(function ($detail) {
+                    $attributes = [];
+                    
+                    if ($detail->relationLoaded('attributeValues')) {
+                        $attributes = $detail->attributeValues->map(function ($attributeValue) {
+                            // Clean up the value by removing escaped quotes if present
+                            $value = is_string($attributeValue->value) 
+                                ? stripslashes(trim($attributeValue->value, '"\'')) 
+                                : $attributeValue->value;
+                                
+                            return [
+                                'id' => $attributeValue->attribute_id,
+                                'name' => $attributeValue->attribute->name ?? null,
+                                'type' => $attributeValue->attribute->type ?? null,
+                                'value' => $value,
+                                'is_visible' => $attributeValue->attribute->is_visible_on_frontend ?? false,
+                                'is_variant' => $attributeValue->attribute->is_variant ?? false,
+                                'is_filterable' => $attributeValue->attribute->is_filterable ?? false,
+                            ];
+                        })->toArray();
+                    }
+
                     return [
                         'id' => $detail->id,
                         'product_id' => $detail->product_id,
-                        'size' => $detail->size,
                         'color' => $detail->color,
-                        'material' => $detail->material,
-                        'weight' => $detail->weight ? $detail->weight . ' kg' : null,
-                        'weight_in_grams' => $detail->weight_in_grams ? $detail->weight_in_grams . ' g' : null,
-                        'dimensions' => [
-                            'length' => $detail->length ? $detail->length . ' cm' : null,
-                            'width' => $detail->width ? $detail->width . ' cm' : null,
-                            'height' => $detail->height ? $detail->height . ' cm' : null,
-                        ],
                         'price' => (float) $detail->price,
                         'discount' => (float) $detail->discount,
-                        'final_price' => (float) $detail->final_price, // Assumes accessor on ProductDetail model
+                        'final_price' => (float) $detail->final_price, 
                         'stock_quantity' => (int) $detail->stock,
                         'sku_variant' => $detail->sku_variant,
                         'is_active' => (bool) $detail->is_active,
-
-
-
-                        'volume' => $detail->volume ? $detail->volume . ' cm3' : null,
-                        'origin' => $detail->origin,
-                        'quality' => $detail->quality,
-                        'packaging' => $detail->packaging,
                         'discount_percentage' => (float) $detail->discount_percentage,
                         'stock' => (int) $detail->stock,
                         'is_out_of_stock' => $detail->stock <= 0,
-                        'barcode' => $detail->barcode,
                         'main_image' => $detail->getMainImageUrl(),
                         'images_url' => $detail->getImagesUrl(),
+                        'attributes' => $attributes,
                         'created_at' => $detail->created_at?->toDateTimeString(),
                         'updated_at' => $detail->updated_at?->toDateTimeString(),
                     ];

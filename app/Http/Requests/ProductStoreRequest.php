@@ -27,7 +27,7 @@ class ProductStoreRequest extends FormRequest
             'brand' => 'nullable|string|max:255',
             'short_description' => 'nullable|string',
             'description' => 'nullable|string',
-            'sku' => 'required|string|max:100|unique:products,sku',
+            'sku' => 'nullable|string|max:100|unique:products,sku',
             'is_active' => 'boolean',
         ];
     }

@@ -34,7 +34,11 @@ class ProductController extends Controller
             'page' => 'nullable|integer|min:1',
         ]);
 
-        $query = Product::with(['categories', 'details', 'reviews'])
+        $query = Product::with([
+                'categories',
+                'details',
+                'reviews'
+            ])
             ->where('is_active', true);
 
         // Handle different product types
@@ -43,16 +47,15 @@ class ProductController extends Controller
         switch ($type) {
             case 'featured':
                 $query->where('is_active', true)
+                    ->where('is_featured', true)
                     ->latest()
-                    ->limit(8)
-                    ->get();
+                    ->limit(8);
                 break;
 
             case 'latest':
                 $query->where('is_active', true)
                     ->latest()
-                    ->limit(8)
-                    ->get();
+                    ->limit(8);
                 break;
 
             case 'category':
@@ -89,13 +92,13 @@ class ProductController extends Controller
                 break;
         }
 
-        // Apply price filters using ProductDetail
+        // Apply price filters using ProductDetail (variants)
         $query->whereHas('details', function ($q) use ($request) {
             if ($request->min_price) {
-                $q->whereRaw('(price - discount) >= ?', [$request->min_price]);
+                $q->whereRaw('(price - COALESCE(discount, 0)) >= ?', [$request->min_price]);
             }
             if ($request->max_price) {
-                $q->whereRaw('(price - discount) <= ?', [$request->max_price]);
+                $q->whereRaw('(price - COALESCE(discount, 0)) <= ?', [$request->max_price]);
             }
         });
 
@@ -136,7 +139,7 @@ class ProductController extends Controller
             $category = Category::find($request->category_id);
         }
 
-        return response()->json([
+        $response = [
             'message' => $this->getSuccessMessage($type, $category),
             'data' => ProductResource::collection($products->items()),
             'category' => $category ? new CategoryResource($category) : null,
@@ -148,7 +151,9 @@ class ProductController extends Controller
             ],
             'code' => 200,
             'success' => true,
-        ]);
+        ];
+        
+        return response()->json($response);
     }
 
     /**
@@ -162,7 +167,7 @@ class ProductController extends Controller
             case 'latest':
                 return 'Latest products retrieved successfully.';
             case 'category':
-                return $category ? "Products in category '{$category->name}' retrieved successfully." : 'Products by category retrieved successfully.';
+                return $category ? 'Products in category "' . $category->name . '" retrieved successfully.' : 'Products by category retrieved successfully.';
             case 'search':
                 return 'Search results retrieved successfully.';
             default:
@@ -183,7 +188,9 @@ class ProductController extends Controller
         $query = Product::where('is_active', true);
 
         // Always load essential relations
-        $product = $query->with(['categories', 'details'])->findOrFail($id);
+        $product = $query->with(['categories', 'details' => function ($query) {
+            $query->with(['attributeValues.attribute']);
+        },])->findOrFail($id);
 
         $keywords = explode(' ', $product->name);
         $likeConditions = collect($keywords)
@@ -191,20 +198,22 @@ class ProductController extends Controller
             ->map(fn($word) => "name LIKE '%" . addslashes($word) . "%'")
             ->implode(' OR ');
 
-        // Always fetch related products (by shared categories)
-        $relatedProducts = Product::with(['categories', 'details'])
-            ->where('is_active', true)
-            ->where('id', '!=', $id)
+        // Always fetch related products (by shared categories or name similarity)
+        $relatedProducts = Product::select('products.*') // Explicitly select all columns from products
+            ->with(['categories', 'details'])
+            ->where('products.is_active', true)
+            ->where('products.id', '!=', $id)
             ->when($product->categories->isNotEmpty(), function ($q) use ($product) {
                 $q->whereHas('categories', function ($subQuery) use ($product) {
                     $subQuery->whereIn('categories.id', $product->categories->pluck('id'));
                 });
             })
             ->when(!empty($likeConditions), function ($q) use ($likeConditions) {
+                $q->whereRaw("(" . $likeConditions . ")");
                 $q->orWhereRaw("({$likeConditions})");
             })
             ->limit(8)
-            ->get();
+            ->get([]);
 
         $response = [
             'message' => 'Product retrieved successfully.',

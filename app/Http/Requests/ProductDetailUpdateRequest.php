@@ -27,27 +27,20 @@ class ProductDetailUpdateRequest extends FormRequest
             $productDetailId = $productDetailId->id;
         }
 
-
         return [
-            'size' => 'nullable|string|max:50',
             'color' => 'nullable|string|max:50',
-            'material' => 'nullable|string|max:100',
-            'weight' => 'nullable|numeric|min:0',
-            'length' => 'nullable|numeric|min:0',
-            'width' => 'nullable|numeric|min:0',
-            'height' => 'nullable|numeric|min:0',
-            'origin' => 'nullable|string|max:100',
-            'quality' => 'nullable|string|max:50',
-            'packaging' => 'nullable|string|max:100',
             'price' => 'required|numeric|min:0',
-            'discount' => 'nullable|numeric|min:0',
+            'discount' => 'nullable|numeric|min:0|max:100',
             'stock' => 'required|integer|min:0',
             'min_stock_alert' => 'nullable|integer|min:0',
             'sku_variant' => 'nullable|string|max:100|unique:product_details,sku_variant,' . $productDetailId,
-            'barcode' => 'nullable|string|max:100|unique:product_details,barcode,' . $productDetailId,
+            'variant_identifier' => 'nullable|string|max:255',
             'is_active' => 'boolean',
             'images' => 'nullable|array',
             'images.*' => 'image|mimes:jpeg,png,jpg,webp,gif|max:8192',
+            'attributes' => 'nullable|array',
+            'attributes.*.id' => 'required|exists:attributes,id',
+            'attributes.*.value' => 'required',
         ];
     }
 

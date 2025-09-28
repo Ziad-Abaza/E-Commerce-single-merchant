@@ -1,0 +1,12 @@
+{
+  "dashboard": {
+    "attributes": {
+      "select_attributes": "Select Attributes",
+      "select_an_attribute": "Select an attribute",
+      "enter_value": "Enter value"
+    }
+  },
+  "common": {
+    "refresh": "Refresh"
+  }
+}

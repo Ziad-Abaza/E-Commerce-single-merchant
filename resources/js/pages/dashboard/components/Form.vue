@@ -97,6 +97,21 @@
                 </label>
             </div>
 
+            <!-- Attribute Selector -->
+            <AttributeSelector
+              v-else-if="field.type === 'attribute-selector'"
+              v-model="field.value"
+              :category-id="field.categoryId"
+              @change="(val) => field.value = val"
+              class="mt-2"
+            />
+
+            <!-- Attributes Manager -->
+            <div v-else-if="field.type === 'attributes'" class="mt-4">
+                <AttributeManager v-model="field.value" 
+                label="Choose attribute and add values"/>
+            </div>
+
             <!-- Date Input -->
             <input
                 v-else-if="field.type === 'date'"
@@ -227,9 +242,14 @@
 
         <button
             type="submit"
-            class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+            :disabled="isSubmitting"
+            class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-75 disabled:cursor-not-allowed flex items-center justify-center min-w-[100px]"
         >
-            Submit
+            <svg v-if="isSubmitting" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            {{ isSubmitting ? 'Submitting...' : 'Submit' }}
         </button>
     </form>
     <!-- UiToast component not available yet -->
@@ -237,7 +257,11 @@
 </template>
 
 <script setup>
-import { reactive, ref, watch } from "vue";
+import { reactive, ref, watch, computed } from "vue";
+import AttributeManager from './AttributeManager.vue';
+import AttributeSelector from './AttributeSelector.vue';
+
+const isSubmitting = ref(false);
 import FileDropzone from "./FileDropzone.vue";
 import Select from "./Select.vue";
 import CheckboxSelect from "./CheckboxSelect.vue";
@@ -248,6 +272,12 @@ import RichTextEditor from "./RichTextEditor.vue";
 // const toastRef = ref(null); // Commented out since UiToast is not available
 
 const emit = defineEmits(["submit"]);
+
+defineExpose({
+    setSubmitting: (value) => {
+        isSubmitting.value = value;
+    }
+});
 const props = defineProps({
     modelFields: { type: Array, required: true },
 });
@@ -318,39 +348,56 @@ const inputClass = (field) =>
         invalidFields.has(field.id) ? "border-red-500" : "border-gray-300",
     ].join(" ");
 
-const submitForm = () => {
-    invalidFields.clear();
-    let valid = true;
+const submitForm = async () => {
+    if (isSubmitting.value) return; // Prevent multiple submissions
+    
+    const formData = {};
+    let hasErrors = false;
 
-    fields.forEach((field) => {
-        if (
-            field.required &&
-            (field.value === null ||
-                field.value === "" ||
-                (Array.isArray(field.value) && !field.value.length))
-        ) {
-            invalidFields.add(field.id);
-            if (valid) {
-                const index = fields.findIndex((f) => f.id === field.id);
-                const el = fieldRefs.value[index];
-                if (el)
-                    el.scrollIntoView({ behavior: "smooth", block: "center" });
+    // Set loading state
+    isSubmitting.value = true;
+
+    try {
+        // Reset all error states
+        fields.forEach((field) => {
+            field.error = "";
+        });
+
+        // Validate required fields
+        fields.forEach((field) => {
+            if (field.required && !field.value && field.value !== 0) {
+                field.error = `${field.label} is required`;
+                hasErrors = true;
             }
-            valid = false;
+        });
+
+        // If there are validation errors, scroll to the first error
+        if (hasErrors) {
+            const firstErrorIndex = fields.findIndex(
+                (field) => field.error
+            );
+            if (firstErrorIndex !== -1 && fieldRefs.value[firstErrorIndex]) {
+                fieldRefs.value[firstErrorIndex].scrollIntoView({
+                    behavior: "smooth",
+                    block: "center",
+                });
+            }
+            return;
         }
-    });
 
-    if (!valid) {
-        toastRef.value.show("Please fill in all required fields.", "danger");
-        return;
+        // Prepare form data
+        fields.forEach((field) => {
+            formData[field.id] = field.value;
+        });
+
+        // Emit the form data
+        emit("submit", formData);
+    } catch (error) {
+        console.error("Form submission error:", error);
+    } finally {
+        // The parent component should call setSubmitting(false) when done
+        // to re-enable the form after successful submission or error handling
     }
-
-    const data = {};
-    fields.forEach((field) => {
-        data[field.id] = field.value;
-    });
-
-    emit("submit", data);
 };
 </script>
 

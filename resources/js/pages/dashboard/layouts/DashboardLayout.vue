@@ -3,6 +3,7 @@
         <div class="flex py-0">
             <!-- Sidebar -->
             <Sidebar
+                class="sidebar-container"
                 :isOpen="sidebarOpen"
                 @close="sidebarOpen = false"
                 @toggle="sidebarOpen = !sidebarOpen"
@@ -29,8 +30,8 @@
                         <div class="flex justify-between items-center py-4">
                             <div class="flex items-center">
                                 <button
-                                    @click="toggleSidebar"
-                                    class="lg:hidden -ml-0.5 -mt-0.5 h-12 w-12 inline-flex items-center justify-center rounded-md text-gray-500 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
+                                    @click.stop="toggleSidebar"
+                                    class="menu-button lg:hidden -ml-0.5 -mt-0.5 h-12 w-12 inline-flex items-center justify-center rounded-md text-gray-500 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
                                 >
                                     <span class="sr-only">Open sidebar</span>
                                     <svg
@@ -101,7 +102,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, onBeforeUnmount } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useTheme } from "@/composables/useTheme.js";
 import Sidebar from "../components/Sidebar.vue";
@@ -124,8 +125,29 @@ const toggleSidebar = () => {
 const checkScreen = () => {
     isMobile.value = window.innerWidth < 1024;
 };
+
+const handleClickOutside = (event) => {
+    const sidebar = document.querySelector('.sidebar-container');
+    const menuButton = document.querySelector('.menu-button');
+    
+    if (
+        sidebarOpen.value && 
+        isMobile.value && 
+        !sidebar.contains(event.target) && 
+        !menuButton.contains(event.target)
+    ) {
+        sidebarOpen.value = false;
+    }
+};
+
 onMounted(() => {
     checkScreen();
     window.addEventListener("resize", checkScreen);
+    document.addEventListener('click', handleClickOutside);
+});
+
+onBeforeUnmount(() => {
+    window.removeEventListener("resize", checkScreen);
+    document.removeEventListener('click', handleClickOutside);
 });
 </script>
