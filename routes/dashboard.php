@@ -77,7 +77,7 @@ Route::middleware(['auth:sanctum', 'verified'])->prefix('dashboard')->name('dash
             Route::post('/{id}/restore', 'restore')->name('restore');
             Route::delete('/{id}/force-delete', 'forceDelete')->name('force-delete');
         });
-        
+
     //  promo codes management
     Route::prefix('promo-codes')
         ->name('promo-codes.')
@@ -118,6 +118,24 @@ Route::middleware(['auth:sanctum', 'verified'])->prefix('dashboard')->name('dash
             Route::post('/{id}', 'update')->name('update');
             Route::delete('/{id}', 'destroy')->name('destroy');
         });
+
+    // Attributes Management
+    Route::middleware(['can:manage_products']) // Or use a new 'can:manage_attributes' permission
+        ->prefix('attributes')
+        ->name('attributes.')
+        ->controller(\App\Http\Controllers\Dashboard\AttributeController::class)
+        ->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('/{id}', 'show')->name('show');
+            Route::post('/', 'store')->name('store');
+            Route::post('/{id}', 'update')->name('update');
+            Route::delete('/{id}', 'destroy')->name('destroy');
+        });
+
+    // Custom route to get attributes for a specific category
+    Route::get('/categories/{categoryId}/attributes', [\App\Http\Controllers\Dashboard\AttributeController::class, 'getByCategory'])
+        ->middleware('can:manage_products')
+        ->name('categories.attributes');
 
     // Orders Management
     Route::middleware(['can:manage_orders'])

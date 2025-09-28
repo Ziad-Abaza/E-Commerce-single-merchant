@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Resources;
-
+use App\Http\Resources\AttributeResource;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class CategoryResource extends JsonResource
@@ -27,6 +27,7 @@ class CategoryResource extends JsonResource
             'products_count' => $this->when(isset($this->products_count), $this->products_count),
             'created_at' => $this->created_at?->toDateTimeString(),
             'updated_at' => $this->updated_at?->toDateTimeString(),
+            'attributes' => AttributeResource::collection($this->whenLoaded('attributes')),
         ];
     }
 }
