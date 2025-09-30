@@ -18,15 +18,16 @@ class DatabaseSeeder extends Seeder
             RoleSeeder::class,
             UserSeeder::class,
             SettingSeeder::class,
-            CategorySeeder::class,
-            ProductSeeder::class,
-            ProductDetailSeeder::class,
-            ReviewSeeder::class,
-            OrderSeeder::class,
-            CartSeeder::class,
+            // CategorySeeder::class,
+            // ProductSeeder::class,
+            // ProductDetailSeeder::class,
+            // ReviewSeeder::class,
+            // OrderSeeder::class,
+            // CartSeeder::class,
             WishlistCategorySeeder::class,
             WishlistItemSeeder::class,
             PolicySeeder::class,
+            ProductionSeeder::class,
         ]);
     }
 }
