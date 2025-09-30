@@ -6,7 +6,7 @@
                 ? 'fixed top-0 left-0 z-50 transform' +
                   (props.isOpen ? ' translate-x-0' : ' -translate-x-full')
                 : 'fixed left-0 top-0',
-            props.isOpen ? 'w-64' : 'w-20',
+            props.isOpen ? 'w-64' : 'w-16',
         ]"
     >
         <!-- Scrollable Content -->
@@ -48,7 +48,7 @@
 
             <!-- User -->
             <div
-                class="px-4 py-2 border-b border-gray-200 dark:border-gray-700 flex items-center space-x-3"
+                class="py-2 border-b border-gray-200 dark:border-gray-700 flex items-center justify-center space-x-3"
             >
                 <template v-if="userAvatar">
                     <img
@@ -284,6 +284,7 @@ const menuSections = [
                 icon: Squares2X2Icon,
             },
             {
+                name: "Contact Messages",
                 to: "/dashboard/contact-messages",
                 routeName: "dashboard.contact-messages",
                 icon: ChartBarIcon,

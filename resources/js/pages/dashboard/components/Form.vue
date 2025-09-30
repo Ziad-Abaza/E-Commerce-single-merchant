@@ -97,21 +97,6 @@
                 </label>
             </div>
 
-            <!-- Attribute Selector -->
-            <AttributeSelector
-              v-else-if="field.type === 'attribute-selector'"
-              v-model="field.value"
-              :category-id="field.categoryId"
-              @change="(val) => field.value = val"
-              class="mt-2"
-            />
-
-            <!-- Attributes Manager -->
-            <div v-else-if="field.type === 'attributes'" class="mt-4">
-                <AttributeManager v-model="field.value" 
-                label="Choose attribute and add values"/>
-            </div>
-
             <!-- Date Input -->
             <input
                 v-else-if="field.type === 'date'"
@@ -258,8 +243,6 @@
 
 <script setup>
 import { reactive, ref, watch, computed } from "vue";
-import AttributeManager from './AttributeManager.vue';
-import AttributeSelector from './AttributeSelector.vue';
 
 const isSubmitting = ref(false);
 import FileDropzone from "./FileDropzone.vue";

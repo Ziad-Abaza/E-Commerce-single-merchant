@@ -94,6 +94,20 @@ const routes = [
                 },
             },
             {
+                path: "users",
+                name: "dashboard.users",
+                component: Users,
+                meta: {
+                    title: "Users Management",
+                    requiresAuth: true,
+                    requiresPermission: "manage_users",
+                    breadcrumb: [
+                        { name: "Dashboard", path: "/dashboard" },
+                        { name: "Users", path: "/dashboard/users" },
+                    ],
+                },
+            },
+            {
                 path: "roles",
                 name: "dashboard.roles",
                 component: Roles,
@@ -160,7 +174,10 @@ const routes = [
                     requiresPermission: "manage_settings",
                     breadcrumb: [
                         { name: "Dashboard", path: "/dashboard" },
-                        { name: "Privacy & Policies", path: "/dashboard/privacy-policy" },
+                        {
+                            name: "Privacy & Policies",
+                            path: "/dashboard/privacy-policy",
+                        },
                     ],
                 },
             },
