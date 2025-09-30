@@ -160,6 +160,11 @@ export const useAuthStore = defineStore("auth", {
                             "laravel_session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
                         document.cookie =
                             "remember_web_5=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+                            
+                        // Refresh the page and redirect to login
+                        window.location.href = '/login';
+                        window.location.reload();
+                        return;
                     }
                 }
             } catch (error) {
@@ -175,6 +180,10 @@ export const useAuthStore = defineStore("auth", {
                 localStorage.removeItem("auth_permissions");
                 localStorage.removeItem("auth_roles");
                 localStorage.removeItem("auth_is_verified");
+                
+                // Ensure redirection happens even if there was an error
+                window.location.href = '/login';
+                window.location.reload();
             }
         },
 
