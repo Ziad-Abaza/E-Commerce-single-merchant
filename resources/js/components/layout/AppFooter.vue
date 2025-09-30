@@ -48,6 +48,7 @@
                     </p>
                     <div class="flex space-x-4">
                         <a
+                            v-if="siteStore.settings.facebook_url_visible"
                             :href="siteStore.settings.facebook_url"
                             class="w-10 h-10 bg-blue-600 dark:bg-blue-700 rounded-full flex items-center justify-center text-white hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors"
                         >
@@ -57,11 +58,12 @@
                                 viewBox="0 0 24 24"
                             >
                                 <path
-                                    d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"
+                                    d="M9.101 23.691v-7.98H6.627v-3.667h2.474v-1.58c0-4.085 1.848-5.978 5.858-5.978.401 0 .955.042 1.468.103a8.68 8.68 0 0 1 1.141.195v3.325a8.623 8.623 0 0 0-.653-.036 26.805 26.805 0 0 0-.733-.009c-.707 0-1.259.096-1.675.309a1.686 1.686 0 0 0-.679.622c-.258.42-.374.995-.374 1.752v1.297h3.919l-.386 2.103-.287 1.564h-3.246v8.245C19.396 23.238 24 18.179 24 12.044c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.628 3.874 10.35 9.101 11.647Z"
                                 />
                             </svg>
                         </a>
                         <a
+                            v-if="siteStore.settings.twitter_url_visible"
                             :href="siteStore.settings.twitter_url"
                             class="w-10 h-10 bg-blue-800 dark:bg-blue-900 rounded-full flex items-center justify-center text-white hover:bg-blue-900 dark:hover:bg-blue-800 transition-colors"
                         >
@@ -76,6 +78,7 @@
                             </svg>
                         </a>
                         <a
+                            v-if="siteStore.settings.instagram_url_visible"
                             :href="siteStore.settings.instagram_url"
                             class="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 dark:from-purple-600 dark:to-pink-600 rounded-full flex items-center justify-center text-white hover:from-purple-600 hover:to-pink-600 dark:hover:from-purple-500 dark:hover:to-pink-500 transition-colors"
                         >
@@ -90,6 +93,7 @@
                             </svg>
                         </a>
                         <a
+                            v-if="siteStore.settings.tiktok_url_visible"
                             :href="siteStore.settings.tiktok_url"
                             target="_blank"
                             class="w-10 h-10 bg-black dark:bg-gray-900 rounded-full flex items-center justify-center text-white hover:bg-gray-800 dark:hover:bg-gray-700 transition-colors"
@@ -202,8 +206,8 @@
                 class="border-t border-gray-800 dark:border-gray-700 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center"
             >
                 <p class="text-gray-400 text-sm">
-                   &copy; {{ currentYear }} {{ siteStore.settings.site_name }}. All rights reserved.
-
+                    &copy; {{ currentYear }} {{ siteStore.settings.site_name }}.
+                    All rights reserved.
                 </p>
                 <div class="flex space-x-6 mt-4 md:mt-0">
                     <!-- router link -->

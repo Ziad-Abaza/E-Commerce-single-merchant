@@ -6,8 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
-use Spatie\MediaLibrary\MediaCollections\Models\Media;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Product extends Model
@@ -60,6 +59,30 @@ class Product extends Model
     {
         return (int) $this->details()->sum('stock');
     }
+
+    /**
+     * Determine if the product requires opening the product page before adding to cart
+     *
+     * @return bool
+     */
+    public function checkPreventDirectAddToCart(): bool
+    {
+        // Get prevent_direct_add_to_cart setting from sitting table
+        $preventDirect = (bool) DB::table('Settings')
+            ->where('key', 'prevent_direct_add_to_cart')
+            ->value('value');
+
+        // Count product details
+        $detailsCount = $this->details()->count();
+
+        // Check if any product detail has attributes that are variants
+        $hasVariant = $this->details()->whereHas('attributes', function ($query) {
+            $query->where('is_variant', true);
+        })->exists();
+
+        return $preventDirect && $detailsCount > 1 && $hasVariant;
+    }
+
 
     /**
      * Get the categories that belong to this product.

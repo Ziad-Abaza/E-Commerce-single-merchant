@@ -38,6 +38,7 @@ class ProductResource extends JsonResource
             'stock_quantity' => $this->details->sum('stock') ?? 0,
             'details' => ProductDetailResource::collection($this->whenLoaded('details')),
             'reviews' => ReviewResource::collection($this->whenLoaded('reviews')),
+            'block_direct_addition' => $this->checkPreventDirectAddToCart(),
         ];
     }
 

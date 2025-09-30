@@ -27,7 +27,7 @@
                 <div class="max-w-6xl mx-auto">
                     <div class="grid lg:grid-cols-2 gap-12">
                         <!-- Contact Form -->
-                        <div>
+                        <div v-if="siteStore.settings.contact_form_visible">
                             <h2
                                 class="text-3xl font-bold text-gray-900 mb-6 dark:text-white"
                             >
@@ -247,7 +247,7 @@
 
                             <div class="space-y-6">
                                 <!-- Address -->
-                                <div class="flex items-start">
+                                <div class="flex items-start" v-if="siteStore.settings.address_visible">
                                     <div class="flex-shrink-0">
                                         <div
                                             class="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center dark:bg-gray-700"
@@ -288,7 +288,7 @@
                                 </div>
 
                                 <!-- Phone -->
-                                <div class="flex items-start">
+                                <div class="flex items-start" v-if="siteStore.settings.contact_phone_visible">
                                     <div class="flex-shrink-0">
                                         <div
                                             class="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center dark:bg-gray-700"
@@ -336,7 +336,7 @@
                                 </div>
 
                                 <!-- Email -->
-                                <div class="flex items-start">
+                                <div class="flex items-start" v-if="siteStore.settings.contact_email_visible">
                                     <div class="flex-shrink-0">
                                         <div
                                             class="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center dark:bg-gray-700"
@@ -356,7 +356,7 @@
                                             </svg>
                                         </div>
                                     </div>
-                                    <div class="ml-4">
+                                    <div class="ml-4" >
                                         <h3
                                             class="text-lg font-semibold text-gray-900 mb-1 dark:text-white"
                                         >
@@ -384,7 +384,7 @@
                                 </div>
 
                                 <!-- Live Chat -->
-                                <div class="flex items-start">
+                                <div class="flex items-start" v-if="siteStore.settings.contact_whatsapp_visible">
                                     <div class="flex-shrink-0">
                                         <div
                                             class="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center dark:bg-gray-700"
@@ -431,6 +431,7 @@
 
                             <!-- Business Hours -->
                             <div
+                                v-if="siteStore.settings.business_hours_visible"
                                 class="mt-12 p-6 bg-gray-50 rounded-lg dark:bg-gray-800"
                             >
                                 <h3
@@ -469,6 +470,7 @@
                                 </p>
                                 <div class="flex space-x-4">
                                     <a
+                                        v-if="siteStore.settings.facebook_url_visible"
                                         :href="siteStore.settings.facebook_url"
                                         class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white hover:bg-blue-700 transition-colors dark:hover:bg-blue-800"
                                     >
@@ -478,11 +480,12 @@
                                             viewBox="0 0 24 24"
                                         >
                                             <path
-                                                d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"
+                                                d="M9.101 23.691v-7.98H6.627v-3.667h2.474v-1.58c0-4.085 1.848-5.978 5.858-5.978.401 0 .955.042 1.468.103a8.68 8.68 0 0 1 1.141.195v3.325a8.623 8.623 0 0 0-.653-.036 26.805 26.805 0 0 0-.733-.009c-.707 0-1.259.096-1.675.309a1.686 1.686 0 0 0-.679.622c-.258.42-.374.995-.374 1.752v1.297h3.919l-.386 2.103-.287 1.564h-3.246v8.245C19.396 23.238 24 18.179 24 12.044c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.628 3.874 10.35 9.101 11.647Z"
                                             />
                                         </svg>
                                     </a>
                                     <a
+                                        v-if="siteStore.settings.twitter_url_visible"
                                         :href="siteStore.settings.twitter_url"
                                         class="w-10 h-10 bg-blue-800 rounded-full flex items-center justify-center text-white hover:bg-blue-900 transition-colors dark:hover:bg-blue-950"
                                     >
@@ -497,6 +500,7 @@
                                         </svg>
                                     </a>
                                     <a
+                                        v-if="siteStore.settings.instagram_url_visible"
                                         :href="siteStore.settings.instagram_url"
                                         class="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white hover:from-purple-600 hover:to-pink-600 transition-colors"
                                     >
@@ -511,6 +515,7 @@
                                         </svg>
                                     </a>
                                     <a
+                                        v-if="siteStore.settings.tiktok_url_visible"
                                         :href="siteStore.settings.tiktok_url"
                                         target="_blank"
                                         class="w-10 h-10 bg-black rounded-full flex items-center justify-center text-white hover:bg-gray-800 transition-colors dark:hover:bg-gray-700"

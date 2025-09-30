@@ -124,7 +124,7 @@ class ProductionSeeder extends Seeder
         $asusTuf->categories()->attach($laptopsCategory->id);
 
         // Add product details
-        $asusTufDetail = ProductDetail::create([
+        $asusTufBlackDetail = ProductDetail::create([
             'product_id' => $asusTuf->id,
             'color' => 'Black',
             'price' => 1499.99,
@@ -134,29 +134,53 @@ class ProductionSeeder extends Seeder
             'sku_variant' => 'ASUS-TUF-F15-BK-001',
             'is_active' => true,
         ]);
+        // Add product details
+        $asusTufGrayDetail = ProductDetail::create([
+            'product_id' => $asusTuf->id,
+            'color' => 'Gray',
+            'price' => 1600,
+            'discount' => 0.00,
+            'stock' => 15,
+            'min_stock_alert' => 3,
+            'sku_variant' => 'ASUS-TUF-F15-BK-002',
+            'is_active' => true,
+        ]);
 
         // Add product images for ASUS TUF
-        $asusImages = [
+        $asusImagesBlack = [
             '4-33-300x259.jpg',
             '3-32-300x203.jpg',
+        ];
+        // Add product images for ASUS TUF
+        $asusImagesGray = [
+            '51dBJc-pNcL._AC_SL1500_.jpg',
             '2-33-300x205.jpg',
         ];
 
-        foreach ($asusImages as $imageUrl) {
-            $asusTufDetail->addMedia(public_path('images/demo/' . $imageUrl))
+        foreach ($asusImagesBlack as $imageUrl) {
+            $asusTufBlackDetail->addMedia(public_path('images/demo/' . $imageUrl))
                 ->toMediaCollection('images');
         }
 
-        
-
+        foreach ($asusImagesGray as $imageUrl) {
+            $asusTufGrayDetail->addMedia(public_path('images/demo/' . $imageUrl))
+                ->toMediaCollection('images');
+        }
 
         // Add attribute values for ASUS TUF
-        $this->createAttributeValue($asusTufDetail->id, $createdAttributes['processor']->id, 'Intel Core i7-12700H');
-        $this->createAttributeValue($asusTufDetail->id, $createdAttributes['graphics']->id, 'NVIDIA GeForce RTX 4070 (Laptop, 140W)');
-        $this->createAttributeValue($asusTufDetail->id, $createdAttributes['display']->id, '15.6", Full HD (1920 x 1080), 144 Hz, IPS + G-Sync');
-        $this->createAttributeValue($asusTufDetail->id, $createdAttributes['storage']->id, '2000GB SSD');
-        $this->createAttributeValue($asusTufDetail->id, $createdAttributes['ram']->id, '32GB DDR5');
-        $this->createAttributeValue($asusTufDetail->id, $createdAttributes['weight']->id, '2.20 kg (4.9 lbs)');
+        $this->createAttributeValue($asusTufBlackDetail->id, $createdAttributes['processor']->id, 'Intel Core i7-12700H');
+        $this->createAttributeValue($asusTufBlackDetail->id, $createdAttributes['graphics']->id, 'NVIDIA GeForce RTX 4070 (Laptop, 140W)');
+        $this->createAttributeValue($asusTufBlackDetail->id, $createdAttributes['display']->id, '15.6", Full HD (1920 x 1080), 144 Hz, IPS + G-Sync');
+        $this->createAttributeValue($asusTufBlackDetail->id, $createdAttributes['storage']->id, '2000GB SSD');
+        $this->createAttributeValue($asusTufBlackDetail->id, $createdAttributes['ram']->id, '32GB DDR5');
+        $this->createAttributeValue($asusTufBlackDetail->id, $createdAttributes['weight']->id, '2.20 kg (4.9 lbs)');
+
+        $this->createAttributeValue($asusTufGrayDetail->id, $createdAttributes['processor']->id, 'Intel Core i7-12700H');
+        $this->createAttributeValue($asusTufGrayDetail->id, $createdAttributes['graphics']->id, 'NVIDIA GeForce RTX 4070 (Laptop, 140W)');
+        $this->createAttributeValue($asusTufGrayDetail->id, $createdAttributes['display']->id, '15.6", Full HD (1920 x 1080), 144 Hz, IPS + G-Sync');
+        $this->createAttributeValue($asusTufGrayDetail->id, $createdAttributes['storage']->id, '2000GB SSD');
+        $this->createAttributeValue($asusTufGrayDetail->id, $createdAttributes['ram']->id, '32GB DDR5');
+        $this->createAttributeValue($asusTufGrayDetail->id, $createdAttributes['weight']->id, '2.20 kg (4.9 lbs)');
 
         // Create ASUS Vivobook 15
         $asusVivobook = Product::create([

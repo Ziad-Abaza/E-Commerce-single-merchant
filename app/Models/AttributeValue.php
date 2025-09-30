@@ -13,7 +13,7 @@ class AttributeValue extends Model
      * @var array
      */
     protected $fillable = [
-        'product_id',
+        'product_detail_id',
         'attribute_id',
         'value',
         'value_type',
@@ -39,10 +39,18 @@ class AttributeValue extends Model
     /**
      * Get the product that owns the attribute value through product detail.
      */
-    public function product(): BelongsTo
+    public function product()
     {
-        return $this->belongsTo(Product::class, 'product_id', 'id', 'productDetail');
+        return $this->hasOneThrough(
+            Product::class,       
+            ProductDetail::class, 
+            'id',               
+            'id',               
+            'product_detail_id',   
+            'product_id'          
+        );
     }
+
 
     /**
      * Get the attribute that owns the attribute value.

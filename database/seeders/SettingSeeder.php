@@ -239,7 +239,17 @@ class SettingSeeder extends Seeder
                 'is_protected' => true,
                 'sort_order' => 5,
             ],
-
+            [
+                'key' => 'prevent_direct_add_to_cart',
+                'value' => '0',
+                'type' => 'boolean',
+                'group' => 'order',
+                'label' => 'Prevent Direct Add to Cart',
+                'description' => 'If enabled, customers cannot add a product to the cart directly from outside. They must open the product page first if it has options or details affecting the price.',
+                'is_public' => true,
+                'is_protected' => true,
+                'sort_order' => 6,
+            ],
             // Social Media Links
             [
                 'key' => 'facebook_url',
@@ -295,6 +305,17 @@ class SettingSeeder extends Seeder
                 'is_public' => true,
                 'is_protected' => true,
                 'sort_order' => 8,
+            ],
+            [
+                'key' => 'contact_form_visible',
+                'value' => '1',
+                'type' => 'boolean',
+                'group' => 'contact',
+                'label' => 'Show Contact Form',
+                'description' => 'Toggle visibility of the contact form section on the website footer or contact page.',
+                'is_public' => true,
+                'is_protected' => true,
+                'sort_order' => 9,
             ],
 
             // Appearance

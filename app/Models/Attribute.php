@@ -19,7 +19,7 @@ class Attribute extends Model
         'options',
         'is_required',
         'is_filterable',
-        '',
+        'is_variant',
         'is_visible_on_frontend',
         'sort_order',
     ];
