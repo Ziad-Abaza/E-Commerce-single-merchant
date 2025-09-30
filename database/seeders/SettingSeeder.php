@@ -74,7 +74,7 @@ class SettingSeeder extends Seeder
             // Contact Settings
             [
                 'key' => 'contact_email',
-                'value' => 'contact@example.com',
+                'value' => 'contact@gmail.com',
                 'type' => 'text',
                 'group' => 'contact',
                 'label' => 'Contact Email',
