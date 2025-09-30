@@ -79,8 +79,6 @@ export const useCartStore = defineStore('cart', {
             this.error = null
             try {
                 const authStore = useAuthStore()
-                console.log("Auth Store User:", authStore.user?.id);
-                console.log("product_detail_id:", productDetailId, "quantity:", quantity);
                 const response = await axios.post('/carts', {
                     user_id: authStore.user?.id,
                     product_detail_id: productDetailId,
