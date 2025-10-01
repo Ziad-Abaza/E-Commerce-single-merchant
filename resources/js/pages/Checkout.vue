@@ -394,7 +394,7 @@ const grandTotal = computed(() => {
 
 // Format price
 const formatPrice = (price) => {
-    return `${parseFloat(price || 0).toFixed(2)} ${siteStore.settings.currency || "USD"}`;
+    return `${parseFloat(price || 0).toFixed(2)} ${siteStore.settings.currency || "EGP"}`;
 };
 
 // WhatsApp Order Function
@@ -424,7 +424,7 @@ const sendOrderViaWhatsApp = async () => {
             shipping_fee: shippingCost.value,
             tax: taxAmount.value,
             total: grandTotal.value,
-            currency: siteStore.settings?.currency || "USD",
+            currency: siteStore.settings?.currency || "EGP",
         };
 
         const { success, data, error } = await orderStore.sendOrderViaWhatsApp(

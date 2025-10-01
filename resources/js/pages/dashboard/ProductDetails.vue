@@ -144,6 +144,7 @@
                     <img
                         :src="
                             product?.image_url ||
+                            product?.main_image_url ||
                             '/images/placeholder-product.png'
                         "
                         :alt="product?.name"

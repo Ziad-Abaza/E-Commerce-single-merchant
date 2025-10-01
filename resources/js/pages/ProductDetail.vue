@@ -144,14 +144,14 @@
                                     class="text-3xl font-bold text-gray-900 dark:text-white"
                                 >
                                     {{ formatPrice(finalPrice) }}
-                                    {{ siteStore.settings?.currency ?? "USD" }}
+                                    {{ siteStore.settings?.currency ?? "EGP" }}
                                 </span>
                                 <span
                                     v-if="discountPercentage > 0"
                                     class="text-xl text-gray-500 line-through dark:text-gray-400"
                                 >
                                     {{ formatPrice(originalPrice) }}
-                                    {{ siteStore.settings?.currency ?? "USD" }}
+                                    {{ siteStore.settings?.currency ?? "EGP" }}
                                 </span>
                             </div>
                             <span
