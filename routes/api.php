@@ -97,6 +97,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/', 'index')->name('index');
         Route::delete('/clear', 'clear')->name('clear');
         Route::post('/', 'store')->name('store');
+        Route::post('/sync', 'sync')->name('sync');
         Route::post('/{id}', 'update')->name('update');
         Route::delete('/{id}', 'destroy')->name('destroy');
     });

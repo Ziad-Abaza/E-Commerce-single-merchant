@@ -162,12 +162,90 @@ class CartController extends Controller
                 'errors' => null,
                 'code' => 201,
             ], 201);
-
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Failed to add item to cart', ['error' => $e->getMessage()]);
             return response()->json([
                 'message' => 'Failed to add item to cart.',
+                'data' => null,
+                'errors' => ['server' => [$e->getMessage()]],
+                'code' => 500,
+            ], 500);
+        }
+    }
+
+    /**
+     * Sync multiple cart items at once
+     * Expects: { items: [{ product_detail_id: 1, quantity: 2 }, ...] }
+     */
+    public function sync(Request $request)
+    {
+        $userId = Auth::id();
+
+        if (!$userId) {
+            return response()->json([
+                'message' => 'User not authenticated',
+                'data' => null,
+                'errors' => ['auth' => ['User must be logged in']],
+                'code' => 401,
+            ], 401);
+        }
+
+        $items = $request->input('items', []);
+
+        if (empty($items) || !is_array($items)) {
+            return response()->json([
+                'message' => 'No items provided for sync',
+                'data' => null,
+                'errors' => ['items' => ['Please provide an array of cart items']],
+                'code' => 400,
+            ], 400);
+        }
+
+        DB::beginTransaction();
+        try {
+            foreach ($items as $item) {
+                $productDetailId = $item['product_detail_id'] ?? null;
+                $quantity = max(0, intval($item['quantity'] ?? 0));
+
+                if (!$productDetailId || $quantity <= 0) continue;
+
+                $cartItem = Cart::firstOrNew([
+                    'user_id' => $userId,
+                    'product_detail_id' => $productDetailId,
+                ]);
+
+                // إذا موجود مسبقًا، نجمع الكمية القديمة مع الجديدة
+                $cartItem->quantity = ($cartItem->quantity ?? 0) + $quantity;
+                $cartItem->save();
+            }
+
+            DB::commit();
+
+            // إعادة تحميل الكارت بعد المزامنة
+            $cartItems = Cart::with('productDetail.product')->where('user_id', $userId)->get();
+
+            $summary = [
+                'total_items' => $cartItems->sum('quantity'),
+                'subtotal' => $cartItems->sum(function ($item) {
+                    return $item->productDetail->final_price * $item->quantity;
+                }),
+            ];
+
+            return response()->json([
+                'message' => 'Cart synced successfully.',
+                'data' => [
+                    'items' => CartResource::collection($cartItems),
+                    'summary' => $summary,
+                ],
+                'errors' => null,
+                'code' => 200,
+            ], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Failed to sync cart', ['error' => $e->getMessage()]);
+            return response()->json([
+                'message' => 'Failed to sync cart.',
                 'data' => null,
                 'errors' => ['server' => [$e->getMessage()]],
                 'code' => 500,
@@ -319,4 +397,3 @@ class CartController extends Controller
         }
     }
 }
-
