@@ -39,6 +39,44 @@
         </div>
       </div>
 
+      <!-- Phone -->
+      <div>
+        <label for="phone" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+          Phone Number
+        </label>
+        <div class="mt-1">
+          <input
+            id="phone"
+            v-model="form.phone"
+            type="tel"
+            required
+            class="appearance-none block w-full px-3 py-2 border rounded-md placeholder-gray-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-100"
+            :class="{ 'border-red-300 dark:border-red-600': errors.phone }"
+            placeholder="Enter your phone number"
+          />
+          <p v-if="errors.phone" class="mt-2 text-sm text-red-600 dark:text-red-400">{{ errors.phone }}</p>
+        </div>
+      </div>
+
+      <!-- Address -->
+      <div>
+        <label for="address" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+          Address
+        </label>
+        <div class="mt-1">
+          <textarea
+            id="address"
+            v-model="form.address"
+            rows="3"
+            required
+            class="appearance-none block w-full px-3 py-2 border rounded-md placeholder-gray-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-100"
+            :class="{ 'border-red-300 dark:border-red-600': errors.address }"
+            placeholder="Enter your address "
+          ></textarea>
+          <p v-if="errors.address" class="mt-2 text-sm text-red-600 dark:text-red-400">{{ errors.address }}</p>
+        </div>
+      </div>
+
       <!-- Password -->
       <div>
         <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -137,6 +175,8 @@ const toast = useToast()
 const form = reactive({
   name: '',
   email: '',
+  phone: '',
+  address: '',
   password: '',
   password_confirmation: '',
   terms: false
@@ -155,6 +195,10 @@ const validateForm = () => {
     errors.value.email = 'Email is required'
   } else if (!/\S+@\S+\.\S+/.test(form.email)) {
     errors.value.email = 'Email is invalid'
+  }
+
+  if (form.phone && !/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/.test(form.phone)) {
+    errors.value.phone = 'Please enter a valid phone number'
   }
 
   if (!form.password) {
@@ -183,6 +227,8 @@ const handleSubmit = async () => {
     const result = await authStore.register({
       name: form.name,
       email: form.email,
+      phone: form.phone,
+      address: form.address,
       password: form.password,
       password_confirmation: form.password_confirmation
     })
