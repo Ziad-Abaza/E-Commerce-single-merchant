@@ -68,7 +68,7 @@ class Product extends Model
     public function checkPreventDirectAddToCart(): bool
     {
         // Get prevent_direct_add_to_cart setting from sitting table
-        $preventDirect = (bool) DB::table('Settings')
+        $preventDirect = (bool) DB::table('settings')
             ->where('key', 'prevent_direct_add_to_cart')
             ->value('value');
 
