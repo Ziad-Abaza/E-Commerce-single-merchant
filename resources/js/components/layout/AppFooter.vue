@@ -143,7 +143,7 @@
                                 Cart
                             </router-link>
                         </li>
-                        <li>
+                        <li v-if="siteStore.settings.enable_about_page">
                             <router-link
                                 to="/about"
                                 class="text-gray-300 hover:text-white transition-colors"
@@ -151,7 +151,7 @@
                                 About Us
                             </router-link>
                         </li>
-                        <li>
+                        <li v-if="siteStore.settings.enable_contact_page">
                             <router-link
                                 to="/contact"
                                 class="text-gray-300 hover:text-white transition-colors"
@@ -163,10 +163,10 @@
                 </div>
 
                 <!-- Customer Service -->
-                <div>
+                <div v-if="hasActiveCustomerServiceLinks">
                     <h3 class="text-lg font-semibold mb-4">Customer Service</h3>
                     <ul class="space-y-2">
-                        <li>
+                        <li v-if="siteStore.settings.enable_faq_page">
                             <router-link
                                 to="/faq"
                                 class="text-gray-300 hover:text-white transition-colors"
@@ -174,15 +174,15 @@
                                 FAQ
                             </router-link>
                         </li>
-                        <li>
+                        <li v-if="siteStore.settings.enable_return_policy_page">
                             <router-link
                                 to="/return-policy"
                                 class="text-gray-300 hover:text-white transition-colors"
                             >
-                                returns
+                                Return Policy
                             </router-link>
                         </li>
-                        <li>
+                        <li v-if="siteStore.settings.enable_shipping_policy_page">
                             <router-link
                                 to="/shipping-policy"
                                 class="text-gray-300 hover:text-white transition-colors"
@@ -190,7 +190,7 @@
                                 Shipping Policy
                             </router-link>
                         </li>
-                        <li>
+                        <li v-if="siteStore.settings.enable_warranty_policy_page">
                             <router-link
                                 to="/warranty-policy"
                                 class="text-gray-300 hover:text-white transition-colors"
@@ -213,18 +213,21 @@
                 <div class="flex space-x-6 mt-4 md:mt-0">
                     <!-- router link -->
                     <router-link
+                        v-if="siteStore.settings.enable_privacy_page"
                         to="/privacy-policy"
                         class="text-gray-400 hover:text-white dark:hover:text-gray-200 text-sm transition-colors"
                     >
                         Privacy Policy
                     </router-link>
                     <router-link
+                        v-if="siteStore.settings.enable_terms_page"
                         to="/terms-and-conditions"
                         class="text-gray-400 hover:text-white dark:hover:text-gray-200 text-sm transition-colors"
                     >
                         Terms & Conditions
                     </router-link>
                     <router-link
+                        v-if="siteStore.settings.enable_cookies_policy_page"
                         to="/cookies-policy"
                         class="text-gray-400 hover:text-white dark:hover:text-gray-200 text-sm transition-colors"
                     >
@@ -243,4 +246,13 @@ import { useSiteStore } from "../../stores/site";
 const siteStore = useSiteStore();
 
 const currentYear = computed(() => new Date().getFullYear());
+
+const hasActiveCustomerServiceLinks = computed(() => {
+    return (
+        siteStore.settings.enable_faq_page === true || siteStore.settings.enable_faq_page === '1' ||
+        siteStore.settings.enable_return_policy_page === true || siteStore.settings.enable_return_policy_page === '1' ||
+        siteStore.settings.enable_shipping_policy_page === true || siteStore.settings.enable_shipping_policy_page === '1' ||
+        siteStore.settings.enable_warranty_policy_page === true || siteStore.settings.enable_warranty_policy_page === '1'
+    );
+});
 </script>

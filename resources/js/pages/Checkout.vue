@@ -437,7 +437,6 @@ const sendOrderViaWhatsApp = async () => {
             },
         );
         if (!success) {
-            console.error('[Checkout] Order processing failed:', error);
             throw new Error(error || "Failed to process order");
         }
 
@@ -452,14 +451,7 @@ const sendOrderViaWhatsApp = async () => {
             }
         }, 1000);
     } catch (error) {
-        console.error('[Checkout] Order submission error:', {
-            message: error.message,
-            stack: error.stack,
-            response: error.response?.data
-        });
-        
         const errorMessage = error.response?.data?.message || error.message || "Something went wrong. Please try again later.";
-        console.error('[Checkout] Displaying error to user:', errorMessage);
         toast.error(errorMessage);
     } finally {
         loading.value = false;

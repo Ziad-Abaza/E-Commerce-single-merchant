@@ -123,7 +123,7 @@
                             </router-link>
                         </li>
 
-                        <li>
+                        <li v-if="siteStore.settings.enable_about_page">
                             <router-link
                                 to="/about"
                                 @click="$emit('close')"
@@ -150,7 +150,7 @@
                             </router-link>
                         </li>
 
-                        <li>
+                        <li v-if="siteStore.settings.enable_contact_page">
                             <router-link
                                 to="/contact"
                                 @click="$emit('close')"
