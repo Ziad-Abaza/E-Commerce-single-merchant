@@ -21,6 +21,8 @@ class PermissionSeeder extends Seeder
             'manage_roles',
             'manage_permissions',
             'manage_contact_messages',
+            'manage_promo_codes',
+            'manage_privacy',
             'view_dashboard',
         ];
 

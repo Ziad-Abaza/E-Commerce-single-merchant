@@ -295,6 +295,13 @@ const menuSections = [
                 routeName: "dashboard.contact-messages",
                 icon: ChartBarIcon,
             },
+            {
+                name: "Promo Codes",
+                to: "/dashboard/promo-codes",
+                routeName: "dashboard.promo-codes",
+                icon: DocumentChartBarIcon,
+                permission: "manage_promo_codes",
+            },
         ],
     },
     {

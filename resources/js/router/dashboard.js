@@ -17,6 +17,7 @@ import Reviews from "../pages/dashboard/Reviews.vue";
 import Settings from "../pages/dashboard/Settings.vue";
 import Contact from "../pages/dashboard/ContactMessages.vue";
 import PrivacyPolicy from "../pages/dashboard/PrivacyPolicy.vue";
+import PromoCodes from "../pages/dashboard/PromoCodes.vue";
 const routes = [
     {
         path: "/dashboard",
@@ -171,12 +172,28 @@ const routes = [
                 component: PrivacyPolicy,
                 meta: {
                     title: "Privacy & Policies",
-                    requiresPermission: "manage_settings",
+                    requiresPermission: "manage_privacy",
                     breadcrumb: [
                         { name: "Dashboard", path: "/dashboard" },
                         {
                             name: "Privacy & Policies",
                             path: "/dashboard/privacy-policy",
+                        },
+                    ],
+                },
+            },
+            {
+                path: "promo-codes",
+                name: "dashboard.promo-codes",
+                component: PromoCodes,
+                meta: {
+                    title: "Promo Codes",
+                    requiresPermission: "manage_promo_codes",
+                    breadcrumb: [
+                        { name: "Dashboard", path: "/dashboard" },
+                        {
+                            name: "Promo Codes",
+                            path: "/dashboard/promo-codes",
                         },
                     ],
                 },

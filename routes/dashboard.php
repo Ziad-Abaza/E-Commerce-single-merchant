@@ -13,6 +13,33 @@ use App\Http\Controllers\Dashboard\PolicyController;
 
 Route::middleware(['auth:sanctum', 'verified'])->prefix('dashboard')->name('dashboard.')->group(function () {
 
+    // Promo Codes
+
+
+    // Promo Codes
+    Route::middleware(['can:manage_promo_codes'])
+        ->prefix('promo-codes')
+        ->name('promo-codes.')
+        ->controller(App\Http\Controllers\Dashboard\PromoCodeController::class)
+        ->group(function () {
+            // List & Create
+            Route::get('/', 'index')->name('index');
+            Route::post('/', 'store')->name('store');
+
+            // Trashed promo codes
+            Route::get('/trash', 'trash')->name('trash');
+
+            // Single promo code
+            Route::get('/{promoCode}', 'show')->name('show');
+            Route::post('/{promoCode}', 'update')->name('update');
+            Route::delete('/{promoCode}', 'destroy')->name('destroy');
+
+            // Extra actions
+            Route::post('/{promoCode}/toggle-status', 'toggleStatus')->name('toggle-status');
+            Route::post('/{id}/restore', 'restore')->name('restore');
+            Route::delete('/{id}/force-delete', 'forceDelete')->name('force-delete');
+        });
+
     // Dashboard Home
     Route::controller(\App\Http\Controllers\Dashboard\HomeController::class)->group(function () {
         Route::get('/overview', 'overview')->name('overview');
@@ -49,7 +76,7 @@ Route::middleware(['auth:sanctum', 'verified'])->prefix('dashboard')->name('dash
         });
 
     // Policies Management
-    Route::middleware(['can:manage_settings'])
+    Route::middleware(['can:manage_privacy'])
         ->prefix('policies')
         ->name('policies.')
         ->controller(PolicyController::class)
@@ -76,18 +103,6 @@ Route::middleware(['auth:sanctum', 'verified'])->prefix('dashboard')->name('dash
             Route::delete('/{id}', 'destroy')->name('destroy');
             Route::post('/{id}/restore', 'restore')->name('restore');
             Route::delete('/{id}/force-delete', 'forceDelete')->name('force-delete');
-        });
-
-    //  promo codes management
-    Route::prefix('promo-codes')
-        ->name('promo-codes.')
-        ->controller(\App\Http\Controllers\Dashboard\PromoCodeController::class)
-        ->group(function () {
-            Route::get('/', 'index')->name('index');
-            Route::get('/{id}', 'show')->name('show');
-            Route::post('/', 'store')->name('store');
-            Route::post('/{id}', 'update')->name('update'); // Using POST for update as per your controller
-            Route::delete('/{id}', 'destroy')->name('destroy');
         });
 
     // Product Details Management

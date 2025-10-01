@@ -143,6 +143,11 @@ class Category extends Model implements HasMedia
         return $this->children()->with('descendants');
     }
 
+    public function promoCodes()
+    {
+        return $this->belongsToMany(PromoCode::class, 'promo_code_categories');
+    }
+
     /**
      * Get all ancestors of this category.
      */

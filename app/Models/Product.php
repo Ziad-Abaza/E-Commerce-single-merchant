@@ -92,6 +92,11 @@ class Product extends Model
         return $this->belongsToMany(Category::class, 'categories_products');
     }
 
+    public function promoCodes()
+    {
+        return $this->belongsToMany(PromoCode::class, 'promo_code_products');
+    }
+
     /**
      * Get the product details (variants) for this product.
      */

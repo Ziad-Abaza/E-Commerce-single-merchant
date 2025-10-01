@@ -103,12 +103,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/{id}', 'update')->name('update');
         Route::delete('/{id}', 'destroy')->name('destroy');
     });
-    // promo code routes
-    Route::prefix('promo')->name('promo.')->controller(\App\Http\Controllers\Api\User\PromoCodeController::class)->group(function () {
-        Route::get('/{code}', 'show')->name('show');
-        Route::post('/apply', 'apply')->name('apply');
-        Route::post('/remove', 'remove')->name('remove');
-    });
+
     // Order routes
     Route::middleware('verified')->prefix('orders')->name('orders.')->controller(\App\Http\Controllers\Api\OrderController::class)->group(function () {
         Route::get('/', 'index')->name('index');
