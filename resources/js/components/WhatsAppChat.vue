@@ -56,12 +56,17 @@ const props = defineProps({
 });
 
 const phoneNumber = computed(() => props.phoneNumber || siteStore.settings.whatsapp_number);
-const message = computed(() => props.message || siteStore.settings?.whatsapp_welcome_message);
+const message = computed(() => props.message || siteStore.settings?.whatsapp_start_message || '');
 
+// Generate WhatsApp link
 const whatsappLink = computed(() => {
-  const encodedMessage = encodeURIComponent(message.value);
-  return `https://wa.me/${phoneNumber.value}?text=${encodedMessage}`;
+  if (!phoneNumber.value) return ''; // Return empty if no number available
+  const baseLink = `https://wa.me/${phoneNumber.value}`;
+  return message.value
+    ? `${baseLink}?text=${encodeURIComponent(message.value)}`
+    : baseLink; // If no message, just link to number
 });
+
 </script>
 
 
