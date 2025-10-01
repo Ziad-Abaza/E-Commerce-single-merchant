@@ -18,6 +18,7 @@
                                     :src="siteStore.settings.logo_url"
                                     alt="Logo"
                                     class="h-full w-full"
+                                    style="border-radius: 14px;"
                                 />
                             </div>
                             <div
