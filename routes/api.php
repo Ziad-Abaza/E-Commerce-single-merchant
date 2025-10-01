@@ -71,6 +71,8 @@ Route::middleware('auth:sanctum')->group(function () {
                 'id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->email,
+                'email_verified_at' => $user->email_verified_at,
+                'is_verified' => $user->hasVerifiedEmail(),
                 'phone' => $user->phone,
                 'address' => $user->address,
                 'is_active' => $user->is_active,
