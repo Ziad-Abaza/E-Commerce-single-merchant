@@ -1,6 +1,37 @@
 <template>
   <div>
     <form @submit.prevent="handleSubmit" class="space-y-6">
+      <!-- Avatar Upload -->
+      <div class="flex flex-col items-center">
+        <div class="relative">
+          <img 
+            :src="avatarPreview || '/images/default-avatar.png'" 
+            class="w-24 h-24 rounded-full object-cover border-2 border-gray-300 dark:border-gray-600"
+            alt="Profile preview"
+          />
+          <label 
+            for="avatar" 
+            class="absolute bottom-0 right-0 bg-primary-500 text-white rounded-full p-2 cursor-pointer hover:bg-primary-600 transition-colors"
+            title="Upload profile picture"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+          </label>
+          <input
+            id="avatar"
+            type="file"
+            accept="image/*"
+            class="hidden"
+            @change="handleAvatarChange"
+            ref="avatarInput"
+          />
+        </div>
+        <p v-if="errors.avatar" class="mt-2 text-sm text-red-600 dark:text-red-400">{{ errors.avatar }}</p>
+        <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">Click the icon to upload a profile picture (optional)</p>
+      </div>
+
       <!-- Name -->
       <div>
         <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -179,10 +210,13 @@ const form = reactive({
   address: '',
   password: '',
   password_confirmation: '',
-  terms: false
+  terms: false,
+  avatar: null
 })
 
 const errors = ref({})
+const avatarPreview = ref(null)
+const avatarInput = ref(null)
 
 const validateForm = () => {
   errors.value = {}
@@ -218,20 +252,54 @@ const validateForm = () => {
   return Object.keys(errors.value).length === 0
 }
 
+const handleAvatarChange = (event) => {
+  const file = event.target.files[0]
+  if (file) {
+    // Validate file type
+    const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/jpg']
+    if (!validTypes.includes(file.type)) {
+      errors.value.avatar = 'Please select a valid image file (JPEG, PNG, GIF, jpg, or WebP)'
+      return
+    }
+
+    // Validate file size (max 5MB)
+    const maxSize = 5 * 1024 * 1024 // 5MB
+    if (file.size > maxSize) {
+      errors.value.avatar = 'Image size should be less than 2MB'
+      return
+    }
+
+    // Create preview
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      avatarPreview.value = e.target.result
+    }
+    reader.readAsDataURL(file)
+    
+    // Clear any previous errors
+    errors.value.avatar = ''
+    form.avatar = file
+  }
+}
+
 const handleSubmit = async () => {
   if (!validateForm()) {
     return
   }
 
   try {
-    const result = await authStore.register({
-      name: form.name,
-      email: form.email,
-      phone: form.phone,
-      address: form.address,
-      password: form.password,
-      password_confirmation: form.password_confirmation
-    })
+    const formData = new FormData()
+    formData.append('name', form.name)
+    formData.append('email', form.email)
+    formData.append('phone', form.phone)
+    formData.append('address', form.address)
+    formData.append('password', form.password)
+    formData.append('password_confirmation', form.password_confirmation)
+    if (form.avatar) {
+      formData.append('avatar', form.avatar)
+    }
+
+    const result = await authStore.register(formData)
 
     if (result.success) {
       toast.success('Account created successfully!')

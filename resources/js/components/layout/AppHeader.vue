@@ -28,6 +28,7 @@
                                 :src="siteStore.settings.logo_url"
                                 alt="Logo"
                                 class="h-full w-full object-contain rounded-lg"
+                                style="padding: 6px; border-radius: 18px;"
                             />
                         </div>
                         <span

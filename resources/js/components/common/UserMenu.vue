@@ -5,8 +5,14 @@
       class="flex items-center space-x-2 p-2 text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
     >
       <!-- User Avatar -->
-      <div class="h-8 w-8 bg-primary-600 rounded-full flex items-center justify-center">
-        <span class="text-sm font-medium text-white">
+      <div class="h-8 w-8 rounded-full overflow-hidden bg-primary-600 flex items-center justify-center">
+        <img 
+          v-if="authStore.user?.avatar_url" 
+          :src="authStore.user.avatar_url" 
+          :alt="authStore.user.name"
+          class="h-full w-full object-cover"
+        >
+        <span v-else class="text-sm font-medium text-white">
           {{ userInitials }}
         </span>
       </div>
@@ -43,8 +49,14 @@
           <!-- User Info -->
           <div class="px-4 py-3 border-b border-gray-100 dark:border-gray-700">
             <div class="flex items-center space-x-3">
-              <div class="h-10 w-10 bg-primary-600 rounded-full flex items-center justify-center">
-                <span class="text-sm font-medium text-white">
+              <div class="h-10 w-10 rounded-full overflow-hidden bg-primary-600 flex items-center justify-center">
+                <img 
+                  v-if="authStore.user?.avatar_url" 
+                  :src="authStore.user.avatar_url" 
+                  :alt="authStore.user.name"
+                  class="h-full w-full object-cover"
+                >
+                <span v-else class="text-sm font-medium text-white">
                   {{ userInitials }}
                 </span>
               </div>

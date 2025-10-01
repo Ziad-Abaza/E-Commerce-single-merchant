@@ -97,7 +97,17 @@ export const useAuthStore = defineStore("auth", {
             this.loading = true;
             this.error = null;
             try {
-                const response = await axios.post("/register", userData);
+                const isFormData = userData instanceof FormData;
+                const config = isFormData 
+                    ? { 
+                        headers: { 
+                            'Content-Type': 'multipart/form-data',
+                            'Accept': 'application/json'
+                        } 
+                    } 
+                    : {};
+
+                const response = await axios.post("/register", userData, config);
 
                 this.user = response.data.data;
                 this.token = response.data.token;
