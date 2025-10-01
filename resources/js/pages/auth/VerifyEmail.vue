@@ -237,6 +237,8 @@ export default {
                 this.message = response.data.message;
                 const authStore = useAuthStore();
                 authStore.refreshUser();
+                // Update auth_is_verified in localStorage
+                localStorage.setItem('auth_is_verified', 'true');
             }
 
             this.loading = false;
