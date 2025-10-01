@@ -38,7 +38,7 @@
                 </div>
 
                 <!-- Desktop Navigation (hidden on mobile) -->
-                <nav class="hidden md:flex items-center space-x-8 ml-4">
+                <nav class="hidden lg:flex items-center space-x-8 ml-4">
                     <router-link
                         to="/"
                         class="text-gray-700 dark:text-gray-200 px-3 py-2 rounded-md text-sm font-medium transition-colors"
