@@ -107,9 +107,9 @@ class OrderController extends Controller
 
     public function store(OrderStoreRequest $request)
     {
+
         try {
             DB::beginTransaction();
-
             $validated = $request->validated();
 
             // Calculate order amounts and get items with calculated prices
@@ -139,25 +139,32 @@ class OrderController extends Controller
             }
 
             // Handle file uploads
-            if ($request->hasFile('receipt')) {
-                $order->setReceipt($request->file('receipt'));
-            }
+            try {
+                if ($request->hasFile('receipt')) {
+                    $order->setReceipt($request->file('receipt'));
+                }
 
-            if ($request->hasFile('invoice')) {
-                $order->setInvoice($request->file('invoice'));
-            }
+                if ($request->hasFile('invoice')) {
+                    $order->setInvoice($request->file('invoice'));
+                }
 
-            if ($request->hasFile('attachments')) {
-                $order->setAttachment($request->file('attachments'));
+                if ($request->hasFile('attachments')) {
+                    $order->setAttachment($request->file('attachments'));
+                }
+            } catch (\Exception $fileException) {
+                throw $fileException;
             }
 
             DB::commit();
 
             $owners = \App\Models\User::role('owner')->get();
-            Log::info('[OrderController@store] Notifying owners', ['owners' => $owners->pluck('id')]);
 
             foreach ($owners as $owner) {
-                $owner->notify(new NewOrderNotification($order));
+                try {
+                    $owner->notify(new NewOrderNotification($order));
+                } catch (\Exception $notificationException) {
+                    // Continue with other owners even if one fails
+                }
             }
 
             NewOrderEvent::dispatch($order);
@@ -170,10 +177,28 @@ class OrderController extends Controller
             ], 201);
         } catch (\Exception $e) {
             DB::rollBack();
+            Log::error('[OrderController@store] Order creation failed', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'request_data' => $request->except(['receipt', 'invoice', 'attachments']),
+                'file_uploads' => [
+                    'has_receipt' => $request->hasFile('receipt'),
+                    'has_invoice' => $request->hasFile('invoice'),
+                    'has_attachments' => $request->hasFile('attachments')
+                ]
+            ]);
+            
             return response()->json([
-                'message' => 'Failed to create order.',
+                'message' => 'Failed to create order: ' . $e->getMessage(),
                 'data' => null,
-                'errors' => ['server' => [$e->getMessage()]],
+                'errors' => [
+                    'server' => [
+                        'message' => $e->getMessage(),
+                        'file' => $e->getFile(),
+                        'line' => $e->getLine(),
+                        'code' => $e->getCode()
+                    ]
+                ],
                 'code' => 500,
             ], 500);
         }

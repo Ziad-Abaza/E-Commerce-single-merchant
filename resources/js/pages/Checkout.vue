@@ -91,8 +91,7 @@
                         >
                             <img
                                 :src="
-                                    item.product?.media?.[0]?.url ||
-                                    '/images/placeholder-product.jpg'
+                                    item.product_detail.main_image
                                 "
                                 :alt="item.name"
                                 class="w-16 h-16 object-cover rounded-lg flex-shrink-0 border border-gray-200 dark:border-gray-600"
@@ -404,13 +403,16 @@ const sendOrderViaWhatsApp = async () => {
     loading.value = true;
 
     try {
-        const orderItems = cartStore.items.map((item) => ({
-            product_detail_id: item.product_detail_id,
-            quantity: item.quantity,
-            price: item.product_detail.final_price,
-            name: item.name,
-            sku: item.sku,
-        }));
+        const orderItems = cartStore.items.map((item) => {
+            const orderItem = {
+                product_detail_id: item.product_detail_id,
+                quantity: item.quantity,
+                price: item.product_detail?.final_price || 0,
+                name: item.name,
+                sku: item.sku,
+            };
+            return orderItem;
+        });
 
         const orderData = {
             phone: "",
@@ -434,8 +436,8 @@ const sendOrderViaWhatsApp = async () => {
                 currency: siteStore.settings?.currency,
             },
         );
-
         if (!success) {
+            console.error('[Checkout] Order processing failed:', error);
             throw new Error(error || "Failed to process order");
         }
 
@@ -445,13 +447,20 @@ const sendOrderViaWhatsApp = async () => {
         setTimeout(() => {
             if (data?.whatsappUrl) {
                 window.open(data.whatsappUrl, "_blank");
+            } else {
+                console.warn('[Checkout] No WhatsApp URL provided in response');
             }
         }, 1000);
     } catch (error) {
-        console.error("Order submission error:", error);
-        toast.error(
-            error.message || "Something went wrong. Please try again later.",
-        );
+        console.error('[Checkout] Order submission error:', {
+            message: error.message,
+            stack: error.stack,
+            response: error.response?.data
+        });
+        
+        const errorMessage = error.response?.data?.message || error.message || "Something went wrong. Please try again later.";
+        console.error('[Checkout] Displaying error to user:', errorMessage);
+        toast.error(errorMessage);
     } finally {
         loading.value = false;
     }

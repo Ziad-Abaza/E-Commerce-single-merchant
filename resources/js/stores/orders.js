@@ -99,7 +99,8 @@ export const useOrderStore = defineStore("orders", {
                 // Create the order first
                 const { success, data, error } = await this.createOrder({
                     ...orderData,
-                    notes: orderData.notes || "Order placed via WhatsApp checkout"
+                    notes:
+                        orderData.notes || "Order placed via WhatsApp checkout",
                 });
 
                 if (!success) {
@@ -114,7 +115,7 @@ export const useOrderStore = defineStore("orders", {
                 let itemsText = orderData.items
                     .map(
                         (item) =>
-                            `• ${item.name || 'Product'} x${item.quantity} = ${formatPrice(item.price * item.quantity)}`
+                            `• ${item.name || "Product"} x${item.quantity} = ${formatPrice(item.price * item.quantity)}`,
                     )
                     .join("\n");
 
@@ -133,17 +134,19 @@ export const useOrderStore = defineStore("orders", {
                     success: true,
                     data: {
                         ...data.data,
-                        whatsappUrl
+                        whatsappUrl,
                     },
-                    error: null
+                    error: null,
                 };
             } catch (error) {
                 console.error("WhatsApp order error:", error);
-                toast.error(error.message || "Failed to process WhatsApp order");
+                toast.error(
+                    error.message || "Failed to process WhatsApp order",
+                );
                 return {
                     success: false,
                     data: null,
-                    error: error.message || "Failed to process WhatsApp order"
+                    error: error.message || "Failed to process WhatsApp order",
                 };
             } finally {
                 this.loading = false;
@@ -204,26 +207,49 @@ export const useOrderStore = defineStore("orders", {
          * @param {string} orderData.shipping_address - Delivery address
          * @param {string} orderData.phone - Contact phone number
          * @param {string} [orderData.notes] - Optional order notes
+         * @param {File} [orderData.receipt] - Receipt file (pdf, jpg, jpeg, png, max 8MB)
+         * @param {File} [orderData.invoice] - Invoice file (pdf, jpg, jpeg, png, max 8MB)
+         * @param {Array<File>} [orderData.attachments] - Additional attachment files (pdf, jpg, jpeg, png, max 8MB each)
          * @param {Array} orderData.items - Array of order items
-         * @param {number} orderData.items[].product_detail_id - Product variant ID
-         * @param {number} orderData.items[].quantity - Item quantity
+         * @param {number} orderData.items[].product_detail_id - Product detail ID (required)
+         * @param {number} orderData.items[].quantity - Item quantity (min: 1)
          */
         async createOrder(orderData) {
             this.loading = true;
             this.error = null;
             try {
-                // Format the data to match the API expectations
-                const formattedData = {
-                    shipping_address: orderData.shipping_address,
-                    phone: orderData.phone,
-                    notes: orderData.notes,
-                    items: orderData.items?.map(item => ({
-                        product_detail_id: item.product_detail_id,
-                        quantity: item.quantity
-                    })) || []
-                };
+                // Create FormData to handle file uploads
+                const formData = new FormData();
+                
+                // Add text fields
+                if (orderData.shipping_address) formData.append('shipping_address', orderData.shipping_address);
+                if (orderData.phone) formData.append('phone', orderData.phone);
+                if (orderData.notes) formData.append('notes', orderData.notes);
+                
+                // Add files if provided
+                if (orderData.receipt) formData.append('receipt', orderData.receipt);
+                if (orderData.invoice) formData.append('invoice', orderData.invoice);
+                
+                // Add attachments if provided
+                if (orderData.attachments && orderData.attachments.length > 0) {
+                    orderData.attachments.forEach((file, index) => {
+                        formData.append(`attachments[${index}]`, file);
+                    });
+                }
+                
+                // Add order items
+                if (orderData.items && orderData.items.length > 0) {
+                    orderData.items.forEach((item, index) => {
+                        formData.append(`items[${index}][product_detail_id]`, item.product_detail_id);
+                        formData.append(`items[${index}][quantity]`, item.quantity);
+                    });
+                }
 
-                const response = await axios.post("/orders", formattedData);
+                const response = await axios.post("/orders", formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                });
 
                 // Add to orders list if we're on the list page
                 if (this.orders.length > 0) {
@@ -235,18 +261,27 @@ export const useOrderStore = defineStore("orders", {
                 return {
                     success: true,
                     data: response.data,
-                    order: response.data.data // Return the created order with calculated fields
+                    order: response.data.data, // Return the created order with calculated fields
                 };
             } catch (error) {
-                const errorMessage = error.response?.data?.message ||
-                                  error.response?.data?.errors ||
-                                  "Failed to create order";
+                let errorMessage = "Failed to create order";
+                
+                if (error.response?.data?.errors) {
+                    // Format validation errors
+                    const errors = error.response.data.errors;
+                    errorMessage = Object.values(errors)
+                        .flat()
+                        .join(' ');
+                } else if (error.response?.data?.message) {
+                    errorMessage = error.response.data.message;
+                }
+                
                 this.error = errorMessage;
-                this.handleError(typeof errorMessage === 'string' ? errorMessage : 'Validation error occurred');
+                this.handleError(errorMessage);
                 return {
                     success: false,
                     error: errorMessage,
-                    errors: error.response?.data?.errors
+                    errors: error.response?.data?.errors,
                 };
             } finally {
                 this.loading = false;
@@ -274,19 +309,22 @@ export const useOrderStore = defineStore("orders", {
                     shipping_address: orderData.shipping_address,
                     phone: orderData.phone,
                     notes: orderData.notes,
-                    _method: 'PUT' // For Laravel to handle as PUT request
+                    _method: "PUT", // For Laravel to handle as PUT request
                 };
 
                 // Only include items if they are provided
                 if (orderData.items) {
-                    formattedData.items = orderData.items.map(item => ({
+                    formattedData.items = orderData.items.map((item) => ({
                         id: item.id, // May be undefined for new items
                         product_detail_id: item.product_detail_id,
-                        quantity: item.quantity
+                        quantity: item.quantity,
                     }));
                 }
 
-                const response = await axios.post(`/orders/${id}`, formattedData);
+                const response = await axios.post(
+                    `/orders/${id}`,
+                    formattedData,
+                );
 
                 // Update in orders list
                 const index = this.orders.findIndex((order) => order.id === id);
