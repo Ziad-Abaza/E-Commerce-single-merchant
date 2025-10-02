@@ -2,7 +2,7 @@
 
 A comprehensive single-vendor e-commerce solution built with Laravel and Vue.js 3, featuring a modern dashboard for managing products, orders, users, and settings.
 
-![E-Commerce Dashboard](public/images/defult-logo.webp)
+![E-Commerce Dashboard](public/images/default-logo.webp)
 
 ## 🚀 Features
 
