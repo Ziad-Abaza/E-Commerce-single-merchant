@@ -6,6 +6,8 @@ export const usePromoCodesStore = defineStore("promoCodes", {
     state: () => ({
         promoCodes: [],
         trashedPromoCodes: [],
+        products: [],
+        categories: [],
         currentPromoCode: null,
         stats: {
             total_promos: 0,
@@ -299,6 +301,31 @@ export const usePromoCodesStore = defineStore("promoCodes", {
             }
         },
 
+        // ============= FETCH PRODUCTS & CATEGORIES =============
+        async fetchProductsAndCategories() {
+            this.loading = true;
+            this.error = null;
+            try {
+                const response = await axios.get(
+                    "/dashboard/promo-codes/related-data",
+                );
+                this.products = response.data.data.products || [];
+                this.categories = response.data.data.categories || [];
+                return { success: true, data: response.data };
+            } catch (err) {
+                this.error =
+                    err.response?.data?.message ||
+                    "Failed to fetch products and categories";
+                console.error(
+                    "[PromoCodes Store] fetchProductsAndCategories error:",
+                    err,
+                );
+                return { success: false, error: this.error };
+            } finally {
+                this.loading = false;
+            }
+        },
+        
         // ============= FILTERS =============
         setFilter(key, value) {
             this.filters[key] = value;

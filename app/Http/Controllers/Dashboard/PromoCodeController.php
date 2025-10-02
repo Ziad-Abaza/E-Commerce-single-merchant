@@ -371,4 +371,42 @@ class PromoCodeController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * Get related data (products and categories) for promo code form
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getRelatedData(): JsonResponse
+    {
+        try {
+            $products = \App\Models\Product::select('id', 'name')
+                ->where('is_active', true)
+                ->orderBy('name')
+                ->get();
+
+            $categories = \App\Models\Category::select('id', 'name')
+                ->where('is_active', true)
+                ->orderBy('name')
+                ->get();
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'products' => $products,
+                    'categories' => $categories,
+                ],
+                'message' => 'Related data retrieved successfully',
+                'code' => 200,
+            ], 200);
+        } catch (\Exception $e) {
+            Log::error('Error in PromoCodeController@getRelatedData: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to retrieve related data',
+                'error' => $e->getMessage(),
+                'code' => 500,
+            ], 500);
+        }
+    }
 }

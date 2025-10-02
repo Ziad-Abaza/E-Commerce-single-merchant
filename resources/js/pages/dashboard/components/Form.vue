@@ -287,16 +287,41 @@ const fields = reactive([]);
 const invalidFields = reactive(new Set());
 const fieldRefs = ref([]);
 
-// Watch for changes in modelFields and update fields accordingly
+// Watch for changes in modelFields and update fields dynamically
 watch(
     () => props.modelFields,
     (newFields) => {
+        // Clear existing fields
         fields.length = 0;
+
+        // Deep clone each field to avoid reactivity issues
         newFields.forEach((field) => {
-            fields.push(JSON.parse(JSON.stringify(field)));
+            const clonedField = JSON.parse(JSON.stringify(field));
+            
+            // If it's a multipleselect field, ensure options are reactive
+            if (field.type === 'multipleselect' || field.type === 'checkboxselect') {
+                clonedField.options = [...(field.options || [])];
+            }
+            
+            fields.push(clonedField);
         });
     },
-    { immediate: true, deep: true },
+    { immediate: true, deep: true }
+);
+
+// Watch for changes in individual field values and sync back to parent
+watch(
+    () => fields.map(f => ({ id: f.id, value: f.value })),
+    (newValues) => {
+        newValues.forEach(({ id, value }) => {
+            const index = props.modelFields.findIndex(f => f.id === id);
+            if (index !== -1) {
+                // Update the parent's modelFields
+                props.modelFields[index].value = value;
+            }
+        });
+    },
+    { deep: true }
 );
 
 // Function to add a new entity

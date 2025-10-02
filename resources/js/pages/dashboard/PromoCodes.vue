@@ -125,12 +125,27 @@
                             type="button"
                             title="Clear search"
                         >
-                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            <svg
+                                class="h-4 w-4"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M6 18L18 6M6 6l12 12"
+                                />
                             </svg>
                         </button>
-                        <div v-if="isSearching" class="absolute inset-y-0 right-2 flex items-center">
-                            <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-500"></div>
+                        <div
+                            v-if="isSearching"
+                            class="absolute inset-y-0 right-2 flex items-center"
+                        >
+                            <div
+                                class="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-500"
+                            ></div>
                         </div>
                     </div>
                     <button
@@ -177,12 +192,27 @@
                             type="button"
                             title="Clear search"
                         >
-                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            <svg
+                                class="h-4 w-4"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M6 18L18 6M6 6l12 12"
+                                />
                             </svg>
                         </button>
-                        <div v-if="isSearching" class="absolute inset-y-0 right-2 flex items-center">
-                            <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-500"></div>
+                        <div
+                            v-if="isSearching"
+                            class="absolute inset-y-0 right-2 flex items-center"
+                        >
+                            <div
+                                class="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-500"
+                            ></div>
                         </div>
                     </div>
                 </div>
@@ -381,6 +411,7 @@
                         </button>
                     </div>
                     <Form
+                        ref="formRef"
                         :model-fields="formFields"
                         @submit="handleSubmitForm"
                     />
@@ -417,11 +448,15 @@
 
 <script setup>
 import { ref, computed, onMounted, watch } from "vue";
-import { debounce } from 'lodash';
+import { debounce } from "lodash";
+import { useToast } from "vue-toastification";
+import { useNotificationStore } from "@/stores/notification";
 import { usePromoCodesStore } from "../../stores/dashboard/promoCodes";
 import { useAuthStore } from "../../stores/auth";
 import { useSiteStore } from "../../stores/site";
+import { useDate } from "@/composables/useDate.js";
 
+const { formatDate } = useDate();
 const formFields = ref([]);
 const isSearching = ref(false);
 import Search from "./components/Search.vue";
@@ -438,9 +473,9 @@ const siteStore = useSiteStore();
 
 // Status options for filters
 const statusOptions = ref([
-    { value: 'all', label: 'All Statuses' },
-    { value: 'active', label: 'Active' },
-    { value: 'inactive', label: 'Inactive' },
+    { value: "all", label: "All Statuses" },
+    { value: "active", label: "Active" },
+    { value: "inactive", label: "Inactive" },
 ]);
 
 // Permissions
@@ -457,6 +492,7 @@ const isEditing = ref(false);
 const currentPromoCode = ref(null);
 const promoCodeToDelete = ref(null);
 const showDeleteConfirm = ref(false);
+const formRef = ref(null);
 
 // Format promo code for DetailsModal
 const formattedPromoCode = computed(() => {
@@ -481,14 +517,14 @@ const promoCodeSections = computed(() => {
     if (!currentPromoCode.value) return [];
 
     const code = currentPromoCode.value;
-    
+
     // Format products and categories for display
     const formatItems = (items) => {
         if (!items || !items.length) return [];
-        return items.map(item => ({
+        return items.map((item) => ({
             id: item.id,
             name: item.name || item.title || `Item ${item.id}`,
-            ...item
+            ...item,
         }));
     };
 
@@ -496,15 +532,15 @@ const promoCodeSections = computed(() => {
         {
             title: "Promo Code Information",
             fields: [
-                { 
-                    label: "Code", 
-                    value: code.code || '—', 
-                    type: "text" 
+                {
+                    label: "Code",
+                    value: code.code || "—",
+                    type: "text",
                 },
-                { 
-                    label: "Name", 
-                    value: code.name || '—', 
-                    type: "text" 
+                {
+                    label: "Name",
+                    value: code.name || "—",
+                    type: "text",
                 },
                 {
                     label: "Description",
@@ -513,22 +549,26 @@ const promoCodeSections = computed(() => {
                 },
                 {
                     label: "Discount",
-                    value: code.discount_value !== undefined 
-                        ? `${code.discount_value}${code.discount_type === "percentage" ? "%" : siteStore.settings.currency}`
-                        : "—",
+                    value:
+                        code.discount_value !== undefined
+                            ? `${code.discount_value}${code.discount_type === "percentage" ? "%" : siteStore.settings.currency}`
+                            : "—",
                     type: "text",
                 },
                 {
                     label: "Discount Type",
                     value: code.discount_type
-                        ? code.discount_type === "percentage" ? "Percentage" : "Fixed Amount"
+                        ? code.discount_type === "percentage"
+                            ? "Percentage"
+                            : "Fixed Amount"
                         : "—",
                     type: "text",
                 },
                 {
                     label: "Target Type",
                     value: code.target_type
-                        ? code.target_type.charAt(0).toUpperCase() + code.target_type.slice(1)
+                        ? code.target_type.charAt(0).toUpperCase() +
+                          code.target_type.slice(1)
                         : "—",
                     type: "text",
                 },
@@ -539,27 +579,26 @@ const promoCodeSections = computed(() => {
                 },
                 {
                     label: "Usage",
-                    value: code.total_usage_count !== undefined 
-                        ? `${code.total_usage_count} / ${code.total_usage_limit || '∞'}`
-                        : "—",
+                    value:
+                        code.total_usage_count !== undefined
+                            ? `${code.total_usage_count} / ${code.total_usage_limit || "∞"}`
+                            : "—",
                     type: "text",
                 },
                 {
                     label: "Start Date",
-                    value: code.start_date
-                        ? new Date(code.start_date).toLocaleString()
-                        : "—",
+                    value: code.start_date ? formatDate(code.start_date) : "—",
                     type: "text",
                 },
                 {
                     label: "End Date",
                     value: code.end_date
-                        ? new Date(code.end_date).toLocaleString()
+                        ? formatDate(code.end_date)
                         : "No Expiry",
                     type: "text",
                 },
-            ].filter(field => field.value !== undefined), // Remove undefined fields
-        }
+            ].filter((field) => field.value !== undefined),
+        },
     ];
 
     // Add products section if available
@@ -572,12 +611,13 @@ const promoCodeSections = computed(() => {
                     value: formatItems(code.products),
                     type: "array",
                     display: "name",
-                    badgeClass: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300"
-                }
-            ]
+                    badgeClass:
+                        "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300",
+                },
+            ],
         });
     }
-    
+
     // Add categories section if available
     if (code.categories?.length) {
         sections.push({
@@ -588,9 +628,10 @@ const promoCodeSections = computed(() => {
                     value: formatItems(code.categories),
                     type: "array",
                     display: "name",
-                    badgeClass: "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300"
-                }
-            ]
+                    badgeClass:
+                        "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300",
+                },
+            ],
         });
     }
 
@@ -682,10 +723,10 @@ const hasActiveFilters = computed(() => {
 // Debounced search function
 const debouncedSearch = debounce(async (searchTerm) => {
     if (searchTerm === promoCodesStore.filters.search) return;
-    
+
     promoCodesStore.setFilter("search", searchTerm);
     isSearching.value = true;
-    
+
     try {
         await fetchPromoCodes(1, promoCodesStore.pagination.per_page);
     } finally {
@@ -698,7 +739,7 @@ const handleSearch = (searchTerm) => {
 };
 
 const clearSearch = () => {
-    promoCodesStore.filters.search = '';
+    promoCodesStore.filters.search = "";
     fetchPromoCodes(1, promoCodesStore.pagination.per_page);
 };
 
@@ -718,9 +759,15 @@ const clearAllFilters = () => {
     promoCodesStore.clearFilters();
 };
 
-const openCreateForm = () => {
+const openCreateForm = async () => {
     isEditing.value = false;
     currentPromoCode.value = null;
+    if (
+        !promoCodesStore.products.length ||
+        !promoCodesStore.categories.length
+    ) {
+        await promoCodesStore.fetchProductsAndCategories();
+    }
     initializeFormFields(null);
     showFormModal.value = true;
 };
@@ -735,13 +782,21 @@ const handleView = async (promoCode) => {
     }
 };
 
-
 const handleEdit = async (promoCode) => {
     isEditing.value = true;
     promoCodeToDelete.value = promoCode;
     try {
         const response = await promoCodesStore.fetchPromoCode(promoCode.id);
         currentPromoCode.value = response.data;
+        console.log("data response from handleEdit function:", response.data);
+
+        if (
+            !promoCodesStore.products.length ||
+            !promoCodesStore.categories.length
+        ) {
+            await promoCodesStore.fetchProductsAndCategories();
+        }
+
         initializeFormFields(response.data);
         showFormModal.value = true;
     } catch (error) {
@@ -824,18 +879,14 @@ const initializeFormFields = (code) => {
             id: "start_date",
             label: "Start Date (optional)",
             type: "date",
-            value: code?.start_date
-                ? new Date(code.start_date).toISOString().split("T")[0]
-                : "",
+            value: code?.start_date ? formatDate(code.start_date) : "",
             required: false,
         },
         {
             id: "end_date",
             label: "End Date (optional)",
             type: "date",
-            value: code?.end_date
-                ? new Date(code.end_date).toISOString().split("T")[0]
-                : "",
+            value: code?.end_date ? formatDate(code.end_date) : "",
             required: false,
         },
         {
@@ -847,49 +898,145 @@ const initializeFormFields = (code) => {
         },
     ];
 
-    // Add dynamic target fields
-    const targetFields = [];
+    const dynamicFields = formFields.value.filter(
+        (f) => !["products", "categories"].includes(f.id),
+    );
+
+    const productsOptions =
+        promoCodesStore.products?.map((p) => ({
+            value: p.id,
+            label: p.name,
+        })) || [];
+    const categoriesOptions =
+        promoCodesStore.categories?.map((c) => ({
+            value: c.id,
+            label: c.name,
+        })) || [];
+
+    let targetField = null;
     const targetType = code?.target_type || "products";
 
     if (targetType === "products") {
-        targetFields.push({
+        targetField = {
             id: "products",
             label: "Select Products",
             type: "multipleselect",
             value: code?.products?.map((p) => p.id) || [],
             required: true,
-            options: [],
+            options: productsOptions,
             placeholder: "Choose products...",
-        });
+        };
     } else if (targetType === "categories") {
-        targetFields.push({
+        targetField = {
             id: "categories",
             label: "Select Categories",
             type: "multipleselect",
             value: code?.categories?.map((c) => c.id) || [],
             required: true,
-            options: [],
+            options: categoriesOptions,
             placeholder: "Choose categories...",
-        });
+        };
     }
-
-    formFields.value = [...baseFields, ...targetFields];
+    formFields.value = [...baseFields, ...(targetField ? [targetField] : [])];
 };
-const handleSubmitForm = async (data) => {
+
+const handleSubmitForm = async (formData) => {
+    const toast = useToast();
+    formRef.value?.setSubmitting(true);
+
     try {
-        if (isEditing.value && promoCodeToDelete.value) {
-            await promoCodesStore.updatePromoCode(
-                promoCodeToDelete.value.id,
-                data,
+        // Format the data before sending
+        const formattedData = {
+            ...formData,
+            discount_value: parseFloat(formData.discount_value),
+            total_usage_limit: formData.total_usage_limit
+                ? parseInt(formData.total_usage_limit)
+                : null,
+            max_discount: formData.max_discount
+                ? parseFloat(formData.max_discount)
+                : null,
+            min_order_amount: formData.min_order_amount
+                ? parseFloat(formData.min_order_amount)
+                : null,
+            // Format dates to YYYY-MM-DD
+            starts_at: formData.starts_at
+                ? formatDate(formData.starts_at)
+                : null,
+            expires_at: formData.expires_at
+                ? formatDate(formData.expires_at)
+                : null,
+            // Handle array fields
+            product_ids: formData.products
+                ? formData.products.map((id) => parseInt(id))
+                : [],
+            category_ids: formData.categories
+                ? formData.categories.map((id) => parseInt(id))
+                : [],
+            // Ensure boolean values
+            is_active:
+                formData.is_active !== undefined ? formData.is_active : true,
+            is_public:
+                formData.is_public !== undefined ? formData.is_public : true,
+        };
+
+        let result;
+
+        if (isEditing.value && currentPromoCode.value?.id) {
+            result = await promoCodesStore.updatePromoCode(
+                currentPromoCode.value.id,
+                formattedData,
             );
+            if (result.success) {
+                toast.success("Promo code updated successfully!");
+                // Refresh the list and reset form
+                await fetchPromoCodes(
+                    promoCodesStore.pagination.current_page,
+                    promoCodesStore.pagination.per_page,
+                );
+                showFormModal.value = false;
+                formFields.value = [];
+                currentPromoCode.value = null;
+                return; 
+            }
         } else {
-            await promoCodesStore.createPromoCode(data);
+            result = await promoCodesStore.createPromoCode(formattedData);
+            if (result.success) {
+                toast.success("Promo code created successfully!");
+                // Refresh the list and reset form
+                await fetchPromoCodes(
+                    promoCodesStore.pagination.current_page,
+                    promoCodesStore.pagination.per_page,
+                );
+                showFormModal.value = false;
+                formFields.value = [];
+                currentPromoCode.value = null;
+                return; 
+            }
         }
-        await fetchPromoCodes();
-        showFormModal.value = false;
-        formFields.value = [];
+
+        if (result?.errors) {
+            let errorMessage = "Validation error: ";
+            for (const [field, messages] of Object.entries(result.errors)) {
+                errorMessage += `\n• ${field}: ${Array.isArray(messages) ? messages.join(", ") : messages}`;
+            }
+            toast.error(errorMessage);
+            formRef.value?.setSubmitting(false);
+        } else {
+            const action = isEditing.value ? "update" : "create";
+            toast.error(result?.error || `Failed to ${action} promo code`);
+            formRef.value?.setSubmitting(false);
+        }
     } catch (error) {
-        console.error("Form submission error:", error);
+        console.error("Error in handleSubmitForm:", error);
+
+        // Handle unexpected errors (e.g., network issues)
+        const errorMessage =
+            error.response?.data?.message ||
+            "An unexpected error occurred. Please try again.";
+        toast.error(errorMessage);
+        formRef.value?.setSubmitting(false);
+    } finally {
+        formRef.value?.setSubmitting(false);
     }
 };
 
@@ -915,11 +1062,6 @@ const handleToggleStatus = async (promoCode) => {
     } catch (error) {
         console.error("Toggle status error:", error);
     }
-};
-
-const formatDate = (dateString) => {
-    if (!dateString) return "N/A";
-    return new Date(dateString).toLocaleDateString();
 };
 
 // Lifecycle
@@ -967,10 +1109,79 @@ const fetchPromoCodes = async (page = null, perPage = null) => {
         console.error("Error fetching promos:", error);
     }
 };
+
+// Watch for target type changes to update the dynamic fields
+const updateDynamicField = (targetType) => {
+    if (!targetType) return;
+
+    // Get data from store with null checks
+    const productsOptions =
+        promoCodesStore.products?.map((p) => ({
+            value: p.id,
+            label: p.name,
+        })) || [];
+    const categoriesOptions =
+        promoCodesStore.categories?.map((c) => ({
+            value: c.id,
+            label: c.name,
+        })) || [];
+
+    const updatedFields = [...formFields.value];
+
+    // Remove existing dynamic fields
+    const dynamicFieldIndex = updatedFields.findIndex((f) =>
+        ["products", "categories"].includes(f.id),
+    );
+    if (dynamicFieldIndex !== -1) {
+        updatedFields.splice(dynamicFieldIndex, 1);
+    }
+
+    // Add new dynamic field based on the selected target type
+    let newDynamicField = null;
+    if (targetType === "products") {
+        const currentValue =
+            formFields.value.find((f) => f.id === "products")?.value || [];
+        newDynamicField = {
+            id: "products",
+            label: "Select Products",
+            type: "multipleselect",
+            value: currentValue, 
+            required: true,
+            options: productsOptions,
+            placeholder: "Choose products...",
+        };
+    } else if (targetType === "categories") {
+        const currentValue =
+            formFields.value.find((f) => f.id === "categories")?.value || [];
+        newDynamicField = {
+            id: "categories",
+            label: "Select Categories",
+            type: "multipleselect",
+            value: currentValue, 
+            required: true,
+            options: categoriesOptions,
+            placeholder: "Choose categories...",
+        };
+    }
+
+    if (newDynamicField) {
+        updatedFields.push(newDynamicField);
+    }
+
+    formFields.value = updatedFields;
+};
+
+// Watch for target type changes
+watch(
+    () => formFields.value.find((f) => f.id === "target_type")?.value,
+    (newTargetType) => {
+        updateDynamicField(newTargetType);
+    },
+    { immediate: true },
+);
 </script>
 
 <style scoped>
-/* Reuse existing animations */
 @keyframes slide-in-from-top {
     from {
         opacity: 0;

@@ -28,6 +28,7 @@ Route::middleware(['auth:sanctum', 'verified'])->prefix('dashboard')->name('dash
 
             // Trashed promo codes
             Route::get('/trash', 'trash')->name('trash');
+            Route::get('/related-data', 'getRelatedData')->name('related-data');
 
             // Single promo code
             Route::get('/{promoCode}', 'show')->name('show');
