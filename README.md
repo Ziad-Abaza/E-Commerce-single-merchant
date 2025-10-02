@@ -550,4 +550,3 @@ SOFTWARE.
 <div align="center">
   Made with ❤️ by Ziad Hassan
 </div>
-#
