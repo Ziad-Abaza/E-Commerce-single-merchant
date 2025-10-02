@@ -444,214 +444,102 @@ const promoCodeSections = computed(() => {
     if (!currentPromoCode.value) return [];
 
     const code = currentPromoCode.value;
-    const sections = [];
 
-    // Basic Information Section
-    const basicInfoFields = [
-        { label: "Code", value: code.code, type: "text" },
-        { label: "Name", value: code.name, type: "text" },
-        { label: "Description", value: code.description || "—", type: "text" },
-        { 
-            label: "Status", 
-            value: code.is_active, 
-            type: "boolean",
-            trueLabel: "Active",
-            falseLabel: "Inactive"
+    return [
+        {
+            title: "Promo Code Information",
+            fields: [
+                { label: "Code", value: code.code, type: "text" },
+                { label: "Name", value: code.name, type: "text" },
+                {
+                    label: "Description",
+                    value: code.description || "—",
+                    type: "text",
+                },
+                {
+                    label: "Discount",
+                    value: `${code.discount_value}${code.discount_type === "percentage" ? "%" : siteStore.settings.currency}`,
+                    type: "text",
+                },
+                {
+                    label: "Discount Type",
+                    value:
+                        code.discount_type === "percentage"
+                            ? "Percentage"
+                            : "Fixed Amount",
+                    type: "text",
+                },
+                {
+                    label: "Target Type",
+                    value: code.target_type
+                        ? code.target_type.charAt(0).toUpperCase() + code.target_type.slice(1)
+                        : "—",
+                    type: "text",
+                },
+                {
+                    label: "Status",
+                    value: code.is_active,
+                    type: "boolean",
+                },
+                {
+                    label: "Total Usage Limit",
+                    value: code.total_usage_limit
+                        ? code.total_usage_limit.toString()
+                        : "Unlimited",
+                    type: "text",
+                },
+                {
+                    label: "Per User Limit",
+                    value: code.per_user_usage_limit
+                        ? code.per_user_usage_limit.toString()
+                        : "Unlimited",
+                    type: "text",
+                },
+                {
+                    label: "Start Date",
+                    value: code.start_date
+                        ? new Date(code.start_date).toLocaleString()
+                        : "—",
+                    type: "text",
+                },
+                {
+                    label: "End Date",
+                    value: code.end_date
+                        ? new Date(code.end_date).toLocaleString()
+                        : "—",
+                    type: "text",
+                },
+            ],
         },
-        { 
-            label: "Created At", 
-            value: code.created_at ? new Date(code.created_at).toLocaleString() : "—", 
-            type: "text" 
-        },
-        { 
-            label: "Updated At", 
-            value: code.updated_at ? new Date(code.updated_at).toLocaleString() : "—", 
-            type: "text" 
-        }
+        ...(code.products?.length > 0
+            ? [
+                  {
+                      title: "Applied to Products",
+                      fields: [
+                          {
+                              label: "Products",
+                              value: code.products,
+                              type: "array",
+                          },
+                      ],
+                  },
+              ]
+            : code.categories?.length > 0
+              ? [
+                    {
+                        title: "Applied to Categories",
+                        fields: [
+                            {
+                                label: "Categories",
+                                value: code.categories,
+                                type: "array",
+                            },
+                        ],
+                    },
+                ]
+              : []),
     ];
-
-    // Discount Information Section
-    const discountInfoFields = [
-        {
-            label: "Discount Value",
-            value: code.discount_value ? code.discount_value.toString() : "—",
-            type: "text"
-        },
-        {
-            label: "Discount Type",
-            value: code.discount_type === "percentage" ? "Percentage" : "Fixed Amount",
-            type: "text"
-        },
-        {
-            label: "Formatted Discount",
-            value: `${code.discount_value || '0'}${code.discount_type === "percentage" ? "%" : ` ${siteStore.settings.currency}`}`,
-            type: "text",
-            class: "font-semibold text-blue-600 dark:text-blue-400"
-        },
-        {
-            label: "Minimum Order Amount",
-            value: code.min_order_amount 
-                ? `${code.min_order_amount} ${siteStore.settings.currency}`
-                : "No minimum",
-            type: "text"
-        }
-    ];
-
-    // Usage Information Section
-    const usageInfoFields = [
-        {
-            label: "Total Usage",
-            value: code.total_usage_count?.toString() || "0",
-            type: "text"
-        },
-        {
-            label: "Total Usage Limit",
-            value: code.total_usage_limit
-                ? code.total_usage_limit.toString()
-                : "Unlimited",
-            type: "text"
-        },
-        {
-            label: "Per User Limit",
-            value: code.per_user_usage_limit
-                ? code.per_user_usage_limit.toString()
-                : "Unlimited",
-            type: "text"
-        },
-        {
-            label: "Usage Count",
-            value: code.usage_count?.toString() || "0",
-            type: "text"
-        }
-    ];
-
-    // Date Information Section
-    const dateFields = [
-        {
-            label: "Start Date",
-            value: code.start_date
-                ? new Date(code.start_date).toLocaleString()
-                : "Immediately",
-            type: "text"
-        },
-        {
-            label: "End Date",
-            value: code.end_date
-                ? new Date(code.end_date).toLocaleString()
-                : "No expiration",
-            type: "text"
-        },
-        {
-            label: "Is Active Now",
-            value: isPromoCodeActive(code),
-            type: "boolean",
-            trueLabel: "Yes (Active)",
-            falseLabel: "No (Inactive)"
-        }
-    ];
-
-    // Target Information Section
-    const targetInfoFields = [
-        {
-            label: "Target Type",
-            value: code.target_type
-                ? code.target_type.charAt(0).toUpperCase() + code.target_type.slice(1)
-                : "—",
-            type: "text"
-        }
-    ];
-
-    // Add sections conditionally based on available data
-    sections.push({ title: "Basic Information", fields: basicInfoFields });
-    sections.push({ title: "Discount Information", fields: discountInfoFields });
-    sections.push({ title: "Usage Information", fields: usageInfoFields });
-    sections.push({ title: "Date Information", fields: dateFields });
-    sections.push({ title: "Target Information", fields: targetInfoFields });
-
-    // Add target items section if available
-    if (code.products?.length > 0) {
-        sections.push({
-            title: "Applied to Products",
-            fields: [{
-                label: "Products",
-                value: code.products.map(p => ({
-                    id: p.id,
-                    name: p.name,
-                    image: p.primary_image?.url || null,
-                    price: p.price
-                })),
-                type: "array",
-                displayField: "name",
-                subText: (item) => `${item.price} ${siteStore.settings.currency}`,
-                badgeClass: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300"
-            }]
-        });
-    } else if (code.categories?.length > 0) {
-        sections.push({
-            title: "Applied to Categories",
-            fields: [{
-                label: "Categories",
-                value: code.categories.map(c => ({
-                    id: c.id,
-                    name: c.name,
-                    slug: c.slug,
-                    products_count: c.products_count
-                })),
-                type: "array",
-                displayField: "name",
-                subText: (item) => `${item.products_count} products`,
-                badgeClass: "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300"
-            }]
-        });
-    }
-
-    // Add any additional fields that might be present
-    const additionalFields = [];
-    const excludedFields = [
-        'id', 'code', 'name', 'description', 'discount_value', 'discount_type', 
-        'is_active', 'total_usage_count', 'total_usage_limit', 'per_user_usage_limit',
-        'start_date', 'end_date', 'target_type', 'products', 'categories',
-        'created_at', 'updated_at', 'usage_count', 'min_order_amount'
-    ];
-
-    Object.keys(code).forEach(key => {
-        if (!excludedFields.includes(key) && code[key] !== null && code[key] !== undefined) {
-            additionalFields.push({
-                label: key.split('_').map(word => 
-                    word.charAt(0).toUpperCase() + word.slice(1)
-                ).join(' '),
-                value: typeof code[key] === 'object' 
-                    ? JSON.stringify(code[key], null, 2) 
-                    : code[key].toString(),
-                type: typeof code[key] === 'boolean' ? 'boolean' : 'text',
-                class: 'font-mono text-sm'
-            });
-        }
-    });
-
-    if (additionalFields.length > 0) {
-        sections.push({
-            title: "Additional Information",
-            fields: additionalFields
-        });
-    }
-
-    return sections;
 });
-
-// Helper function to check if promo code is currently active
-const isPromoCodeActive = (code) => {
-    if (!code.is_active) return false;
-    
-    const now = new Date();
-    const startDate = code.start_date ? new Date(code.start_date) : null;
-    const endDate = code.end_date ? new Date(code.end_date) : null;
-    
-    if (startDate && now < startDate) return false;
-    if (endDate && now > endDate) return false;
-    
-    return true;
-};
 
 const discountTypeOptions = ref([
     { value: "percentage", label: "Percentage" },
