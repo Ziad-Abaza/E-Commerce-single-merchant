@@ -106,49 +106,110 @@
 
         <!-- Filters and Search -->
         <div
-            class="bg-white dark:bg-gray-800 rounded-lg p-3 shadow-sm border border-gray-200 dark:border-gray-700"
+            class="bg-white dark:bg-gray-800 rounded-lg p-3 sm:p-4 shadow-sm border border-gray-200 dark:border-gray-700"
         >
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 items-end">
-                <!-- Search -->
-                <div>
+            <!-- Mobile Search (visible only on small screens) -->
+            <div class="block sm:hidden mb-4">
+                <div class="flex items-center gap-2">
+                    <Search
+                        v-model="promoCodesStore.filters.search"
+                        placeholder="Search by code or name..."
+                        @submit="handleSearch"
+                        class="flex-1"
+                    />
+                    <button
+                        v-if="hasActiveFilters"
+                        @click="clearAllFilters"
+                        class="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                        title="Clear all filters"
+                    >
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            class="h-5 w-5"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12"
+                            />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Desktop Filters -->
+            <div
+                class="hidden sm:grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 items-end"
+            >
+                <!-- Search (hidden on mobile) -->
+                <div class="hidden sm:block">
                     <Search
                         v-model="promoCodesStore.filters.search"
                         placeholder="Search by code or name..."
                         @submit="handleSearch"
                     />
                 </div>
+
                 <!-- Status Filter -->
-                <Select
-                    v-model="promoCodesStore.filters.status"
-                    :options="statusOptions"
-                    placeholder="All Statuses"
-                    label="Status"
-                    @update:modelValue="handleStatusFilter"
-                />
-                <!-- Discount Type -->
-                <Select
-                    v-model="promoCodesStore.filters.discount_type"
-                    :options="discountTypeOptions"
-                    placeholder="All Types"
-                    label="Discount Type"
-                    @update:modelValue="handleDiscountTypeFilter"
-                />
-                <!-- Target Type -->
-                <div class="flex gap-2">
+                <div>
                     <Select
-                        v-model="promoCodesStore.filters.target_type"
-                        :options="targetTypeOptions"
-                        placeholder="All Targets"
-                        label="Target"
-                        @update:modelValue="handleTargetTypeFilter"
+                        v-model="promoCodesStore.filters.status"
+                        :options="statusOptions"
+                        placeholder="All Statuses"
+                        label="Status"
+                        @update:modelValue="handleStatusFilter"
                     />
-                    <button
-                        v-if="hasActiveFilters"
-                        @click="clearAllFilters"
-                        class="px-3 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-sm"
-                    >
-                        Clear
-                    </button>
+                </div>
+
+                <!-- Discount Type -->
+                <div>
+                    <Select
+                        v-model="promoCodesStore.filters.discount_type"
+                        :options="discountTypeOptions"
+                        placeholder="All Types"
+                        label="Discount Type"
+                        @update:modelValue="handleDiscountTypeFilter"
+                    />
+                </div>
+
+                <!-- Target Type and Clear Button -->
+                <div class="flex gap-2">
+                    <div class="flex-1">
+                        <Select
+                            v-model="promoCodesStore.filters.target_type"
+                            :options="targetTypeOptions"
+                            placeholder="All Targets"
+                            label="Target"
+                            @update:modelValue="handleTargetTypeFilter"
+                        />
+                    </div>
+                    <div class="flex-shrink-0">
+                        <button
+                            v-if="hasActiveFilters"
+                            @click="clearAllFilters"
+                            class="h-[42px] px-3 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-sm whitespace-nowrap flex items-center gap-1"
+                        >
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                class="h-4 w-4"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M6 18L18 6M6 6l12 12"
+                                />
+                            </svg>
+                            <span class="hidden sm:inline">Clear</span>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -191,7 +252,10 @@
             v-else
             class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden"
         >
-            <div v-if="promoCodesStore.promoCodes.length === 0" class="text-center py-12">
+            <div
+                v-if="promoCodesStore.promoCodes.length === 0"
+                class="text-center py-12"
+            >
                 <svg
                     class="w-16 h-16 text-gray-400 dark:text-gray-600 mx-auto mb-4"
                     fill="none"
@@ -205,11 +269,17 @@
                         d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                     />
                 </svg>
-                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                <h3
+                    class="text-lg font-medium text-gray-900 dark:text-white mb-2"
+                >
                     No promo codes found
                 </h3>
                 <p class="text-gray-500 dark:text-gray-400 mb-4">
-                    {{ hasActiveFilters ? "Try adjusting your filters." : "Get started by adding your first promo code." }}
+                    {{
+                        hasActiveFilters
+                            ? "Try adjusting your filters."
+                            : "Get started by adding your first promo code."
+                    }}
                 </p>
                 <button
                     v-if="!hasActiveFilters"
@@ -225,16 +295,18 @@
         </div>
 
         <!-- Pagination -->
-        <div v-if="promoCodesStore.promoCodes.length > 0" class="flex justify-center">
-            <Pagination
-                :total="promoCodesStore.pagination.total"
-                :current-page="promoCodesStore.pagination.current_page"
-                :per-page="promoCodesStore.pagination.per_page"
-                :last-page="promoCodesStore.pagination.last_page"
-                @page-change="handlePageChange"
-                @update:perPage="handlePerPageChange"
-            />
-        </div>
+        <Pagination
+            v-if="pagination.total > 0"
+            :current-page="pagination.current_page"
+            :per-page="pagination.per_page"
+            :total="pagination.total"
+            :from="pagination.from"
+            :to="pagination.to"
+            :last-page="pagination.last_page"
+            @page-change="handlePageChange"
+            @update:perPage="handlePerPageChange"
+            class="border-t border-gray-200 dark:border-gray-700 p-4"
+        />
 
         <!-- Create/Edit Modal -->
         <div
@@ -247,14 +319,25 @@
             >
                 <div class="p-6">
                     <div class="flex items-center justify-between mb-6">
-                        <h3 class="text-xl font-bold text-gray-900 dark:text-white">
-                            {{ isEditing ? "Edit Promo Code" : "Add New Promo Code" }}
+                        <h3
+                            class="text-xl font-bold text-gray-900 dark:text-white"
+                        >
+                            {{
+                                isEditing
+                                    ? "Edit Promo Code"
+                                    : "Add New Promo Code"
+                            }}
                         </h3>
                         <button
                             @click="showFormModal = false"
                             class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                         >
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg
+                                class="w-6 h-6"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
                                 <path
                                     stroke-linecap="round"
                                     stroke-linejoin="round"
@@ -264,7 +347,10 @@
                             </svg>
                         </button>
                     </div>
-                    <Form :model-fields="formFields" @submit="handleSubmitForm" />
+                    <Form
+                        :model-fields="formFields"
+                        @submit="handleSubmitForm"
+                    />
                 </div>
             </div>
         </div>
@@ -292,14 +378,21 @@
             >
                 <div class="p-6">
                     <div class="flex items-center justify-between mb-6">
-                        <h3 class="text-xl font-bold text-gray-900 dark:text-white">
+                        <h3
+                            class="text-xl font-bold text-gray-900 dark:text-white"
+                        >
                             Promo Code Details
                         </h3>
                         <button
                             @click="showDetailsModal = false"
                             class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                         >
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg
+                                class="w-6 h-6"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
                                 <path
                                     stroke-linecap="round"
                                     stroke-linejoin="round"
@@ -310,29 +403,61 @@
                         </button>
                     </div>
                     <div v-if="currentPromoCode" class="space-y-4">
-                        <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg">
+                        <div
+                            class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg"
+                        >
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-500 dark:text-gray-400">Code</label>
-                                    <p class="text-lg font-mono font-bold text-gray-900 dark:text-white">{{ currentPromoCode.code }}</p>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-500 dark:text-gray-400">Name</label>
-                                    <p class="text-gray-900 dark:text-white">{{ currentPromoCode.name }}</p>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-500 dark:text-gray-400">Discount</label>
-                                    <p class="text-gray-900 dark:text-white">
-                                        {{ currentPromoCode.discount_value }}
-                                        {{ currentPromoCode.discount_type === 'percentage' ? '%' : siteStore.settings.currency }}
+                                    <label
+                                        class="block text-sm font-medium text-gray-500 dark:text-gray-400"
+                                        >Code</label
+                                    >
+                                    <p
+                                        class="text-lg font-mono font-bold text-gray-900 dark:text-white"
+                                    >
+                                        {{ currentPromoCode.code }}
                                     </p>
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-500 dark:text-gray-400">Target</label>
-                                    <p class="text-gray-900 dark:text-white capitalize">{{ currentPromoCode.target_type }}</p>
+                                    <label
+                                        class="block text-sm font-medium text-gray-500 dark:text-gray-400"
+                                        >Name</label
+                                    >
+                                    <p class="text-gray-900 dark:text-white">
+                                        {{ currentPromoCode.name }}
+                                    </p>
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-500 dark:text-gray-400">Status</label>
+                                    <label
+                                        class="block text-sm font-medium text-gray-500 dark:text-gray-400"
+                                        >Discount</label
+                                    >
+                                    <p class="text-gray-900 dark:text-white">
+                                        {{ currentPromoCode.discount_value }}
+                                        {{
+                                            currentPromoCode.discount_type ===
+                                            "percentage"
+                                                ? "%"
+                                                : siteStore.settings.currency
+                                        }}
+                                    </p>
+                                </div>
+                                <div>
+                                    <label
+                                        class="block text-sm font-medium text-gray-500 dark:text-gray-400"
+                                        >Target</label
+                                    >
+                                    <p
+                                        class="text-gray-900 dark:text-white capitalize"
+                                    >
+                                        {{ currentPromoCode.target_type }}
+                                    </p>
+                                </div>
+                                <div>
+                                    <label
+                                        class="block text-sm font-medium text-gray-500 dark:text-gray-400"
+                                        >Status</label
+                                    >
                                     <span
                                         :class="[
                                             'inline-flex items-center px-2 py-1 rounded-full text-xs font-medium',
@@ -341,29 +466,68 @@
                                                 : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300',
                                         ]"
                                     >
-                                        {{ currentPromoCode.is_active ? 'Active' : 'Inactive' }}
+                                        {{
+                                            currentPromoCode.is_active
+                                                ? "Active"
+                                                : "Inactive"
+                                        }}
                                     </span>
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-500 dark:text-gray-400">Usage</label>
+                                    <label
+                                        class="block text-sm font-medium text-gray-500 dark:text-gray-400"
+                                        >Usage</label
+                                    >
                                     <p class="text-gray-900 dark:text-white">
-                                        {{ currentPromoCode.total_usage_count }} / {{ currentPromoCode.total_usage_limit || '∞' }}
+                                        {{ currentPromoCode.total_usage_count }}
+                                        /
+                                        {{
+                                            currentPromoCode.total_usage_limit ||
+                                            "∞"
+                                        }}
                                     </p>
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-500 dark:text-gray-400">Start Date</label>
-                                    <p class="text-gray-900 dark:text-white">{{ formatDate(currentPromoCode.start_date) }}</p>
+                                    <label
+                                        class="block text-sm font-medium text-gray-500 dark:text-gray-400"
+                                        >Start Date</label
+                                    >
+                                    <p class="text-gray-900 dark:text-white">
+                                        {{
+                                            formatDate(
+                                                currentPromoCode.start_date,
+                                            )
+                                        }}
+                                    </p>
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-500 dark:text-gray-400">End Date</label>
-                                    <p class="text-gray-900 dark:text-white">{{ formatDate(currentPromoCode.end_date) }}</p>
+                                    <label
+                                        class="block text-sm font-medium text-gray-500 dark:text-gray-400"
+                                        >End Date</label
+                                    >
+                                    <p class="text-gray-900 dark:text-white">
+                                        {{
+                                            formatDate(
+                                                currentPromoCode.end_date,
+                                            )
+                                        }}
+                                    </p>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Target Items -->
-                        <div v-if="currentPromoCode.products && currentPromoCode.products.length > 0">
-                            <h4 class="font-medium text-gray-900 dark:text-white mb-2">Applied to Products:</h4>
+                        <div
+                            v-if="
+                                currentPromoCode.products &&
+                                currentPromoCode.products.length > 0
+                            "
+                        >
+                            <h4
+                                class="font-medium text-gray-900 dark:text-white mb-2"
+                            >
+                                Applied to Products:
+                            </h4>
                             <div class="flex flex-wrap gap-2">
                                 <span
                                     v-for="product in currentPromoCode.products"
@@ -374,8 +538,17 @@
                                 </span>
                             </div>
                         </div>
-                        <div v-else-if="currentPromoCode.categories && currentPromoCode.categories.length > 0">
-                            <h4 class="font-medium text-gray-900 dark:text-white mb-2">Applied to Categories:</h4>
+                        <div
+                            v-else-if="
+                                currentPromoCode.categories &&
+                                currentPromoCode.categories.length > 0
+                            "
+                        >
+                            <h4
+                                class="font-medium text-gray-900 dark:text-white mb-2"
+                            >
+                                Applied to Categories:
+                            </h4>
                             <div class="flex flex-wrap gap-2">
                                 <span
                                     v-for="cat in currentPromoCode.categories"
@@ -399,7 +572,11 @@
                                 @click="handleToggleStatus(currentPromoCode)"
                                 class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg text-sm"
                             >
-                                {{ currentPromoCode.is_active ? 'Deactivate' : 'Activate' }}
+                                {{
+                                    currentPromoCode.is_active
+                                        ? "Deactivate"
+                                        : "Activate"
+                                }}
                             </button>
                             <button
                                 @click="handleDeleteClick(currentPromoCode)"
@@ -416,7 +593,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import { usePromoCodesStore } from "../../stores/dashboard/promoCodes";
 import { useAuthStore } from "../../stores/auth";
 import { useSiteStore } from "../../stores/site";
@@ -433,7 +610,9 @@ const siteStore = useSiteStore();
 
 // Permissions
 if (!authStore.hasPermission("manage_promo_codes")) {
-    throw new Error("Access denied: You do not have permission to manage promo codes");
+    throw new Error(
+        "Access denied: You do not have permission to manage promo codes",
+    );
 }
 
 // Modals
@@ -457,9 +636,9 @@ const discountTypeOptions = ref([
 ]);
 
 const targetTypeOptions = computed(() => {
-    return promoCodesStore.availableFilters.target_types.map(type => ({
+    return promoCodesStore.availableFilters.target_types.map((type) => ({
         value: type,
-        label: type.charAt(0).toUpperCase() + type.slice(1)
+        label: type.charAt(0).toUpperCase() + type.slice(1),
     }));
 });
 
@@ -475,41 +654,34 @@ const tableHeaders = ref([
 ]);
 
 const tableRows = computed(() => {
-    return promoCodesStore.promoCodes.map(code => ({
+    return promoCodesStore.promoCodes.map((code) => ({
         id: code.id,
         code: code.code,
         name: code.name,
-        discount: {
-            type: "text",
-            value: `${code.discount_value}${code.discount_type === 'percentage' ? '%' : ` ${siteStore.settings.currency}`}`
-        },
-        target: {
-            type: "text",
-            value: code.target_type.charAt(0).toUpperCase() + code.target_type.slice(1)
-        },
-        usage: {
-            type: "text",
-            value: `${code.total_usage_count} / ${code.total_usage_limit || '∞'}`
-        },
+        discount: `${code.discount_value}${code.discount_type === "percentage" ? "%" : ` ${siteStore.settings.currency}`}`,
+        target:
+            code.target_type.charAt(0).toUpperCase() +
+            code.target_type.slice(1),
+        usage: `${code.total_usage_count} / ${code.total_usage_limit || "∞"}`,
         status: {
             type: "status",
             value: code.is_active ? "Active" : "Inactive",
             class: code.is_active
                 ? "px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"
-                : "px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300"
+                : "px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300",
         },
         actions: [
             {
                 label: "View",
                 icon: "eye",
                 class: "bg-blue-100 text-blue-700 hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-300",
-                onClick: () => handleView(code)
+                onClick: () => handleView(code),
             },
             {
                 label: "Edit",
                 icon: "edit",
                 class: "bg-yellow-100 text-yellow-700 hover:bg-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-300",
-                onClick: () => handleEdit(code)
+                onClick: () => handleEdit(code),
             },
             {
                 label: code.is_active ? "Deactivate" : "Activate",
@@ -517,15 +689,15 @@ const tableRows = computed(() => {
                 class: code.is_active
                     ? "bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300"
                     : "bg-green-100 text-green-700 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-300",
-                onClick: () => handleToggleStatus(code)
+                onClick: () => handleToggleStatus(code),
             },
             {
                 label: "Delete",
                 icon: "trash",
                 class: "bg-red-100 text-red-700 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-300",
-                onClick: () => handleDeleteClick(code)
-            }
-        ]
+                onClick: () => handleDeleteClick(code),
+            },
+        ],
     }));
 });
 
@@ -560,22 +732,6 @@ const clearAllFilters = () => {
     promoCodesStore.clearFilters();
 };
 
-const handlePageChange = (page) => {
-    promoCodesStore.fetchPromoCodes(page, promoCodesStore.pagination.per_page);
-};
-
-const handlePerPageChange = (perPage) => {
-    promoCodesStore.pagination.per_page = perPage;
-    promoCodesStore.fetchPromoCodes(1, perPage);
-};
-
-const fetchPromoCodes = () => {
-    promoCodesStore.fetchPromoCodes(
-        promoCodesStore.pagination.current_page,
-        promoCodesStore.pagination.per_page
-    );
-};
-
 const openCreateForm = () => {
     isEditing.value = false;
     currentPromoCode.value = null;
@@ -597,24 +753,23 @@ const handleEdit = async (promoCode) => {
     isEditing.value = true;
     promoCodeToDelete.value = promoCode;
     try {
-        const fullCode = await promoCodesStore.fetchPromoCode(promoCode.id);
-        currentPromoCode.value = fullCode;
-        initializeFormFields(fullCode);
+        const response = await promoCodesStore.fetchPromoCode(promoCode.id);
+        currentPromoCode.value = response.data;
+        initializeFormFields(response.data); 
         showFormModal.value = true;
     } catch (error) {
         console.error("Error loading promo code for edit:", error);
     }
 };
-
 const initializeFormFields = (code) => {
-    formFields.value = [
+    const baseFields = [
         {
             id: "code",
             label: "Promo Code",
             type: "text",
             value: code?.code || "",
             required: true,
-            placeholder: "e.g. SUMMER25"
+            placeholder: "e.g. SUMMER25",
         },
         {
             id: "name",
@@ -622,7 +777,7 @@ const initializeFormFields = (code) => {
             type: "text",
             value: code?.name || "",
             required: true,
-            placeholder: "e.g. Summer Sale 2025"
+            placeholder: "e.g. Summer Sale 2025",
         },
         {
             id: "discount_type",
@@ -632,8 +787,8 @@ const initializeFormFields = (code) => {
             required: true,
             options: [
                 { value: "percentage", label: "Percentage" },
-                { value: "fixed", label: "Fixed Amount" }
-            ]
+                { value: "fixed", label: "Fixed Amount" },
+            ],
         },
         {
             id: "discount_value",
@@ -641,7 +796,7 @@ const initializeFormFields = (code) => {
             type: "number",
             value: code?.discount_value || "",
             required: true,
-            placeholder: "e.g. 25 or 10.99"
+            placeholder: "e.g. 25 or 10.99",
         },
         {
             id: "target_type",
@@ -649,10 +804,10 @@ const initializeFormFields = (code) => {
             type: "select",
             value: code?.target_type || "products",
             required: true,
-            options: promoCodesStore.availableFilters.target_types.map(t => ({
+            options: promoCodesStore.targetTypes.map((t) => ({
                 value: t,
-                label: t.charAt(0).toUpperCase() + t.slice(1)
-            }))
+                label: t.charAt(0).toUpperCase() + t.slice(1),
+            })),
         },
         {
             id: "total_usage_limit",
@@ -660,7 +815,7 @@ const initializeFormFields = (code) => {
             type: "number",
             value: code?.total_usage_limit || "",
             required: false,
-            placeholder: "Leave blank for unlimited"
+            placeholder: "Leave blank for unlimited",
         },
         {
             id: "per_user_usage_limit",
@@ -668,42 +823,70 @@ const initializeFormFields = (code) => {
             type: "number",
             value: code?.per_user_usage_limit || "",
             required: false,
-            placeholder: "e.g. 1"
+            placeholder: "e.g. 1",
         },
         {
             id: "start_date",
             label: "Start Date (optional)",
             type: "date",
-            value: code?.start_date ? new Date(code.start_date).toISOString().split('T')[0] : "",
-            required: false
+            value: code?.start_date
+                ? new Date(code.start_date).toISOString().split("T")[0]
+                : "",
+            required: false,
         },
         {
             id: "end_date",
             label: "End Date (optional)",
             type: "date",
-            value: code?.end_date ? new Date(code.end_date).toISOString().split('T')[0] : "",
-            required: false
+            value: code?.end_date
+                ? new Date(code.end_date).toISOString().split("T")[0]
+                : "",
+            required: false,
         },
         {
             id: "is_active",
             label: "Active",
             type: "checkbox",
-            value: code?.is_active || false,
-            required: false
-        }
+            value: code?.is_active ?? false,
+            required: false,
+        },
     ];
 
-    // Add dynamic fields based on target_type
-    if (code?.target_type === "products" || (!code && formFields.value.find(f => f.id === "target_type")?.value === "products")) {
-        // You'd normally fetch products list here, but for simplicity we'll skip dynamic product selector
-        // In real app, you'd add a multi-select with product options
-    }
-};
+    // Add dynamic target fields
+    const targetFields = [];
+    const targetType = code?.target_type || "products";
 
+    if (targetType === "products") {
+        targetFields.push({
+            id: "products",
+            label: "Select Products",
+            type: "multipleselect",
+            value: code?.products?.map(p => p.id) || [],
+            required: true,
+            options: [], 
+            placeholder: "Choose products...",
+        });
+    } else if (targetType === "categories") {
+        targetFields.push({
+            id: "categories",
+            label: "Select Categories",
+            type: "multipleselect",
+            value: code?.categories?.map(c => c.id) || [],
+            required: true,
+            options: [], 
+            placeholder: "Choose categories...",
+        });
+    }
+
+    formFields.value = [...baseFields, ...targetFields];
+};
 const handleSubmitForm = async (data) => {
     try {
         if (isEditing.value && promoCodeToDelete.value) {
-            await promoCodesStore.updatePromoCode(promoCodeToDelete.value.id, data);
+            await promoCodesStore.updatePromoCode(
+                promoCodeToDelete.value.id,
+                data,
+            );
         } else {
             await promoCodesStore.createPromoCode(data);
         }
@@ -748,13 +931,60 @@ const formatDate = (dateString) => {
 onMounted(() => {
     fetchPromoCodes();
 });
+
+// Computed
+const pagination = computed(() => promoCodesStore.pagination);
+
+// Watch for filter changes to refresh the data
+watch(
+    [
+        () => promoCodesStore.filters.search,
+        () => promoCodesStore.filters.status,
+        () => promoCodesStore.filters.discount_type,
+        () => promoCodesStore.filters.target_type,
+    ],
+    () => {
+        // Reset to first page when filters change
+        promoCodesStore.pagination.current_page = 1;
+        fetchPromoCodes();
+    },
+    { deep: true },
+);
+
+// Handlers
+const handlePageChange = (page) => {
+    fetchPromoCodes(page);
+};
+
+const handlePerPageChange = (perPage) => {
+    promoCodesStore.pagination.per_page = perPage;
+    fetchPromoCodes(1, perPage);
+};
+
+// Update the existing fetchPromoCodes function
+const fetchPromoCodes = async (page = null, perPage = null) => {
+    try {
+        await promoCodesStore.fetchPromoCodes(
+            page || promoCodesStore.pagination.current_page,
+            perPage || promoCodesStore.pagination.per_page,
+        );
+    } catch (error) {
+        console.error("Error fetching promos:", error);
+    }
+};
 </script>
 
 <style scoped>
 /* Reuse existing animations */
 @keyframes slide-in-from-top {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 .animate-in {
     animation: slide-in-from-top 0.3s ease-out forwards;

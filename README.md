@@ -268,7 +268,6 @@ server {
     }
 }
 ```
-
 #### 9. Set Proper Permissions
 ```bash
 sudo chown -R www-data:www-data /var/www/your-project
@@ -551,5 +550,6 @@ SOFTWARE.
 <div align="center">
   Made with ❤️ by Ziad Hassan
 </div>
-#   e - c o m m e r c e - w h a t s a p p  
+#   e - c o m m e r c e - w h a t s a p p 
+ 
  

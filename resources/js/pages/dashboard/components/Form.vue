@@ -97,6 +97,23 @@
                 </label>
             </div>
 
+            <!-- Autocomplete Input -->
+            <div v-else-if="field.type === 'autocomplete'" class="w-full">
+                <AutocompleteInput
+                    v-model="field.value"
+                    :options="field.options || []"
+                    :placeholder="field.placeholder || 'Type to search or add new...'"
+                    :allow-new="field.allowNew !== false"
+                    @add-new="(newOption) => {
+                        if (field.onAddNew) {
+                            field.onAddNew(newOption);
+                        } else if (field.options) {
+                            field.options.push(newOption);
+                        }
+                    }"
+                />
+            </div>
+
             <!-- Date Input -->
             <input
                 v-else-if="field.type === 'date'"
@@ -243,6 +260,7 @@
 
 <script setup>
 import { reactive, ref, watch, computed } from "vue";
+import AutocompleteInput from "./AutocompleteInput.vue";
 
 const isSubmitting = ref(false);
 import FileDropzone from "./FileDropzone.vue";

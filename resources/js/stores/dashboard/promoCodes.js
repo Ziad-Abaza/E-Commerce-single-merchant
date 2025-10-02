@@ -48,6 +48,7 @@ export const usePromoCodesStore = defineStore("promoCodes", {
             discount_types: ["fixed", "percentage"],
             status_options: ["active", "inactive"],
         },
+        targetTypes: [],
     }),
 
     getters: {
@@ -93,6 +94,7 @@ export const usePromoCodesStore = defineStore("promoCodes", {
                 this.pagination = response.data.pagination || this.pagination;
                 this.availableFilters =
                     response.data.available_filters || this.availableFilters;
+                this.targetTypes = response.data.target_types;
 
                 return { success: true, data: response.data.data };
             } catch (err) {
@@ -325,12 +327,16 @@ export const usePromoCodesStore = defineStore("promoCodes", {
         // ============= STATS =============
         async fetchStats() {
             try {
-                const response = await axios.get('/dashboard/promo-codes/stats');
+                const response = await axios.get(
+                    "/dashboard/promo-codes/stats",
+                );
                 this.stats = response.data.data || this.stats;
                 return { success: true, data: this.stats };
             } catch (err) {
-                this.error = err.response?.data?.message || 'Failed to fetch promo code stats';
-                console.error('[PromoCodes Store] fetchStats error:', err);
+                this.error =
+                    err.response?.data?.message ||
+                    "Failed to fetch promo code stats";
+                console.error("[PromoCodes Store] fetchStats error:", err);
                 return { success: false, error: this.error };
             }
         },

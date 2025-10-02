@@ -80,7 +80,7 @@ class PromoCodeController extends Controller
 
         $promoCodes = $query->paginate($perPage);
 
-        $target_types = $promoCodes->pluck('target_type')->unique()->values()->toArray();
+        $target_types = ['products','categories','shipping','order'];
         $availableFilters = [
             'target_types' => PromoCode::pluck('target_type')->unique()->values()->toArray(),
             'discount_types' => ['fixed','percentage'],

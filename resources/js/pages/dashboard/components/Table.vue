@@ -54,7 +54,7 @@
                             />
                         </template>
 
-                        <!-- Image Cell (thumbnail + click to preview) -->
+                        <!-- Image Cell -->
                         <template v-else-if="row[headers]?.type === 'image'">
                             <img
                                 :src="row[headers].src"
@@ -69,7 +69,7 @@
                             />
                         </template>
 
-                        <!-- File Cell (Download button) -->
+                        <!-- File Cell -->
                         <template v-else-if="row[headers]?.type === 'file'">
                             <a
                                 :href="row[headers].url"
@@ -102,25 +102,19 @@
                         >
                             <div class="flex gap-2 flex-wrap">
                                 <button
-                                    v-for="(action, actionIndex) in row[
-                                        headers
-                                    ]"
-                                    :key="
-                                        'action-' + rowIndex + '-' + actionIndex
-                                    "
+                                    v-for="(action, actionIndex) in row[headers]"
+                                    :key="'action-' + rowIndex + '-' + actionIndex"
                                     @click="action.onClick(row)"
                                     class="px-3 py-1 flex items-center gap-1 rounded"
                                     :class="action.class"
-                                    :style="{
-                                        backgroundColor: action.color || '',
-                                    }"
+                                    :style="{ backgroundColor: action.color || '' }"
                                 >
-                                    <span v-if="action.icon" class="text-sm">{{
-                                        getIconSymbol(action.icon)
-                                    }}</span>
-                                    <span v-if="action.label">{{
-                                        action.label
-                                    }}</span>
+                                    <component
+                                        v-if="action.icon"
+                                        :is="getIconSymbol(action.icon)"
+                                        class="w-5 h-5"
+                                    />
+                                    <span v-if="action.label">{{ action.label }}</span>
                                 </button>
                             </div>
                         </template>
@@ -160,7 +154,6 @@
             </tbody>
         </table>
 
-
         <!-- Mobile Card View -->
         <div class="space-y-4 md:hidden">
             <Card
@@ -178,6 +171,54 @@
 import { computed } from "vue";
 import Card from "./Card.vue";
 import VariantDisplay from "./VariantDisplay.vue";
+import {
+  PencilSquareIcon,
+  TrashIcon,
+  EyeIcon,
+  EyeSlashIcon,
+  PlusIcon,
+  CheckIcon,
+  XMarkIcon,
+  ArrowDownTrayIcon,
+  ArrowUpTrayIcon,
+  MagnifyingGlassIcon,
+  FunnelIcon,
+  ArrowsUpDownIcon,
+  Cog6ToothIcon,
+  UserIcon,
+  UsersIcon,
+  HomeIcon,
+  ChartBarIcon,
+  ListBulletIcon,
+  Squares2X2Icon,
+  CalendarDaysIcon,
+  ClockIcon,
+  BellIcon,
+  EnvelopeIcon,
+  PhoneIcon,
+  MapPinIcon,
+  StarIcon,
+  HeartIcon,
+  BookmarkIcon,
+  TagIcon,
+  FolderIcon,
+  DocumentIcon,
+  PhotoIcon,
+  VideoCameraIcon,
+  MusicalNoteIcon,
+  LinkIcon,
+  ArrowTopRightOnSquareIcon,
+  ArrowLeftIcon,
+  ArrowRightIcon,
+  ArrowUpIcon,
+  ArrowDownIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  ChevronUpIcon,
+  ChevronDownIcon,
+  PauseIcon,
+  PlayIcon
+} from "@heroicons/vue/24/outline";
 
 // Props
 const props = defineProps({
@@ -253,60 +294,57 @@ const visibleHeaders = computed(() => allHeaders.value);
 
 // Helper to get icon symbol from FontAwesome icon names
 const getIconSymbol = (iconName) => {
-    const iconMap = {
-        edit: "✏️",
-        trash: "🗑️",
-        eye: "👁️",
-        "eye-slash": "🙈",
-        plus: "➕",
-        check: "✅",
-        times: "❌",
-        download: "⬇️",
-        upload: "⬆️",
-        search: "🔍",
-        filter: "🔽",
-        sort: "↕️",
-        cog: "⚙️",
-        user: "👤",
-        users: "👥",
-        home: "🏠",
-        dashboard: "📊",
-        chart: "📈",
-        list: "📋",
-        grid: "⊞",
-        calendar: "📅",
-        clock: "🕐",
-        bell: "🔔",
-        envelope: "✉️",
-        phone: "📞",
-        location: "📍",
-        star: "⭐",
-        heart: "❤️",
-        bookmark: "🔖",
-        tag: "🏷️",
-        folder: "📁",
-        file: "📄",
-        image: "🖼️",
-        video: "🎥",
-        music: "🎵",
-        link: "🔗",
-        "external-link": "↗️",
-        "arrow-left": "←",
-        "arrow-right": "→",
-        "arrow-up": "↑",
-        "arrow-down": "↓",
-        "chevron-left": "⮜",
-        "chevron-right": "⮞",
-        "chevron-up": "⮝",
-        "chevron-down": "⮟",
-    };
+  const iconMap = {
+    edit: PencilSquareIcon,
+    trash: TrashIcon,
+    eye: EyeIcon,
+    "eye-slash": EyeSlashIcon,
+    plus: PlusIcon,
+    check: CheckIcon,
+    times: XMarkIcon,
+    download: ArrowDownTrayIcon,
+    upload: ArrowUpTrayIcon,
+    search: MagnifyingGlassIcon,
+    filter: FunnelIcon,
+    sort: ArrowsUpDownIcon,
+    cog: Cog6ToothIcon,
+    user: UserIcon,
+    users: UsersIcon,
+    home: HomeIcon,
+    dashboard: ChartBarIcon,
+    chart: ChartBarIcon,
+    list: ListBulletIcon,
+    grid: Squares2X2Icon,
+    calendar: CalendarDaysIcon,
+    clock: ClockIcon,
+    bell: BellIcon,
+    envelope: EnvelopeIcon,
+    phone: PhoneIcon,
+    location: MapPinIcon,
+    star: StarIcon,
+    heart: HeartIcon,
+    bookmark: BookmarkIcon,
+    tag: TagIcon,
+    folder: FolderIcon,
+    file: DocumentIcon,
+    image: PhotoIcon,
+    video: VideoCameraIcon,
+    music: MusicalNoteIcon,
+    link: LinkIcon,
+    "external-link": ArrowTopRightOnSquareIcon,
+    "arrow-left": ArrowLeftIcon,
+    "arrow-right": ArrowRightIcon,
+    "arrow-up": ArrowUpIcon,
+    "arrow-down": ArrowDownIcon,
+    "chevron-left": ChevronLeftIcon,
+    "chevron-right": ChevronRightIcon,
+    "chevron-up": ChevronUpIcon,
+    "chevron-down": ChevronDownIcon,
+    pause: PauseIcon,
+    play: PlayIcon,
+  };
 
-    // Handle array format like ['fas', 'edit']
-    if (Array.isArray(iconName)) {
-        return iconMap[iconName[1]] || iconMap[iconName[0]] || "•";
-    }
-
-    // Handle string format
-    return iconMap[iconName] || "•";
+  return iconMap[iconName] || null;
 };
+
 </script>
