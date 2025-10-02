@@ -1,11 +1,4 @@
----
-noteId: "ceacd1109f8e11f0a6b7df01020aede4"
-tags: []
-
----
-
 # E-Commerce Single Merchant Platform
-
 
 A comprehensive single-vendor e-commerce solution built with Laravel and Vue.js 3, featuring a modern dashboard for managing products, orders, users, and settings.
 
@@ -557,6 +550,4 @@ SOFTWARE.
 <div align="center">
   Made with ❤️ by Ziad Hassan
 </div>
-#   e - c o m m e r c e - w h a t s a p p 
- 
- 
+#
