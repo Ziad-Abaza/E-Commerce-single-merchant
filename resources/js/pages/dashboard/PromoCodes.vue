@@ -385,6 +385,8 @@
 <script setup>
 import { ref, computed, onMounted, watch } from "vue";
 import { usePromoCodesStore } from "../../stores/dashboard/promoCodes";
+
+const formFields = ref([]);
 import { useAuthStore } from "../../stores/auth";
 import { useSiteStore } from "../../stores/site";
 import Search from "./components/Search.vue";
@@ -444,13 +446,31 @@ const promoCodeSections = computed(() => {
     if (!currentPromoCode.value) return [];
 
     const code = currentPromoCode.value;
+    
+    // Format products and categories for display
+    const formatItems = (items) => {
+        if (!items || !items.length) return [];
+        return items.map(item => ({
+            id: item.id,
+            name: item.name || item.title || `Item ${item.id}`,
+            ...item
+        }));
+    };
 
-    return [
+    const sections = [
         {
             title: "Promo Code Information",
             fields: [
-                { label: "Code", value: code.code, type: "text" },
-                { label: "Name", value: code.name, type: "text" },
+                { 
+                    label: "Code", 
+                    value: code.code || '—', 
+                    type: "text" 
+                },
+                { 
+                    label: "Name", 
+                    value: code.name || '—', 
+                    type: "text" 
+                },
                 {
                     label: "Description",
                     value: code.description || "—",
@@ -458,15 +478,16 @@ const promoCodeSections = computed(() => {
                 },
                 {
                     label: "Discount",
-                    value: `${code.discount_value}${code.discount_type === "percentage" ? "%" : siteStore.settings.currency}`,
+                    value: code.discount_value !== undefined 
+                        ? `${code.discount_value}${code.discount_type === "percentage" ? "%" : siteStore.settings.currency}`
+                        : "—",
                     type: "text",
                 },
                 {
                     label: "Discount Type",
-                    value:
-                        code.discount_type === "percentage"
-                            ? "Percentage"
-                            : "Fixed Amount",
+                    value: code.discount_type
+                        ? code.discount_type === "percentage" ? "Percentage" : "Fixed Amount"
+                        : "—",
                     type: "text",
                 },
                 {
@@ -482,17 +503,10 @@ const promoCodeSections = computed(() => {
                     type: "boolean",
                 },
                 {
-                    label: "Total Usage Limit",
-                    value: code.total_usage_limit
-                        ? code.total_usage_limit.toString()
-                        : "Unlimited",
-                    type: "text",
-                },
-                {
-                    label: "Per User Limit",
-                    value: code.per_user_usage_limit
-                        ? code.per_user_usage_limit.toString()
-                        : "Unlimited",
+                    label: "Usage",
+                    value: code.total_usage_count !== undefined 
+                        ? `${code.total_usage_count} / ${code.total_usage_limit || '∞'}`
+                        : "—",
                     type: "text",
                 },
                 {
@@ -506,39 +520,46 @@ const promoCodeSections = computed(() => {
                     label: "End Date",
                     value: code.end_date
                         ? new Date(code.end_date).toLocaleString()
-                        : "—",
+                        : "No Expiry",
                     type: "text",
                 },
-            ],
-        },
-        ...(code.products?.length > 0
-            ? [
-                  {
-                      title: "Applied to Products",
-                      fields: [
-                          {
-                              label: "Products",
-                              value: code.products,
-                              type: "array",
-                          },
-                      ],
-                  },
-              ]
-            : code.categories?.length > 0
-              ? [
-                    {
-                        title: "Applied to Categories",
-                        fields: [
-                            {
-                                label: "Categories",
-                                value: code.categories,
-                                type: "array",
-                            },
-                        ],
-                    },
-                ]
-              : []),
+            ].filter(field => field.value !== undefined), // Remove undefined fields
+        }
     ];
+
+    // Add products section if available
+    if (code.products?.length) {
+        sections.push({
+            title: "Applied to Products",
+            fields: [
+                {
+                    label: "Products",
+                    value: formatItems(code.products),
+                    type: "array",
+                    display: "name",
+                    badgeClass: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300"
+                }
+            ]
+        });
+    }
+    
+    // Add categories section if available
+    if (code.categories?.length) {
+        sections.push({
+            title: "Applied to Categories",
+            fields: [
+                {
+                    label: "Categories",
+                    value: formatItems(code.categories),
+                    type: "array",
+                    display: "name",
+                    badgeClass: "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300"
+                }
+            ]
+        });
+    }
+
+    return sections;
 });
 
 const discountTypeOptions = ref([
