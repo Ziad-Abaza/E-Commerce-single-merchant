@@ -111,12 +111,28 @@
             <!-- Mobile Search (visible only on small screens) -->
             <div class="block sm:hidden mb-4">
                 <div class="flex items-center gap-2">
-                    <Search
-                        v-model="promoCodesStore.filters.search"
-                        placeholder="Search by code or name..."
-                        @submit="handleSearch"
-                        class="flex-1"
-                    />
+                    <div class="relative flex-1">
+                        <Search
+                            v-model="promoCodesStore.filters.search"
+                            placeholder="Search by code, name, or description..."
+                            @submit="handleSearch"
+                            class="w-full pr-8"
+                        />
+                        <button
+                            v-if="promoCodesStore.filters.search"
+                            @click="clearSearch"
+                            class="absolute inset-y-0 right-0 flex items-center pr-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                            type="button"
+                            title="Clear search"
+                        >
+                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                        <div v-if="isSearching" class="absolute inset-y-0 right-2 flex items-center">
+                            <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-500"></div>
+                        </div>
+                    </div>
                     <button
                         v-if="hasActiveFilters"
                         @click="clearAllFilters"
@@ -146,12 +162,29 @@
                 class="hidden sm:grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 items-end"
             >
                 <!-- Search (hidden on mobile) -->
-                <div class="hidden sm:block">
-                    <Search
-                        v-model="promoCodesStore.filters.search"
-                        placeholder="Search by code or name..."
-                        @submit="handleSearch"
-                    />
+                <div class="hidden sm:block relative">
+                    <div class="relative">
+                        <Search
+                            v-model="promoCodesStore.filters.search"
+                            placeholder="Search by code, name, or description..."
+                            @submit="handleSearch"
+                            class="w-full pr-8"
+                        />
+                        <button
+                            v-if="promoCodesStore.filters.search"
+                            @click="clearSearch"
+                            class="absolute inset-y-0 right-0 flex items-center pr-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                            type="button"
+                            title="Clear search"
+                        >
+                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                        <div v-if="isSearching" class="absolute inset-y-0 right-2 flex items-center">
+                            <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-500"></div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Status Filter -->
@@ -384,11 +417,13 @@
 
 <script setup>
 import { ref, computed, onMounted, watch } from "vue";
+import { debounce } from 'lodash';
 import { usePromoCodesStore } from "../../stores/dashboard/promoCodes";
-
-const formFields = ref([]);
 import { useAuthStore } from "../../stores/auth";
 import { useSiteStore } from "../../stores/site";
+
+const formFields = ref([]);
+const isSearching = ref(false);
 import Search from "./components/Search.vue";
 import DetailsModal from "./components/DetailsModal.vue";
 import Select from "./components/Select.vue";
@@ -644,8 +679,27 @@ const hasActiveFilters = computed(() => {
 });
 
 // Handlers
-const handleSearch = (searchTerm) => {
+// Debounced search function
+const debouncedSearch = debounce(async (searchTerm) => {
+    if (searchTerm === promoCodesStore.filters.search) return;
+    
     promoCodesStore.setFilter("search", searchTerm);
+    isSearching.value = true;
+    
+    try {
+        await fetchPromoCodes(1, promoCodesStore.pagination.per_page);
+    } finally {
+        isSearching.value = false;
+    }
+}, 500);
+
+const handleSearch = (searchTerm) => {
+    debouncedSearch(searchTerm);
+};
+
+const clearSearch = () => {
+    promoCodesStore.filters.search = '';
+    fetchPromoCodes(1, promoCodesStore.pagination.per_page);
 };
 
 const handleStatusFilter = (value) => {
