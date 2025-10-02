@@ -18,6 +18,7 @@ class PromoCodeResource extends JsonResource
             'id' => $this->id,
             'code' => $this->code,
             'name' => $this->name,
+            'description' => $this->description,
             'discount_type' => $this->discount_type,
             'discount_value' => (float) $this->discount_value,
             'target_type' => $this->target_type,

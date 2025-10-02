@@ -12,6 +12,7 @@ return new class extends Migration
             $table->id();
             $table->string('code')->unique();
             $table->string('name')->nullable(); // e.g., "Summer Sale"
+            $table->text('description')->nullable();
             $table->enum('discount_type', ['percentage', 'fixed']);
             $table->decimal('discount_value', 10, 2);
 

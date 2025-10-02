@@ -372,7 +372,7 @@
             v-if="showDetailsModal"
             :show="showDetailsModal"
             :item="currentPromoCode"
-            :sections="promoCodeSections"
+            :customSections="promoCodeSections"
             modal-title="Promo Code Details"
             :modal-subtitle="currentPromoCode?.code || 'Promo Code'"
             id-label="Promo ID"
@@ -711,6 +711,14 @@ const initializeFormFields = (code) => {
             value: code?.name || "",
             required: true,
             placeholder: "e.g. Summer Sale 2025",
+        },
+        {
+            id: "description",
+            label: "Description",
+            type: "richtext",
+            value: code?.description || "",
+            required: false,
+            placeholder: "Enter promo code description (optional)",
         },
         {
             id: "discount_type",

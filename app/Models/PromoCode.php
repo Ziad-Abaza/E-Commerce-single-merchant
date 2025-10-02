@@ -14,6 +14,7 @@ class PromoCode extends Model
     protected $fillable = [
         'code',
         'name',
+        'description',
         'discount_type',
         'discount_value',
         'target_type',
@@ -26,6 +27,7 @@ class PromoCode extends Model
     ];
 
     protected $casts = [
+        'description' => 'string',
         'discount_value' => 'decimal:2',
         'total_usage_count' => 'integer',
         'total_usage_limit' => 'integer',

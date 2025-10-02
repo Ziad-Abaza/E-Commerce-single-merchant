@@ -31,6 +31,7 @@ class PromoCodeRequest extends FormRequest
                 Rule::unique('promo_codes', 'code')->ignore($promoCode?->id)
             ],
             'name' => ['sometimes', 'required', 'string', 'max:255'],
+            'description' => ['nullable', 'string', 'max:1000'],
             'discount_type' => ['sometimes', 'required', 'in:percentage,fixed'],
             'discount_value' => ['sometimes', 'required', 'numeric', 'min:0.01'],
             'target_type' => ['sometimes', 'required', 'in:products,categories,shipping,order'],
