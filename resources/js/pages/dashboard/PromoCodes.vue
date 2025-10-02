@@ -368,227 +368,17 @@
         />
 
         <!-- Promo Code Details Modal -->
-        <div
+        <DetailsModal
             v-if="showDetailsModal"
-            class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
-            @click.self="showDetailsModal = false"
-        >
-            <div
-                class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto"
-            >
-                <div class="p-6">
-                    <div class="flex items-center justify-between mb-6">
-                        <h3
-                            class="text-xl font-bold text-gray-900 dark:text-white"
-                        >
-                            Promo Code Details
-                        </h3>
-                        <button
-                            @click="showDetailsModal = false"
-                            class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-                        >
-                            <svg
-                                class="w-6 h-6"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                            >
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="2"
-                                    d="M6 18L18 6M6 6l12 12"
-                                />
-                            </svg>
-                        </button>
-                    </div>
-                    <div v-if="currentPromoCode" class="space-y-4">
-                        <div
-                            class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg"
-                        >
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div>
-                                    <label
-                                        class="block text-sm font-medium text-gray-500 dark:text-gray-400"
-                                        >Code</label
-                                    >
-                                    <p
-                                        class="text-lg font-mono font-bold text-gray-900 dark:text-white"
-                                    >
-                                        {{ currentPromoCode.code }}
-                                    </p>
-                                </div>
-                                <div>
-                                    <label
-                                        class="block text-sm font-medium text-gray-500 dark:text-gray-400"
-                                        >Name</label
-                                    >
-                                    <p class="text-gray-900 dark:text-white">
-                                        {{ currentPromoCode.name }}
-                                    </p>
-                                </div>
-                                <div>
-                                    <label
-                                        class="block text-sm font-medium text-gray-500 dark:text-gray-400"
-                                        >Discount</label
-                                    >
-                                    <p class="text-gray-900 dark:text-white">
-                                        {{ currentPromoCode.discount_value }}
-                                        {{
-                                            currentPromoCode.discount_type ===
-                                            "percentage"
-                                                ? "%"
-                                                : siteStore.settings.currency
-                                        }}
-                                    </p>
-                                </div>
-                                <div>
-                                    <label
-                                        class="block text-sm font-medium text-gray-500 dark:text-gray-400"
-                                        >Target</label
-                                    >
-                                    <p
-                                        class="text-gray-900 dark:text-white capitalize"
-                                    >
-                                        {{ currentPromoCode.target_type }}
-                                    </p>
-                                </div>
-                                <div>
-                                    <label
-                                        class="block text-sm font-medium text-gray-500 dark:text-gray-400"
-                                        >Status</label
-                                    >
-                                    <span
-                                        :class="[
-                                            'inline-flex items-center px-2 py-1 rounded-full text-xs font-medium',
-                                            currentPromoCode.is_active
-                                                ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
-                                                : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300',
-                                        ]"
-                                    >
-                                        {{
-                                            currentPromoCode.is_active
-                                                ? "Active"
-                                                : "Inactive"
-                                        }}
-                                    </span>
-                                </div>
-                                <div>
-                                    <label
-                                        class="block text-sm font-medium text-gray-500 dark:text-gray-400"
-                                        >Usage</label
-                                    >
-                                    <p class="text-gray-900 dark:text-white">
-                                        {{ currentPromoCode.total_usage_count }}
-                                        /
-                                        {{
-                                            currentPromoCode.total_usage_limit ||
-                                            "∞"
-                                        }}
-                                    </p>
-                                </div>
-                                <div>
-                                    <label
-                                        class="block text-sm font-medium text-gray-500 dark:text-gray-400"
-                                        >Start Date</label
-                                    >
-                                    <p class="text-gray-900 dark:text-white">
-                                        {{
-                                            formatDate(
-                                                currentPromoCode.start_date,
-                                            )
-                                        }}
-                                    </p>
-                                </div>
-                                <div>
-                                    <label
-                                        class="block text-sm font-medium text-gray-500 dark:text-gray-400"
-                                        >End Date</label
-                                    >
-                                    <p class="text-gray-900 dark:text-white">
-                                        {{
-                                            formatDate(
-                                                currentPromoCode.end_date,
-                                            )
-                                        }}
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Target Items -->
-                        <div
-                            v-if="
-                                currentPromoCode.products &&
-                                currentPromoCode.products.length > 0
-                            "
-                        >
-                            <h4
-                                class="font-medium text-gray-900 dark:text-white mb-2"
-                            >
-                                Applied to Products:
-                            </h4>
-                            <div class="flex flex-wrap gap-2">
-                                <span
-                                    v-for="product in currentPromoCode.products"
-                                    :key="product.id"
-                                    class="px-2 py-1 bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 rounded text-sm"
-                                >
-                                    {{ product.name }}
-                                </span>
-                            </div>
-                        </div>
-                        <div
-                            v-else-if="
-                                currentPromoCode.categories &&
-                                currentPromoCode.categories.length > 0
-                            "
-                        >
-                            <h4
-                                class="font-medium text-gray-900 dark:text-white mb-2"
-                            >
-                                Applied to Categories:
-                            </h4>
-                            <div class="flex flex-wrap gap-2">
-                                <span
-                                    v-for="cat in currentPromoCode.categories"
-                                    :key="cat.id"
-                                    class="px-2 py-1 bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300 rounded text-sm"
-                                >
-                                    {{ cat.name }}
-                                </span>
-                            </div>
-                        </div>
-
-                        <!-- Action Buttons -->
-                        <div class="flex justify-end gap-3 pt-4">
-                            <button
-                                @click="handleEdit(currentPromoCode)"
-                                class="px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg text-sm"
-                            >
-                                Edit
-                            </button>
-                            <button
-                                @click="handleToggleStatus(currentPromoCode)"
-                                class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg text-sm"
-                            >
-                                {{
-                                    currentPromoCode.is_active
-                                        ? "Deactivate"
-                                        : "Activate"
-                                }}
-                            </button>
-                            <button
-                                @click="handleDeleteClick(currentPromoCode)"
-                                class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm"
-                            >
-                                Delete
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+            :show="showDetailsModal"
+            :item="currentPromoCode"
+            :sections="promoCodeSections"
+            modal-title="Promo Code Details"
+            :modal-subtitle="currentPromoCode?.code || 'Promo Code'"
+            id-label="Promo ID"
+            :editable="false"
+            @close="showDetailsModal = false"
+        />
     </div>
 </template>
 
@@ -598,6 +388,7 @@ import { usePromoCodesStore } from "../../stores/dashboard/promoCodes";
 import { useAuthStore } from "../../stores/auth";
 import { useSiteStore } from "../../stores/site";
 import Search from "./components/Search.vue";
+import DetailsModal from "./components/DetailsModal.vue";
 import Select from "./components/Select.vue";
 import Table from "./components/Table.vue";
 import Pagination from "./components/Pagination.vue";
@@ -608,6 +399,13 @@ const promoCodesStore = usePromoCodesStore();
 const authStore = useAuthStore();
 const siteStore = useSiteStore();
 
+// Status options for filters
+const statusOptions = ref([
+    { value: 'all', label: 'All Statuses' },
+    { value: 'active', label: 'Active' },
+    { value: 'inactive', label: 'Inactive' },
+]);
+
 // Permissions
 if (!authStore.hasPermission("manage_promo_codes")) {
     throw new Error(
@@ -617,18 +415,243 @@ if (!authStore.hasPermission("manage_promo_codes")) {
 
 // Modals
 const showFormModal = ref(false);
-const showDeleteConfirm = ref(false);
 const showDetailsModal = ref(false);
 const isEditing = ref(false);
-const promoCodeToDelete = ref(null);
 const currentPromoCode = ref(null);
-const formFields = ref([]);
+const promoCodeToDelete = ref(null);
+const showDeleteConfirm = ref(false);
 
-// Options
-const statusOptions = ref([
-    { value: "active", label: "Active" },
-    { value: "inactive", label: "Inactive" },
-]);
+// Format promo code for DetailsModal
+const formattedPromoCode = computed(() => {
+    if (!currentPromoCode.value) return null;
+
+    const code = currentPromoCode.value;
+    return {
+        ...code,
+        discount: `${code.discount_value}${code.discount_type === "percentage" ? "%" : siteStore.settings.currency}`,
+        usage: `${code.total_usage_count} / ${code.total_usage_limit || "∞"}`,
+        status: code.is_active ? "Active" : "Inactive",
+        status_class: code.is_active ? "success" : "danger",
+        target_items:
+            code.products?.length > 0
+                ? code.products.map((p) => p.name)
+                : code.categories?.map((c) => c.name) || [],
+    };
+});
+
+// Define sections for DetailsModal
+const promoCodeSections = computed(() => {
+    if (!currentPromoCode.value) return [];
+
+    const code = currentPromoCode.value;
+    const sections = [];
+
+    // Basic Information Section
+    const basicInfoFields = [
+        { label: "Code", value: code.code, type: "text" },
+        { label: "Name", value: code.name, type: "text" },
+        { label: "Description", value: code.description || "—", type: "text" },
+        { 
+            label: "Status", 
+            value: code.is_active, 
+            type: "boolean",
+            trueLabel: "Active",
+            falseLabel: "Inactive"
+        },
+        { 
+            label: "Created At", 
+            value: code.created_at ? new Date(code.created_at).toLocaleString() : "—", 
+            type: "text" 
+        },
+        { 
+            label: "Updated At", 
+            value: code.updated_at ? new Date(code.updated_at).toLocaleString() : "—", 
+            type: "text" 
+        }
+    ];
+
+    // Discount Information Section
+    const discountInfoFields = [
+        {
+            label: "Discount Value",
+            value: code.discount_value ? code.discount_value.toString() : "—",
+            type: "text"
+        },
+        {
+            label: "Discount Type",
+            value: code.discount_type === "percentage" ? "Percentage" : "Fixed Amount",
+            type: "text"
+        },
+        {
+            label: "Formatted Discount",
+            value: `${code.discount_value || '0'}${code.discount_type === "percentage" ? "%" : ` ${siteStore.settings.currency}`}`,
+            type: "text",
+            class: "font-semibold text-blue-600 dark:text-blue-400"
+        },
+        {
+            label: "Minimum Order Amount",
+            value: code.min_order_amount 
+                ? `${code.min_order_amount} ${siteStore.settings.currency}`
+                : "No minimum",
+            type: "text"
+        }
+    ];
+
+    // Usage Information Section
+    const usageInfoFields = [
+        {
+            label: "Total Usage",
+            value: code.total_usage_count?.toString() || "0",
+            type: "text"
+        },
+        {
+            label: "Total Usage Limit",
+            value: code.total_usage_limit
+                ? code.total_usage_limit.toString()
+                : "Unlimited",
+            type: "text"
+        },
+        {
+            label: "Per User Limit",
+            value: code.per_user_usage_limit
+                ? code.per_user_usage_limit.toString()
+                : "Unlimited",
+            type: "text"
+        },
+        {
+            label: "Usage Count",
+            value: code.usage_count?.toString() || "0",
+            type: "text"
+        }
+    ];
+
+    // Date Information Section
+    const dateFields = [
+        {
+            label: "Start Date",
+            value: code.start_date
+                ? new Date(code.start_date).toLocaleString()
+                : "Immediately",
+            type: "text"
+        },
+        {
+            label: "End Date",
+            value: code.end_date
+                ? new Date(code.end_date).toLocaleString()
+                : "No expiration",
+            type: "text"
+        },
+        {
+            label: "Is Active Now",
+            value: isPromoCodeActive(code),
+            type: "boolean",
+            trueLabel: "Yes (Active)",
+            falseLabel: "No (Inactive)"
+        }
+    ];
+
+    // Target Information Section
+    const targetInfoFields = [
+        {
+            label: "Target Type",
+            value: code.target_type
+                ? code.target_type.charAt(0).toUpperCase() + code.target_type.slice(1)
+                : "—",
+            type: "text"
+        }
+    ];
+
+    // Add sections conditionally based on available data
+    sections.push({ title: "Basic Information", fields: basicInfoFields });
+    sections.push({ title: "Discount Information", fields: discountInfoFields });
+    sections.push({ title: "Usage Information", fields: usageInfoFields });
+    sections.push({ title: "Date Information", fields: dateFields });
+    sections.push({ title: "Target Information", fields: targetInfoFields });
+
+    // Add target items section if available
+    if (code.products?.length > 0) {
+        sections.push({
+            title: "Applied to Products",
+            fields: [{
+                label: "Products",
+                value: code.products.map(p => ({
+                    id: p.id,
+                    name: p.name,
+                    image: p.primary_image?.url || null,
+                    price: p.price
+                })),
+                type: "array",
+                displayField: "name",
+                subText: (item) => `${item.price} ${siteStore.settings.currency}`,
+                badgeClass: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300"
+            }]
+        });
+    } else if (code.categories?.length > 0) {
+        sections.push({
+            title: "Applied to Categories",
+            fields: [{
+                label: "Categories",
+                value: code.categories.map(c => ({
+                    id: c.id,
+                    name: c.name,
+                    slug: c.slug,
+                    products_count: c.products_count
+                })),
+                type: "array",
+                displayField: "name",
+                subText: (item) => `${item.products_count} products`,
+                badgeClass: "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300"
+            }]
+        });
+    }
+
+    // Add any additional fields that might be present
+    const additionalFields = [];
+    const excludedFields = [
+        'id', 'code', 'name', 'description', 'discount_value', 'discount_type', 
+        'is_active', 'total_usage_count', 'total_usage_limit', 'per_user_usage_limit',
+        'start_date', 'end_date', 'target_type', 'products', 'categories',
+        'created_at', 'updated_at', 'usage_count', 'min_order_amount'
+    ];
+
+    Object.keys(code).forEach(key => {
+        if (!excludedFields.includes(key) && code[key] !== null && code[key] !== undefined) {
+            additionalFields.push({
+                label: key.split('_').map(word => 
+                    word.charAt(0).toUpperCase() + word.slice(1)
+                ).join(' '),
+                value: typeof code[key] === 'object' 
+                    ? JSON.stringify(code[key], null, 2) 
+                    : code[key].toString(),
+                type: typeof code[key] === 'boolean' ? 'boolean' : 'text',
+                class: 'font-mono text-sm'
+            });
+        }
+    });
+
+    if (additionalFields.length > 0) {
+        sections.push({
+            title: "Additional Information",
+            fields: additionalFields
+        });
+    }
+
+    return sections;
+});
+
+// Helper function to check if promo code is currently active
+const isPromoCodeActive = (code) => {
+    if (!code.is_active) return false;
+    
+    const now = new Date();
+    const startDate = code.start_date ? new Date(code.start_date) : null;
+    const endDate = code.end_date ? new Date(code.end_date) : null;
+    
+    if (startDate && now < startDate) return false;
+    if (endDate && now > endDate) return false;
+    
+    return true;
+};
 
 const discountTypeOptions = ref([
     { value: "percentage", label: "Percentage" },
@@ -741,13 +764,14 @@ const openCreateForm = () => {
 
 const handleView = async (promoCode) => {
     try {
-        const fullCode = await promoCodesStore.fetchPromoCode(promoCode.id);
-        currentPromoCode.value = fullCode;
+        const response = await promoCodesStore.fetchPromoCode(promoCode.id);
+        currentPromoCode.value = response.data;
         showDetailsModal.value = true;
     } catch (error) {
         console.error("Error loading promo code details:", error);
     }
 };
+
 
 const handleEdit = async (promoCode) => {
     isEditing.value = true;
@@ -755,7 +779,7 @@ const handleEdit = async (promoCode) => {
     try {
         const response = await promoCodesStore.fetchPromoCode(promoCode.id);
         currentPromoCode.value = response.data;
-        initializeFormFields(response.data); 
+        initializeFormFields(response.data);
         showFormModal.value = true;
     } catch (error) {
         console.error("Error loading promo code for edit:", error);
@@ -861,9 +885,9 @@ const initializeFormFields = (code) => {
             id: "products",
             label: "Select Products",
             type: "multipleselect",
-            value: code?.products?.map(p => p.id) || [],
+            value: code?.products?.map((p) => p.id) || [],
             required: true,
-            options: [], 
+            options: [],
             placeholder: "Choose products...",
         });
     } else if (targetType === "categories") {
@@ -871,9 +895,9 @@ const initializeFormFields = (code) => {
             id: "categories",
             label: "Select Categories",
             type: "multipleselect",
-            value: code?.categories?.map(c => c.id) || [],
+            value: code?.categories?.map((c) => c.id) || [],
             required: true,
-            options: [], 
+            options: [],
             placeholder: "Choose categories...",
         });
     }
