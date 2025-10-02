@@ -595,9 +595,6 @@ const handleEdit = async (product) => {
     try {
         const fullProduct = await productsStore.fetchProduct(product.id);
 
-        // 4. FETCH PROMO CODES WHEN EDITING A PRODUCT
-        await promoCodesStore.fetchPromoCodesForProduct(product.id);
-
         initializeFormFields(fullProduct);
         showFormModal.value = true;
     } catch (error) {

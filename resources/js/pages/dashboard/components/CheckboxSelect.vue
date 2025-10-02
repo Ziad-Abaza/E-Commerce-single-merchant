@@ -109,20 +109,13 @@ const isOptionSelected = (value) => {
 
 // Toggle option selection
 const toggleOption = (value) => {
-  console.log('=== CHECKBOX SELECT ===');
-  console.log('Toggling option:', value);
-  console.log('Current modelValue:', props.modelValue);
-  console.log('Type:', typeof props.modelValue, 'Is Array:', Array.isArray(props.modelValue));
-  
   const newValue = [...props.modelValue];
   const index = newValue.indexOf(value);
 
   if (index > -1) {
     newValue.splice(index, 1);
-    console.log('Removed option, new value:', newValue);
   } else {
     newValue.push(value);
-    console.log('Added option, new value:', newValue);
   }
 
   emit("update:modelValue", newValue);

@@ -260,6 +260,20 @@
                                         </a>
                                     </template>
 
+                                    <template
+                                        v-else-if="
+                                            field.type === 'richtext' ||
+                                            field.label
+                                                .toLowerCase()
+                                                .includes('description')
+                                        "
+                                    >
+                                        <div
+                                            v-html="field.value"
+                                            class="prose max-w-none text-sm text-gray-900 dark:text-white max-h-64 overflow-y-auto"
+                                        ></div>
+                                    </template>
+
                                     <template v-else>
                                         <p
                                             class="text-sm font-medium text-gray-900 dark:text-white"
@@ -578,13 +592,17 @@ const sections = computed(() => {
     }
 
     // Product Attributes section
-    if (props.item.attributes && Array.isArray(props.item.attributes) && props.item.attributes.length > 0) {
+    if (
+        props.item.attributes &&
+        Array.isArray(props.item.attributes) &&
+        props.item.attributes.length > 0
+    ) {
         const attributeFields = [];
-        
+
         // Group attributes by their name
         const groupedAttributes = {};
-        
-        props.item.attributes.forEach(attr => {
+
+        props.item.attributes.forEach((attr) => {
             if (!groupedAttributes[attr.name]) {
                 groupedAttributes[attr.name] = [];
             }
@@ -592,25 +610,25 @@ const sections = computed(() => {
                 groupedAttributes[attr.name].push(...attr.values);
             }
         });
-        
+
         // Create fields for each attribute group
         Object.entries(groupedAttributes).forEach(([name, values]) => {
             if (values && values.length > 0) {
                 const valueList = values
-                    .filter(v => v.is_visible !== false)
-                    .map(v => v.value || v.name || v)
-                    .join(', ');
-                
+                    .filter((v) => v.is_visible !== false)
+                    .map((v) => v.value || v.name || v)
+                    .join(", ");
+
                 if (valueList) {
                     attributeFields.push({
                         label: name,
                         value: valueList,
-                        type: 'string'
+                        type: "string",
                     });
                 }
             }
         });
-        
+
         if (attributeFields.length > 0) {
             sections.push({
                 title: "Product Attributes",

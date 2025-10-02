@@ -27,7 +27,6 @@ Route::middleware(['auth:sanctum', 'verified'])->prefix('dashboard')->name('dash
             Route::post('/', 'store')->name('store');
 
             // Trashed promo codes
-            Route::get('/trash', 'trash')->name('trash');
             Route::get('/related-data', 'getRelatedData')->name('related-data');
 
             // Single promo code
@@ -37,8 +36,6 @@ Route::middleware(['auth:sanctum', 'verified'])->prefix('dashboard')->name('dash
 
             // Extra actions
             Route::post('/{promoCode}/toggle-status', 'toggleStatus')->name('toggle-status');
-            Route::post('/{id}/restore', 'restore')->name('restore');
-            Route::delete('/{id}/force-delete', 'forceDelete')->name('force-delete');
         });
 
     // Dashboard Home

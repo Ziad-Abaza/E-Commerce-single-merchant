@@ -440,7 +440,6 @@ const handleEdit = async (role) => {
 const initializeFormFields = (role) => {
   // Validate that permissions exist
   if (!rolesStore.permissions || rolesStore.permissions.length === 0) {
-    console.warn("Permissions list is empty or not loaded yet");
     formFields.value = [
       {
         id: "name",

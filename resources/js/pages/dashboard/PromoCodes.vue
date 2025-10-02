@@ -545,7 +545,7 @@ const promoCodeSections = computed(() => {
                 {
                     label: "Description",
                     value: code.description || "—",
-                    type: "text",
+                    type: "richtext",
                 },
                 {
                     label: "Discount",

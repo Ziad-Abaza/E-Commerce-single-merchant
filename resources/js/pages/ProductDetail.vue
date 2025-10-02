@@ -754,7 +754,6 @@ const fetchProduct = async (id) => {
     if (!id) return;
     try {
         await productStore.getProduct(id);
-        console.log("Fetching product with ID:", productDetails.value);
 
           if (productDetails.value.length > 0) {
             selectedDetail.value = productDetails.value[0];
@@ -798,7 +797,6 @@ watch(
 );
 
 watch(selectedDetail, (newDetail) => {
-    console.log("Selected detail changed:", newDetail);
     if (newDetail) {
         quantity.value = 1; // Reset quantity
         selectedImage.value =

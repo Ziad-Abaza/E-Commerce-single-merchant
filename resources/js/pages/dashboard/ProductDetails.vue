@@ -477,7 +477,6 @@ const hasActiveFilters = computed(() => {
 });
 
 const product = computed(() => productDetailsStore.product);
-console.log(productDetailsStore.details)
 const tableRows = computed(() => {
     return productDetailsStore.details.map((detail) => ({
         id: detail.id,
@@ -732,14 +731,6 @@ const handleSubmitForm = async (data) => {
         data.discount = parseFloat(data.discount) || 0;
         data.stock = parseInt(data.stock) || 0;
         data.min_stock_alert = parseInt(data.min_stock_alert) || 0;
-
-        console.log(
-            "Submitting product detail:",
-            data,
-            "for product ID:",
-            productId.value,
-        );
-        console.log("Data:", data);
 
         if (isEditing.value && detailToDelete.value) {
             await productDetailsStore.updateProductDetail(
