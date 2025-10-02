@@ -788,7 +788,6 @@ const handleEdit = async (promoCode) => {
     try {
         const response = await promoCodesStore.fetchPromoCode(promoCode.id);
         currentPromoCode.value = response.data;
-        console.log("data response from handleEdit function:", response.data);
 
         if (
             !promoCodesStore.products.length ||

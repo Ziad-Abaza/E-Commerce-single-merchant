@@ -51,7 +51,6 @@ export const useSiteStore = defineStore("site", {
                 if (res.data.success) {
                     this.settings = { ...this.settings, ...res.data.data };
                 }
-                console.log("Fetched settings: ", res.data);
             } catch (e) {
                 console.error("Failed to fetch settings: ", e);
             }

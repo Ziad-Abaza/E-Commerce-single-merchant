@@ -113,8 +113,7 @@ export const useProductStore = defineStore("products", {
                             ? queryParams
                             : undefined,
                 });
-                console.log("Product Load Params:", queryParams);
-                console.log("Product Load Response:", response.data);
+
                 // Update state based on product type
                 switch (this.filters.type) {
                     case "featured":
@@ -200,7 +199,6 @@ export const useProductStore = defineStore("products", {
             try {
                 // Request product — no need for "include" parameter anymore
                 const response = await axios.get(`/public/products/${id}`);
-                console.log("Single Product Response:", response.data);
                 // Extract product data
                 const productData = response.data.data.product;
 
