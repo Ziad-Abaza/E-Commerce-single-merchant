@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
+use App\Models\PromoCode;
 use App\Models\Setting;
 use App\Models\ProductDetail;
 use App\Http\Resources\OrderResource;
@@ -78,7 +79,7 @@ class OrderController extends Controller
     public function show($id)
     {
         try {
-            $order = Order::with(['user', 'items.product'])
+            $order = Order::with(['user', 'items.product', 'promoCode'])
                 ->where('user_id', Auth::id())
                 ->findOrFail($id);
 
@@ -120,7 +121,7 @@ class OrderController extends Controller
                 'order_number' => $this->generateOrderNumber(),
                 'user_id' => Auth::id(),
                 'phone' => Auth::user()->phone ?? null,
-                'status' => 'pending', // Default status
+                'status' => 'pending',
                 'shipping_address' => Auth::user()->address ?? null,
                 'notes' => $validated['notes'] ?? null,
                 'subtotal' => $orderData['subtotal'],
@@ -128,8 +129,47 @@ class OrderController extends Controller
                 'tax_amount' => $orderData['tax_amount'],
                 'total_amount' => $orderData['total_amount'],
                 'currency' => $orderData['currency'],
-                'discount_amount' => 0, // Can be updated later if needed
+                'discount_amount' => 0,
+                'promo_code_id' => null,
             ];
+
+            $discountAmount = 0;
+            $promoCode = null;
+
+            // Apply promo code if provided and valid
+            if (!empty($validated['promo_code_id'])) {
+                $promoCode = PromoCode::find($validated['promo_code_id']);
+                $user = Auth::user();
+
+                if ($promoCode && $promoCode->isValid($user)) {
+                    // Calculate discount based on target type
+                    $discountedAmount = $promoCode->applyDiscount(
+                        $orderData['subtotal'],
+                        $orderData['shipping_cost']
+                    );
+
+                    // Determine original amount based on target_type
+                    switch ($promoCode->target_type) {
+                        case 'shipping':
+                            $originalAmount = $orderData['shipping_cost'];
+                            break;
+                        case 'order':
+                            $originalAmount = $orderData['subtotal'] + $orderData['shipping_cost'];
+                            break;
+                        default: // 'products'
+                            $originalAmount = $orderData['subtotal'];
+                            break;
+                    }
+
+                    $discountAmount = max(0, $originalAmount - $discountedAmount);
+                    $discountAmount = round($discountAmount, 2);
+
+                    // Update total amount
+                    $data['total_amount'] = max(0, $orderData['total_amount'] - $discountAmount);
+                    $data['discount_amount'] = $discountAmount;
+                    $data['promo_code_id'] = $promoCode->id;
+                }
+            }
 
             $order = Order::create($data);
 
@@ -157,6 +197,11 @@ class OrderController extends Controller
 
             DB::commit();
 
+            // Increment usage if promo code was applied
+            if ($promoCode) {
+                $promoCode->incrementUsage(Auth::user());
+            }
+            
             $owners = \App\Models\User::role('owner')->get();
 
             foreach ($owners as $owner) {

@@ -13,9 +13,6 @@ export const useCartStore = defineStore('cart', {
             subtotal: 0,
             total: 0,
         },
-        // NEW: State for promo codes
-        promoCode: null,
-        discount: 0,
     }),
 
     getters: {
@@ -35,14 +32,11 @@ export const useCartStore = defineStore('cart', {
             return state.summary.subtotal >= 50 ? 0 : 9.99
         },
         taxAmount(state) {
-            // MODIFIED: Tax is calculated on the subtotal *after* the discount
-            const taxableAmount = state.summary.subtotal - state.discount
-            return taxableAmount > 0 ? taxableAmount * 0.08 : 0
+            // Tax is calculated on the subtotal
+            return state.summary.subtotal * 0.08
         },
         grandTotal(state) {
-            // MODIFIED: Grand total now includes the discount
-            const totalBeforeDiscount = state.summary.subtotal + this.shippingCost + this.taxAmount - this.discount 
-            return totalBeforeDiscount
+            return state.summary.subtotal + this.shippingCost + this.taxAmount
         },
     },
 
@@ -59,9 +53,6 @@ export const useCartStore = defineStore('cart', {
                         subtotal: 0,
                         total: 0,
                     }
-                    // ASSUMPTION: The backend sends promo details with the cart
-                    this.promoCode = response.data.data.promo_code || null
-                    this.discount = parseFloat(response.data.data.discount || 0)
                     this.saveToLocalStorage()
                 }
                 return { success: true, data: response.data }
@@ -142,9 +133,6 @@ export const useCartStore = defineStore('cart', {
                 await axios.delete('/carts/clear')
                 this.items = []
                 this.summary = { total_items: 0, subtotal: 0, total: 0 }
-                // Also clear promo code info
-                this.promoCode = null
-                this.discount = 0
                 localStorage.removeItem('cart_items')
                 const toast = useToast()
                 toast.success('Cart cleared')
@@ -158,43 +146,6 @@ export const useCartStore = defineStore('cart', {
             }
         },
 
-        // NEW ACTION: Apply a promo code
-        async applyPromoCode(code) {
-            this.loading = true
-            this.error = null
-            try {
-                const response = await axios.post('/promo/apply', { code: code })
-                this.promoCode = response.data.promo_code
-                this.discount = parseFloat(response.data.discount)
-                // Optionally reload the entire cart to ensure all totals are synced
-                await this.loadCart()
-                return response.data
-            } catch (error) {
-                this.promoCode = null
-                this.discount = 0
-                console.error('Failed to apply promo code:', error)
-                throw error
-            } finally {
-                this.loading = false
-            }
-        },
-
-        // NEW ACTION: Remove the applied promo code
-        async removePromoCode() {
-            this.loading = true
-            try {
-                const response = await axios.post('/promo/remove')
-                this.promoCode = null
-                this.discount = 0
-                await this.loadCart()
-                return response.data
-            } catch (error) {
-                console.error('Failed to remove promo code:', error)
-                throw error
-            } finally {
-                this.loading = false
-            }
-        },
 
         saveToLocalStorage() {
             localStorage.setItem(

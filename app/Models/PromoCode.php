@@ -25,6 +25,14 @@ class PromoCode extends Model
         'is_active',
     ];
 
+    /**
+     * Get the orders associated with the promo code.
+     */
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
+
     protected $casts = [
         'description' => 'string',
         'discount_value' => 'decimal:2',
@@ -74,7 +82,7 @@ class PromoCode extends Model
             case 'shipping':
                 $targetAmount = $shipping;
                 break;
-            case 'entire_order':
+            case 'order':
                 $targetAmount = $amount + $shipping;
                 break;
             default:

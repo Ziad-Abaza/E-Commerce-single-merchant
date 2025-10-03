@@ -17,6 +17,10 @@ return new class extends Migration
             $table->foreignId('product_detail_id')
                 ->constrained('product_details')
                 ->onDelete('restrict'); // restrict deletion if there's an order item referencing it
+            $table->foreignId('promo_code_id')
+                ->nullable()
+                ->constrained('promo_codes')
+                ->nullOnDelete();
             $table->string('product_name', 255);
             $table->string('product_sku', 100)->nullable();
             $table->unsignedInteger('quantity');

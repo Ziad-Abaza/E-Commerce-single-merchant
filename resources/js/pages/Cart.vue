@@ -175,33 +175,6 @@
             </div>
           </div>
 
-          <!-- MOVED: Promo Code Section -->
-          <div
-            class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 dark:bg-gray-800 dark:border-gray-700">
-            <div v-if="!cartStore.promoCode">
-              <label for="promo-code" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Have a promo code?
-              </label>
-              <div class="mt-1 flex rounded-md shadow-sm">
-                <input v-model="promoCodeInput" @keyup.enter="handleApplyPromoCode" type="text" id="promo-code"
-                  placeholder="Enter code"
-                  class="flex-1 min-w-0 block w-full px-3 py-2 rounded-none rounded-l-md focus:ring-primary-500 focus:border-primary-500 sm:text-sm border-gray-300 dark:bg-gray-700 dark:border-gray-600">
-                <button @click="handleApplyPromoCode" :disabled="cartStore.loading || !promoCodeInput"
-                  class="inline-flex items-center px-4 rounded-r-md border border-l-0 border-gray-300 bg-gray-50 text-gray-600 text-sm font-medium hover:bg-gray-100 disabled:opacity-50 dark:bg-gray-600 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-500">
-                  Apply
-                </button>
-              </div>
-            </div>
-            <div v-else class="flex justify-between items-center">
-              <p class="text-sm font-medium text-green-600 dark:text-green-400">
-                Code <span class="font-bold">{{ cartStore.promoCode }}</span> applied!
-              </p>
-              <button @click="handleRemovePromoCode" :disabled="cartStore.loading"
-                class="p-1 text-red-500 hover:text-red-700 dark:hover:text-red-400 rounded-full hover:bg-red-100 dark:hover:bg-red-900/50 text-xs">
-                Remove
-              </button>
-            </div>
-          </div>
         </div>
 
         <!-- Order Summary -->
@@ -236,14 +209,6 @@
                   siteStore.settings.currency }}</span>
               </div>
               
-              <!-- NEW: Discount line, appears when a promo code is active -->
-              <div v-if="cartStore.discount > 0" class="flex justify-between text-green-600 dark:text-green-400">
-                <div class="flex items-center">
-                  <span>Discount</span>
-                  <span class="ml-2 text-xs font-bold bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-300 px-2 py-0.5 rounded-full">{{ cartStore.promoCode }}</span>
-                </div>
-                <span class="font-medium">-{{ formatPrice(cartStore.discount) }} {{ siteStore.settings.currency }}</span>
-              </div>
 
               <!-- Total -->
               <div class="border-t border-gray-200 pt-4 dark:border-gray-600">
@@ -303,7 +268,6 @@ const siteStore = useSiteStore();
 const cartStore = useCartStore()
 const authStore = useAuthStore()
 const toast = useToast()
-const promoCodeInput = ref('')
 const imageError = ref(false)
 
 const formatPrice = (price) => {
@@ -327,21 +291,6 @@ const getProductImageUrl = (item) => {
 const handleImageError = () => {
   imageError.value = true
 }
-
-const handleApplyPromoCode = async () => {
-  if (!promoCodeInput.value.trim() || cartStore.loading) return;
-  // Use the action directly, it handles success/error toasts
-  await cartStore.applyPromoCode(promoCodeInput.value.trim().toUpperCase());
-  // Clear input only on success, which `applyPromoCode` now ensures by reloading
-  if (!cartStore.error) {
-     promoCodeInput.value = '';
-  }
-};
-
-const handleRemovePromoCode = async () => {
-  if (cartStore.loading) return;
-  await cartStore.removePromoCode();
-};
 
 const updateQuantity = async (itemId, newQuantity) => {
   if (cartStore.loading) return

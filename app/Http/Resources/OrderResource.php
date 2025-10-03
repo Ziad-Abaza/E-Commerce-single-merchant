@@ -11,6 +11,15 @@ class OrderResource extends JsonResource
         return [
             'id' => $this->id,
             'user_id' => $this->user_id,
+            'promo_code' => $this->whenLoaded('promoCode', function () {
+                return [
+                    'id' => $this->promoCode->id,
+                    'code' => $this->promoCode->code,
+                    'name' => $this->promoCode->name,
+                    'discount_type' => $this->promoCode->discount_type,
+                    'discount_value' => $this->promoCode->discount_value,
+                ];
+            }),
             'order_number' => $this->order_number,
             'status' => $this->status,
             'phone' => $this->phone,

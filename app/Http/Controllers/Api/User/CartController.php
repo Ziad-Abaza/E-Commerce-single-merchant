@@ -7,7 +7,6 @@ use App\Models\Cart;
 use App\Http\Resources\CartResource;
 use App\Http\Requests\CartStoreRequest;
 use App\Http\Requests\CartUpdateRequest;
-use App\Models\PromoCode; // NEW: Import the PromoCode model
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -33,7 +32,7 @@ class CartController extends Controller
                 ], 401);
             }
 
-            $cartItems = Cart::with(['productDetail.product']) // Removed promoCode from here
+            $cartItems = Cart::with(['productDetail.product'])
                 ->where('user_id', $userId)
                 ->get()
                 ->filter(function ($item) {
@@ -46,53 +45,19 @@ class CartController extends Controller
                     return $item;
                 });
 
-            // NEW: Promo Code Logic Integration
             $subtotal = $cartItems->sum('total_price');
-            $discount = 0;
-            $promoCodeValue = null;
-
-            if (session()->has('promo_code')) {
-                $promoCode = PromoCode::where('code', session('promo_code'))->first();
-                // Re-validate the promo code against the current cart items
-                if ($promoCode) {
-                    $applicableItem = $cartItems->firstWhere('productDetail.product.id', $promoCode->product_id);
-
-                    if ($applicableItem) {
-                        // Recalculate discount to ensure it's still valid
-                        $itemPrice = $applicableItem->productDetail->final_price;
-                        $itemQuantity = $applicableItem->quantity;
-
-                        if ($promoCode->type === 'percentage') {
-                            $discount = ($itemPrice * $itemQuantity) * ($promoCode->value / 100);
-                        } else { // 'fixed'
-                            $discount = min($promoCode->value, $itemPrice * $itemQuantity);
-                        }
-
-                        $discount = round($discount, 2);
-                        $promoCodeValue = $promoCode->code;
-                        // Update session with the potentially recalculated discount
-                        session(['discount' => $discount]);
-                    } else {
-                        // The item this code applied to was removed, so invalidate the promo
-                        session()->forget(['promo_code', 'discount']);
-                    }
-                }
-            }
-
-            // MODIFIED: Summary now includes discount
+            
             $summary = [
                 'total_items' => $cartItems->sum('quantity'),
                 'subtotal' => $subtotal,
-                'total' => max(0, $subtotal - $discount), // Ensure total isn't negative
+                'total' => $subtotal,
             ];
 
             return response()->json([
                 'message' => 'Cart retrieved successfully.',
                 'data' => [
                     'items' => CartResource::collection($cartItems),
-                    'summary' => $summary,
-                    'promo_code' => $promoCodeValue, // NEW: Add to response
-                    'discount' => $discount,      // NEW: Add to response
+                    'summary' => $summary
                 ],
                 'errors' => null,
                 'code' => 200,
@@ -378,8 +343,6 @@ class CartController extends Controller
 
             Cart::where('user_id', $userId)->delete();
 
-            // NEW: Also clear the promo code from the session
-            session()->forget(['promo_code', 'discount']);
 
             return response()->json([
                 'message' => 'Cart cleared successfully.',

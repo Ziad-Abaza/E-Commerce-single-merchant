@@ -22,6 +22,7 @@ class OrderStoreRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'promo_code_id' => 'nullable|exists:promo_codes,id',
             'notes' => 'nullable|string',
             'receipt' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:8192',
             'invoice' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:8192',

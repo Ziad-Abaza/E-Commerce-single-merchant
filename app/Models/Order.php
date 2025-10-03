@@ -19,6 +19,7 @@ class Order extends Model implements HasMedia
      */
     protected $fillable = [
         'user_id',
+        'promo_code_id',
         'order_number',
         'status',
         'total_amount',
@@ -33,6 +34,14 @@ class Order extends Model implements HasMedia
         'cancelled_at',
         'phone',
     ];
+
+    /**
+     * Get the promo code associated with the order.
+     */
+    public function promoCode()
+    {
+        return $this->belongsTo(PromoCode::class);
+    }
 
     /**
      * The attributes that should be cast.
