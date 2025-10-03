@@ -204,9 +204,12 @@
 
               <!-- Tax -->
               <div class="flex justify-between">
-                <span class="text-gray-600 dark:text-gray-300">Tax (8%)</span>
-                <span class="font-medium text-gray-900 dark:text-white">{{ formatPrice(cartStore.taxAmount) }} {{
-                  siteStore.settings.currency }}</span>
+                <span class="text-gray-600 dark:text-gray-300">
+                  Tax ({{ (parseFloat(siteStore.settings?.tax_rate || 0) * 100).toFixed(0) }}%)
+                </span>
+                <span class="font-medium text-gray-900 dark:text-white">
+                  {{ formatPrice(cartStore.taxAmount) }} {{ siteStore.settings.currency }}
+                </span>
               </div>
               
 

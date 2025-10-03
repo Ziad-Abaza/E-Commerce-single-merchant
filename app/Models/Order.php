@@ -205,10 +205,12 @@ class Order extends Model implements HasMedia
 
     /**
      * Calculate the final total.
+     * The total_amount already includes subtotal, shipping, and tax.
+     * We just need to subtract any discount that was applied.
      */
     public function getFinalTotal()
     {
-        return $this->total_amount + $this->shipping_cost + $this->tax_amount - $this->discount_amount;
+        return $this->total_amount - $this->discount_amount;
     }
 
     /**

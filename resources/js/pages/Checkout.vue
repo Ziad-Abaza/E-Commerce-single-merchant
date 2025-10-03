@@ -114,15 +114,19 @@
                                     <p>Qty: {{ item.quantity }}</p>
                                 </div>
                             </div>
-                            <div
-                                class="text-right font-semibold text-gray-900 dark:text-white whitespace-nowrap"
-                            >
-                                {{
-                                    formatPrice(
-                                        item.product_detail.final_price *
-                                            item.quantity,
-                                    )
-                                }}
+                            <div class="text-right">
+                                <!-- Show original price if there's a discount -->
+                                <div v-if="(item.product_detail.price > item.product_detail.final_price)" class="text-xs text-gray-400 dark:text-gray-500 line-through">
+                                    {{ formatPrice(item.product_detail.price * item.quantity) }}
+                                </div>
+                                <!-- Final price -->
+                                <div class="font-semibold text-gray-900 dark:text-white">
+                                    {{ formatPrice(item.product_detail.final_price * item.quantity) }}
+                                    <!-- Show per-item discount if any -->
+                                </div>
+                                    <span v-if="(item.product_detail.price > item.product_detail.final_price)" class="ml-1 text-xs text-green-600 dark:text-green-400">
+                                        (Save {{ formatPrice((item.product_detail.price - item.product_detail.final_price) * item.quantity) }})
+                                    </span>
                             </div>
                         </div>
                     </div>
@@ -132,15 +136,17 @@
                         class="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4 space-y-3"
                     >
                         <div class="flex justify-between text-sm">
-                            <span class="text-gray-600 dark:text-gray-300"
-                                >Subtotal</span
-                            >
-                            <span
-                                class="font-medium text-gray-900 dark:text-white"
-                                >{{
-                                    formatPrice(cartStore.summary.subtotal)
-                                }}</span
-                            >
+                            <span class="text-gray-600 dark:text-gray-300">
+                                Subtotal
+                            </span>
+                            <div class="text-right">
+                                <div v-if="itemDiscountsTotal > 0" class="text-xs text-gray-400 dark:text-gray-500 line-through">
+                                    {{ formatPrice(cartStore.summary.subtotal + itemDiscountsTotal) }}
+                                </div>
+                                <span class="font-medium text-gray-900 dark:text-white">
+                                    {{ formatPrice(cartStore.summary.subtotal) }}
+                                </span>
+                            </div>
                         </div>
                         <div class="flex justify-between text-sm">
                             <span class="text-gray-600 dark:text-gray-300"
@@ -152,27 +158,28 @@
                             >
                         </div>
                         <div class="flex justify-between text-sm">
-                            <span class="text-gray-600 dark:text-gray-300"
-                                >Tax ({{
-                                    siteStore.settings.tax_rate ?? 0
-                                }}%)</span
-                            >
+                            <span class="text-gray-600 dark:text-gray-300">
+                                Tax ({{ (parseFloat(siteStore.settings?.tax_rate || 0) * 100).toFixed(0) }}%)
+                            </span>
                             <span
                                 class="font-medium text-gray-900 dark:text-white"
                                 >{{ formatPrice(taxAmount) }}</span
                             >
                         </div>
-                                     <div class="flex justify-between text-sm">
-                            <span class="text-green-600 dark:text-green-300"
-                                >discount</span
-                            >
-                            <span
-                                class="font-medium text-green-600 dark:text-green-300"
-                                >-{{ formatPrice(cartStore.discount) }} {{ siteStore.settings.currency }}</span
-                            >
+                                     <!-- Cart-level Discount -->
+                        <div v-if="cartStore.discount > 0" class="flex justify-between text-sm pt-2 border-t border-gray-100 dark:border-gray-700">
+                            <span class="text-green-600 dark:text-green-300 font-medium">
+                                Promo Code Applied
+                                <span v-if="cartStore.promoCode" class="text-green-400 dark:text-green-400">
+                                    ({{ cartStore.promoCode }})
+                                </span>
+                            </span>
+                            <span class="font-bold text-green-600 dark:text-green-400">
+                                -{{ formatPrice(cartStore.discount) }}
+                            </span>
                         </div>
                         <div
-                            class="border-t border-gray-200 dark:border-gray-600 pt-3 flex justify-between text-lg font-bold"
+                            class="mt-3 pt-3 border-t-2 border-gray-200 dark:border-gray-600 flex justify-between text-lg font-bold"
                         >
                             <span class="text-gray-900 dark:text-white"
                                 >Total</span
@@ -381,15 +388,41 @@ onMounted(async () => {
 
 // Computed Totals
 const shippingCost = computed(() => {
-    return cartStore.cartTotal > 50 ? 0 : 9.99;
+    // Get shipping settings from site settings
+    const shippingRate = parseFloat(siteStore.settings?.shipping_rate) || 0;
+    const minShippingCost = parseFloat(siteStore.settings?.min_shipping_cost) || 0;
+    const maxShippingCost = parseFloat(siteStore.settings?.max_shipping_cost) || Infinity;
+    
+    // Calculate base shipping cost
+    const calculatedShipping = cartStore.summary.subtotal * shippingRate;
+    
+    // Apply min/max shipping cost limits
+    return Math.max(minShippingCost, Math.min(maxShippingCost, calculatedShipping));
 });
 
 const taxAmount = computed(() => {
-    return (cartStore.cartTotal * (siteStore.settings.tax_rate || 0)) / 100;
+    // Get tax rate from site settings, default to 0 if not set
+    const taxRate = parseFloat(siteStore.settings?.tax_rate) || 0;
+    // Calculate tax as a percentage of subtotal
+    return cartStore.summary.subtotal * taxRate;
 });
 
+// Calculate total item discounts
+const itemDiscountsTotal = computed(() => {
+    if (!cartStore.items?.length) return 0;
+    return cartStore.items.reduce((total, item) => {
+        const originalPrice = item.product_detail?.price || 0;
+        const finalPrice = item.product_detail?.final_price || 0;
+        const itemDiscount = (originalPrice - finalPrice) * item.quantity;
+        return total + itemDiscount;
+    }, 0);
+});
+
+// Calculate grand total with all discounts applied
 const grandTotal = computed(() => {
-    return cartStore.cartTotal + shippingCost.value + taxAmount.value;
+    const subtotal = cartStore.summary.subtotal || 0;
+    const cartDiscount = cartStore.discount || 0;
+    return subtotal + shippingCost.value + taxAmount.value - cartDiscount;
 });
 
 // Format price

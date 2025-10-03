@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import axios from '../bootstrap'
 import { useAuthStore } from './auth'
 import { useToast } from 'vue-toastification'
+import { useSiteStore } from './site'
 
 export const useCartStore = defineStore('cart', {
     state: () => ({
@@ -28,12 +29,24 @@ export const useCartStore = defineStore('cart', {
             return state.items.find((item) => item.product_detail_id === productDetailId)
         },
         shippingCost: (state) => {
-            // Shipping cost calculated on subtotal *before* discount
-            return state.summary.subtotal >= 50 ? 0 : 9.99
+            const siteStore = useSiteStore()
+            // Get shipping settings from site settings
+            const shippingRate = parseFloat(siteStore.settings?.shipping_rate) || 0.00
+            const minShippingCost = parseFloat(siteStore.settings?.min_shipping_cost) || 0
+            const maxShippingCost = parseFloat(siteStore.settings?.max_shipping_cost) || Infinity
+            
+            // Calculate base shipping cost
+            const calculatedShipping = state.summary.subtotal * shippingRate
+            
+            // Apply min/max shipping cost limits
+            return Math.max(minShippingCost, Math.min(maxShippingCost, calculatedShipping))
         },
         taxAmount(state) {
-            // Tax is calculated on the subtotal
-            return state.summary.subtotal * 0.08
+            const siteStore = useSiteStore()
+            // Get tax rate from site settings
+            const taxRate = parseFloat(siteStore.settings?.tax_rate) || 0.00
+            // Calculate tax as a percentage of subtotal
+            return state.summary.subtotal * taxRate
         },
         grandTotal(state) {
             return state.summary.subtotal + this.shippingCost + this.taxAmount

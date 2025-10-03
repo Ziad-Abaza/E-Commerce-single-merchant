@@ -576,36 +576,62 @@ class OrderController extends Controller
     {
         $settings = $settings ?? $this->getOrderSettings();
         $subtotal = 0;
+        $totalDiscount = 0;
         $calculatedItems = [];
 
+        // First pass: Calculate subtotal with product discounts
         foreach ($items as $item) {
             $productDetail = ProductDetail::with('product')->findOrFail($item['product_detail_id']);
-            $unitPrice = $productDetail->price;
             $quantity = $item['quantity'];
-            $itemTotal = $unitPrice * $quantity;
-
+            
+            // Calculate unit price after applying product discount if any
+            $unitPrice = $productDetail->price;
+            $discount = 0;
+            
+            // Apply product discount if available (fixed amount)
+            if ($productDetail->discount > 0) {
+                // Ensure discount doesn't make price negative
+                $discount = min($productDetail->discount, $unitPrice);
+                $unitPriceAfterDiscount = $unitPrice - $discount;
+            } else {
+                $unitPriceAfterDiscount = $unitPrice;
+                $discount = 0;
+            }
+            
+            $itemTotal = $unitPriceAfterDiscount * $quantity;
+            $itemDiscount = $discount * $quantity;
+            
             $calculatedItems[] = [
                 'product_detail_id' => $productDetail->id,
                 'product_name' => $productDetail->product->name,
                 'product_sku' => $productDetail->sku,
                 'quantity' => $quantity,
-                'unit_price' => $unitPrice,
+                'unit_price' => $unitPriceAfterDiscount,
+                'original_unit_price' => $unitPrice, // Store original price for reference
+                'discount_amount' => $itemDiscount,
                 'total_price' => $itemTotal,
             ];
 
             $subtotal += $itemTotal;
+            $totalDiscount += $itemDiscount;
         }
 
-        // Calculate shipping cost (percentage of subtotal with min/max)
-        $shippingCost = min(
-            max($subtotal * $settings['shipping_rate'], $settings['min_shipping_cost']),
-            $settings['max_shipping_cost']
-        );
+        // Calculate shipping cost as a percentage of subtotal with min/max limits
+        $shippingRate = is_numeric($settings['shipping_rate']) ? (float)$settings['shipping_rate'] : 0;
+        $minShippingCost = is_numeric($settings['min_shipping_cost']) ? (float)$settings['min_shipping_cost'] : 0;
+        $maxShippingCost = is_numeric($settings['max_shipping_cost']) ? (float)$settings['max_shipping_cost'] : PHP_FLOAT_MAX;
+        
+        // Calculate base shipping cost
+        $shippingCost = $subtotal * $shippingRate;
+        
+        // Apply min/max shipping cost limits
+        $shippingCost = max($minShippingCost, min($maxShippingCost, $shippingCost));
 
-        // Calculate tax
-        $taxAmount = $subtotal * $settings['tax_rate'];
+        // Calculate tax as a percentage of subtotal (after product discounts)
+        $taxRate = is_numeric($settings['tax_rate']) ? (float)$settings['tax_rate'] : 0;
+        $taxAmount = $subtotal * $taxRate;
 
-        // Calculate total amount
+        // Calculate total amount before any promo code discounts
         $totalAmount = $subtotal + $shippingCost + $taxAmount;
 
         return [
