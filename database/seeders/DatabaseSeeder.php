@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\File;
 
 class DatabaseSeeder extends Seeder
 {
@@ -29,5 +30,19 @@ class DatabaseSeeder extends Seeder
             PolicySeeder::class,
             ProductionSeeder::class,
         ]);
+
+        // After seeding, reset demo folder
+        $demoPath = public_path('images/demo');
+        $backupPath = public_path('images/demo-backup');
+
+        // Delete old demo folder if exists
+        if (File::exists($demoPath)) {
+            File::deleteDirectory($demoPath);
+        }
+
+        // Copy backup as demo
+        if (File::exists($backupPath)) {
+            File::copyDirectory($backupPath, $demoPath);
+        }
     }
 }
