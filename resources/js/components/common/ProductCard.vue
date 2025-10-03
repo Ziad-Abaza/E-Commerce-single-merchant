@@ -121,13 +121,13 @@
                 <div class="flex items-center space-x-2">
                     <span
                         class="text-sm md:text-base font-bold text-gray-900 dark:text-white"
-                        >{{ product?.price || 0 }}
+                        >{{ Number(product?.price || 0).toFixed(2) }}
                         {{ siteStore.settings.currency }}</span
                     >
                     <span
                         v-if="product?.discount_percentage > 0"
                         class="text-xs md:text-sm text-gray-500 line-through dark:text-gray-400"
-                        >{{ product?.original_price || 0 }}
+                        >{{ Number(product?.original_price || 0).toFixed(2) }}
                         {{ siteStore.settings.currency }}</span
                     >
                 </div>

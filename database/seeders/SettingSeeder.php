@@ -129,7 +129,7 @@ class SettingSeeder extends Seeder
             ],
             [
                 'key' => 'whatsapp_order_message',
-                'value' => "*ORDER #{order_number}*\n\n*Total:* {total}\n\n*Items:*\n{items}\n\n{discounts}\n\n🔗 View Order: {order_link}",
+                'value' => "*ORDER #{order_number}*\n\n*Items:*\n{items}\n\n*Subtotal:* {subtotal}\n*Shipping:* {shipping}\n*Tax:* {tax}\n*Discounts:*\n{discounts}\n*Total:* {total}\n\n🔗 View Order: {order_link}",
                 'type' => 'textarea',
                 'group' => 'whatsApp',
                 'label' => 'WhatsApp Order Message',

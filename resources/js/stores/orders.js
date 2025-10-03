@@ -108,42 +108,42 @@ export const useOrderStore = defineStore("orders", {
                     throw new Error(error || "Failed to create order");
                 }
 
-                // Format items for WhatsApp message
+                // Format price with currency
                 const formatPrice = (price) => {
                     return `${parseFloat(price || 0).toFixed(2)} ${settings?.currency || "EGP"}`;
                 };
 
-                // Build discounts text
-                let discountsText = "";
-
-                if (data.data?.discounts && data.data.discounts.length > 0) {
-                    discountsText =
-                        "Discounts:\n" +
-                        data.data.discounts
-                            .map(
-                                (d) =>
-                                    `${d.type === "product" ? "Product Discounts" : "Promo Code Applied (" + d.code + ")"}: -${formatPrice(d.amount)}`,
-                            )
-                            .join("\n");
-                }
-
-                let itemsText = orderData.items
+                // Format items text
+                const itemsText = orderData.items
                     .map(
                         (item) =>
                             `• ${item.name || "Product"} x${item.quantity} = ${formatPrice(item.price * item.quantity)}`,
                     )
                     .join("\n");
 
+                // Build discounts text
+                let discountsText = "No discounts applied";
+                if (data.data?.discounts && data.data.discounts.length > 0) {
+                    discountsText = data.data.discounts
+                        .map((d) => {
+                            const prefix = d.type === "product" 
+                                ? "Product Discount" 
+                                : `Promo Code: ${d.code || 'N/A'}`;
+                            return `• ${prefix}: -${formatPrice(d.amount)}`;
+                        })
+                        .join("\n");
+                }
+
                 const orderLink = `${window.location.origin}/orders/${data.data.id}`;
                 let message = template
-                    .replace("{order_number}", data.data.order_number || "N/A")
-                    .replace(
-                        "{total}",
-                        formatPrice(data.data.final_total || orderData.total),
-                    )
-                    .replace("{items}", itemsText || "No items")
-                    .replace("{discounts}", discountsText || "")
-                    .replace("{order_link}", orderLink);
+                    .replace(/{order_number}/g, data.data.order_number || "N/A")
+                    .replace(/{items}/g, itemsText || "No items")
+                    .replace(/{subtotal}/g, formatPrice(data.data.subtotal || orderData.subtotal || 0))
+                    .replace(/{shipping}/g, formatPrice(data.data.shipping_amount || orderData.shipping_fee || 0))
+                    .replace(/{tax}/g, formatPrice(data.data.tax_amount || orderData.tax || 0))
+                    .replace(/{discounts}/g, discountsText)
+                    .replace(/{total}/g, formatPrice(data.data.final_total || orderData.total))
+                    .replace(/{order_link}/g, orderLink);
 
                 const encodedMessage = encodeURIComponent(message);
                 const whatsappUrl = `https://wa.me/${merchantWhatsApp}?text=${encodedMessage}`;
