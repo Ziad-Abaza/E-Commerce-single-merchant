@@ -98,7 +98,12 @@
           </div>
         </template>
 
-        <!-- Normal -->
+        <!-- Variant -->
+        <template v-else-if="row[header]?.type === 'variant'">
+          <VariantDisplay :variant="row[header]?.props?.variant || {}" />
+        </template>
+
+        <!-- Normal Text -->
         <template v-else>
           {{ row[header] ?? "" }}
         </template>
@@ -109,6 +114,7 @@
 
 <script setup>
 import { computed } from "vue";
+import VariantDisplay from "./VariantDisplay.vue";
 
 // Props
 const props = defineProps({

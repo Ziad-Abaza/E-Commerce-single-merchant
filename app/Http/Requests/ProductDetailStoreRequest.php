@@ -25,7 +25,7 @@ class ProductDetailStoreRequest extends FormRequest
             'product_id' => 'required|exists:products,id',
             'color' => 'nullable|string|max:50',
             'price' => 'required|numeric|min:0',
-            'discount' => 'nullable|numeric|min:0|max:100',
+            'discount' => 'nullable|numeric|min:0',
             'stock' => 'required|integer|min:0',
             'min_stock_alert' => 'nullable|integer|min:0',
             'sku_variant' => 'nullable|string|max:100|unique:product_details,sku_variant',

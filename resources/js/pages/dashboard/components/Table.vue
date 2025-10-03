@@ -145,6 +145,11 @@
                             </div>
                         </template>
 
+                        <!-- Variant Cell -->
+                        <template v-else-if="row[headers]?.type === 'variant'">
+                            <VariantDisplay :variant="row[headers]?.props?.variant || {}" />
+                        </template>
+
                         <!-- Normal Cell -->
                         <template v-else>
                             {{ row[headers] ?? "" }}

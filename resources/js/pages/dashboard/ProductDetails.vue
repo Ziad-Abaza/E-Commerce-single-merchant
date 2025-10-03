@@ -481,7 +481,7 @@ const tableRows = computed(() => {
     return productDetailsStore.details.map((detail) => ({
         id: detail.id,
         variant: {
-            type: "component",
+            type: "variant",
             component: VariantDisplay,
             props: {
                 variant: {
