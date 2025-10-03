@@ -17,6 +17,10 @@ return new class extends Migration
                 $table->id();
                 $table->foreignId('user_id')->constrained()->onDelete('cascade');
                 $table->string('order_number', 50)->unique(); // Unique order number
+                $table->foreignId('promo_code_id')
+                    ->nullable()
+                    ->constrained('promo_codes')
+                    ->nullOnDelete();
                 $table->enum('status', ['pending', 'confirmed', 'shipped', 'delivered', 'cancelled', 'refunded'])
                     ->default('pending');
                 $table->decimal('total_amount', 12, 2); // Total amount of the order like 100.00
