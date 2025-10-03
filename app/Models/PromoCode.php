@@ -104,8 +104,18 @@ class PromoCode extends Model
         $this->increment('total_usage_count');
 
         if ($user) {
-            $usage = $this->usages()->firstOrCreate(['user_id' => $user->id]);
-            $usage->increment('usage_count');
+            // First try to update existing record with both promo_code_id and user_id
+            $updated = $this->usages()
+                ->where('user_id', $user->id)
+                ->increment('usage_count');
+
+            // If no rows were updated, it means the record doesn't exist, so create it
+            if ($updated === 0) {
+                $this->usages()->create([
+                    'user_id' => $user->id,
+                    'usage_count' => 1,
+                ]);
+            }
         }
     }
 

@@ -36,7 +36,7 @@
               <p class="text-sm text-gray-500 dark:text-gray-400">Placed on {{ formatDate(order.created_at) }}</p>
             </div>
             <div class="text-right">
-              <div class="text-lg font-medium text-gray-900 dark:text-white">{{ parseFloat(order.final_total).toFixed(2) }} {{ order.currency }}</div>
+              <div class="text-lg font-medium text-gray-900 dark:text-white">{{ parseFloat(order.total_amount).toFixed(2) }} {{ order.currency }}</div>
               <span
                 class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
                 :class="orderStore.getStatusColor(order.status)"
@@ -171,9 +171,13 @@
                         <span class="text-gray-600 dark:text-gray-300">Tax</span>
                         <span class="text-gray-900 dark:text-white">{{ parseFloat(orderStore.currentOrder.tax_amount).toFixed(2) }} {{ orderStore.currentOrder.currency }}</span>
                       </div>
+                      <div v-if="orderStore.currentOrder.discount_amount > 0" class="flex justify-between text-sm text-red-600 dark:text-red-400">
+                        <span>Discount</span>
+                        <span>-{{ parseFloat(orderStore.currentOrder.discount_amount).toFixed(2) }} {{ orderStore.currentOrder.currency }}</span>
+                      </div>
                       <div class="flex justify-between text-base font-medium border-t border-gray-200 pt-2 dark:border-gray-700">
                         <span class="text-gray-900 dark:text-white">Total</span>
-                        <span class="text-gray-900 dark:text-white">{{ parseFloat(orderStore.currentOrder.final_total).toFixed(2) }} {{ orderStore.currentOrder.currency }}</span>
+                        <span class="text-gray-900 dark:text-white">{{ parseFloat(orderStore.currentOrder.total_amount).toFixed(2) }} {{ orderStore.currentOrder.currency }}</span>
                       </div>
                     </div>
                   </div>

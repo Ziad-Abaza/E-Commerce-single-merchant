@@ -2,6 +2,7 @@
 import { defineStore } from "pinia";
 import axios from "../bootstrap";
 import { useToast } from "vue-toastification";
+import { useCartStore } from './cart';
 
 export const useOrderStore = defineStore("orders", {
     state: () => ({
@@ -109,8 +110,22 @@ export const useOrderStore = defineStore("orders", {
 
                 // Format items for WhatsApp message
                 const formatPrice = (price) => {
-                    return `${parseFloat(price || 0).toFixed(2)} ${settings?.currency || "USD"}`;
+                    return `${parseFloat(price || 0).toFixed(2)} ${settings?.currency || "EGP"}`;
                 };
+
+                // Build discounts text
+                let discountsText = "";
+
+                if (data.data?.discounts && data.data.discounts.length > 0) {
+                    discountsText =
+                        "Discounts:\n" +
+                        data.data.discounts
+                            .map(
+                                (d) =>
+                                    `${d.type === "product" ? "Product Discounts" : "Promo Code Applied (" + d.code + ")"}: -${formatPrice(d.amount)}`,
+                            )
+                            .join("\n");
+                }
 
                 let itemsText = orderData.items
                     .map(
@@ -122,8 +137,12 @@ export const useOrderStore = defineStore("orders", {
                 const orderLink = `${window.location.origin}/orders/${data.data.id}`;
                 let message = template
                     .replace("{order_number}", data.data.order_number || "N/A")
-                    .replace("{total}", formatPrice(orderData.total))
+                    .replace(
+                        "{total}",
+                        formatPrice(data.data.final_total || orderData.total),
+                    )
                     .replace("{items}", itemsText || "No items")
+                    .replace("{discounts}", discountsText || "")
                     .replace("{order_link}", orderLink);
 
                 const encodedMessage = encodeURIComponent(message);
@@ -225,6 +244,7 @@ export const useOrderStore = defineStore("orders", {
                 if (orderData.shipping_address) formData.append('shipping_address', orderData.shipping_address);
                 if (orderData.phone) formData.append('phone', orderData.phone);
                 if (orderData.notes) formData.append('notes', orderData.notes);
+                if (orderData.promo_code_id) formData.append('promo_code_id', orderData.promo_code_id);
                 
                 // Add files if provided
                 if (orderData.receipt) formData.append('receipt', orderData.receipt);
@@ -258,6 +278,13 @@ export const useOrderStore = defineStore("orders", {
 
                 const toast = useToast();
                 toast.success("Order created successfully");
+                
+                // Remove promo code after successful order
+                const cartStore = useCartStore();
+                if (cartStore.promoCode) {
+                    await cartStore.removePromoCode();
+                }
+                
                 return {
                     success: true,
                     data: response.data,

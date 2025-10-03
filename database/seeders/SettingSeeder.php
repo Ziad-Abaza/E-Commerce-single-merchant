@@ -129,11 +129,11 @@ class SettingSeeder extends Seeder
             ],
             [
                 'key' => 'whatsapp_order_message',
-                'value' => "*ORDER #{order_number}*\n\n*Total:* {total}\n\n*Items:*\n{items}\n\n🔗 View Order: {order_link}",
+                'value' => "*ORDER #{order_number}*\n\n*Total:* {total}\n\n*Items:*\n{items}\n\n{discounts}\n\n🔗 View Order: {order_link}",
                 'type' => 'textarea',
                 'group' => 'whatsApp',
                 'label' => 'WhatsApp Order Message',
-                'description' => 'Order message sent via WhatsApp. You can use placeholders: {order_number}, {total}, {items}, {order_link}.',
+                'description' => 'Order message sent via WhatsApp. Placeholders: {order_number}, {total}, {items}, {discounts}, {order_link}.',
                 'is_public' => true,
                 'is_protected' => true,
                 'sort_order' => 4,

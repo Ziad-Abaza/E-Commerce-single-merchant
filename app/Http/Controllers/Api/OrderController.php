@@ -113,10 +113,12 @@ class OrderController extends Controller
             DB::beginTransaction();
             $validated = $request->validated();
 
-            // Calculate order amounts and get items with calculated prices
-            $orderData = $this->calculateOrderAmounts($request->items);
+            Log::info('Order Store Request: ', $validated);
 
-            // Prepare order data
+            // First, get base order amounts without tax
+            $orderData = $this->calculateOrderAmounts($request->items, $this->getOrderSettings(), false);
+            
+            // Initialize order data with base amounts
             $data = [
                 'order_number' => $this->generateOrderNumber(),
                 'user_id' => Auth::id(),
@@ -126,8 +128,8 @@ class OrderController extends Controller
                 'notes' => $validated['notes'] ?? null,
                 'subtotal' => $orderData['subtotal'],
                 'shipping_cost' => $orderData['shipping_cost'],
-                'tax_amount' => $orderData['tax_amount'],
-                'total_amount' => $orderData['total_amount'],
+                'tax_amount' => 0, // Will be calculated after applying promo code
+                'total_amount' => 0, // Will be calculated after applying promo code and tax
                 'currency' => $orderData['currency'],
                 'discount_amount' => 0,
                 'promo_code_id' => null,
@@ -135,6 +137,7 @@ class OrderController extends Controller
 
             $discountAmount = 0;
             $promoCode = null;
+            $amountBeforeTax = $orderData['subtotal'] + $orderData['shipping_cost'];
 
             // Apply promo code if provided and valid
             if (!empty($validated['promo_code_id'])) {
@@ -152,24 +155,40 @@ class OrderController extends Controller
                     switch ($promoCode->target_type) {
                         case 'shipping':
                             $originalAmount = $orderData['shipping_cost'];
+                            $discountAmount = max(0, $originalAmount - $discountedAmount);
+                            // Only reduce shipping cost, not subtotal
+                            $data['shipping_cost'] = max(0, $data['shipping_cost'] - $discountAmount);
                             break;
                         case 'order':
                             $originalAmount = $orderData['subtotal'] + $orderData['shipping_cost'];
+                            $discountAmount = max(0, $originalAmount - $discountedAmount);
+                            // Apply discount proportionally to subtotal and shipping
+                            $subtotalRatio = $orderData['subtotal'] / max(1, $originalAmount);
+                            $shippingRatio = $orderData['shipping_cost'] / max(1, $originalAmount);
+                            $data['subtotal'] = max(0, $orderData['subtotal'] - ($discountAmount * $subtotalRatio));
+                            $data['shipping_cost'] = max(0, $orderData['shipping_cost'] - ($discountAmount * $shippingRatio));
                             break;
-                        default: // 'products'
+                        default: // 'products' or any other type
                             $originalAmount = $orderData['subtotal'];
+                            $discountAmount = max(0, $originalAmount - $discountedAmount);
+                            // Only reduce subtotal, not shipping
+                            $data['subtotal'] = max(0, $orderData['subtotal'] - $discountAmount);
                             break;
                     }
 
-                    $discountAmount = max(0, $originalAmount - $discountedAmount);
                     $discountAmount = round($discountAmount, 2);
-
-                    // Update total amount
-                    $data['total_amount'] = max(0, $orderData['total_amount'] - $discountAmount);
                     $data['discount_amount'] = $discountAmount;
                     $data['promo_code_id'] = $promoCode->id;
                 }
             }
+            
+            // Calculate tax after applying promo code discount
+            $settings = $this->getOrderSettings();
+            $taxRate = is_numeric($settings['tax_rate']) ? (float)$settings['tax_rate'] : 0;
+            $data['tax_amount'] = $data['subtotal'] * $taxRate;
+            
+            // Calculate final total amount
+            $data['total_amount'] = $data['subtotal'] + $data['shipping_cost'] + $data['tax_amount'];
 
             $order = Order::create($data);
 
@@ -572,7 +591,7 @@ class OrderController extends Controller
      * @param array $settings
      * @return array
      */
-    protected function calculateOrderAmounts($items, $settings = null)
+    protected function calculateOrderAmounts($items, $settings = null, $includeTax = true)
     {
         $settings = $settings ?? $this->getOrderSettings();
         $subtotal = 0;
@@ -629,9 +648,9 @@ class OrderController extends Controller
 
         // Calculate tax as a percentage of subtotal (after product discounts)
         $taxRate = is_numeric($settings['tax_rate']) ? (float)$settings['tax_rate'] : 0;
-        $taxAmount = $subtotal * $taxRate;
+        $taxAmount = $includeTax ? $subtotal * $taxRate : 0;
 
-        // Calculate total amount before any promo code discounts
+        // Calculate total amount (tax included only if $includeTax is true)
         $totalAmount = $subtotal + $shippingCost + $taxAmount;
 
         return [

@@ -14,6 +14,9 @@ export const useCartStore = defineStore('cart', {
             subtotal: 0,
             total: 0,
         },
+        promoCode: null,
+        promoCodeError: null,
+        discount: 0,
     }),
 
     getters: {
@@ -49,8 +52,26 @@ export const useCartStore = defineStore('cart', {
             return state.summary.subtotal * taxRate
         },
         grandTotal(state) {
-            return state.summary.subtotal + this.shippingCost + this.taxAmount
+            const subtotal = state.summary.subtotal
+            const shipping = this.shippingCost
+            const tax = this.taxAmount
+            const totalBeforeDiscount = subtotal + shipping + tax
+            
+            // Apply promo code discount if valid
+            if (this.promoCode && this.promoCode.is_valid) {
+                return totalBeforeDiscount - this.discount
+            }
+            
+            return totalBeforeDiscount
         },
+        
+        // Get formatted discount amount
+        formattedDiscount: (state) => {
+            return state.discount?.toFixed(2) || '0.00'
+        },
+        
+        // Get promo code data
+        appliedPromoCode: (state) => state.promoCode,
     },
 
     actions: {
@@ -200,6 +221,65 @@ export const useCartStore = defineStore('cart', {
 
         clearError() {
             this.error = null
+            this.promoCodeError = null
+        },
+        
+        // Validate promo code
+        async validatePromoCode(code) {
+            if (!code) {
+                this.promoCodeError = 'Please enter a promo code'
+                return { success: false, error: this.promoCodeError }
+            }
+            
+            this.loading = true
+            this.promoCodeError = null
+            
+            try {
+                const response = await axios.post('/promo-codes/validate', {
+                    code: code,
+                    subtotal: this.summary.subtotal,
+                    shipping: this.shippingCost
+                })
+                
+                if (response.data.success) {
+                    this.promoCode = {
+                        ...response.data.data,
+                        is_valid: true,
+                        applied_at: new Date().toISOString()
+                    }
+                    this.discount = response.data.data.discount_amount || 0
+                    
+                    // Save to local storage
+                    this.saveToLocalStorage()
+                    
+                    const toast = useToast()
+                    toast.success('Promo code applied successfully!')
+                    
+                    return { success: true, data: response.data.data }
+                } else {
+                    this.promoCodeError = response.data.message || 'Invalid promo code'
+                    return { success: false, error: this.promoCodeError }
+                }
+            } catch (error) {
+                this.promoCodeError = error.response?.data?.message || 'Failed to validate promo code'
+                this.handleError(this.promoCodeError)
+                return { success: false, error: this.promoCodeError }
+            } finally {
+                this.loading = false
+            }
+        },
+        
+        // Remove promo code
+        removePromoCode() {
+            this.promoCode = null
+            this.discount = 0
+            this.promoCodeError = null
+            this.saveToLocalStorage()
+            
+            const toast = useToast()
+            toast.success('Promo code removed')
+            
+            return { success: true }
         },
 
         async initializeCart() {

@@ -121,6 +121,11 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/review/{id}', 'destroy')->name('destroy');
     });
 
+    // Promo code routes
+    Route::prefix('promo-codes')->name('promo-codes.')->controller(\App\Http\Controllers\Api\PromoCodeController::class)->group(function () {
+        Route::post('/validate', 'validate')->name('validate');
+    });
+
     // Wishlist routes
     Route::prefix('wishlist-categories')->name('wishlist-categories.')->controller(\App\Http\Controllers\Api\User\WishlistCategoryController::class)->group(function () {
         Route::get('/', 'index')->name('index');
