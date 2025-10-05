@@ -85,7 +85,7 @@
                     <router-link
                         v-if="isAuthenticated"
                         to="/wishlist"
-                        class="p-2 text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors relative"
+                        class="hidden md:block p-2 text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors relative"
                     >
                         <svg
                             class="h-6 w-6"
@@ -111,7 +111,7 @@
                     <!-- Cart (hidden on mobile - moved to sidebar) -->
                     <router-link
                         to="/cart"
-                        class="p-2 text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors relative"
+                        class="hidden md:block p-2 text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors relative"
                         v-if="siteStore.settings && !siteStore.settings.orders_via_whatsapp_only"
                     >
                         <svg

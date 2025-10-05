@@ -367,8 +367,13 @@
                                         />
                                     </svg>
                                     <span>Notifications</span>
-                                    <span v-if="unreadCount > 0" class="ml-auto inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-red-500 rounded-full">
-                                        {{ unreadCount > 9 ? '9+' : unreadCount }}
+                                    <span
+                                        v-if="unreadCount > 0"
+                                        class="ml-auto inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-red-500 rounded-full"
+                                    >
+                                        {{
+                                            unreadCount > 9 ? "9+" : unreadCount
+                                        }}
                                     </span>
                                 </router-link>
                             </li>
@@ -387,23 +392,30 @@
                         </div>
 
                         <!-- Right: Cart Section -->
-                        <div class="flex-shrink-0" v-if="siteStore.settings && !siteStore.settings.orders_via_whatsapp_only">
+                        <div
+                            class="flex-shrink-0"
+                            v-if="
+                                siteStore.settings &&
+                                !siteStore.settings.orders_via_whatsapp_only
+                            "
+                        >
                             <router-link
                                 to="/cart"
                                 @click="$emit('close')"
                                 class="flex items-center px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 dark:bg-primary-700 dark:hover:bg-primary-600 transition-colors gap-2"
                             >
                                 <svg
-                                    class="h-5 w-5"
+                                    xmlns="http://www.w3.org/2000/svg"
                                     fill="none"
-                                    stroke="currentColor"
                                     viewBox="0 0 24 24"
+                                    stroke-width="1.5"
+                                    stroke="currentColor"
+                                    class="size-6"
                                 >
                                     <path
                                         stroke-linecap="round"
                                         stroke-linejoin="round"
-                                        stroke-width="2"
-                                        d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m6-5v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6m8 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v4.01"
+                                        d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z"
                                     />
                                 </svg>
                                 <span>Cart</span>
