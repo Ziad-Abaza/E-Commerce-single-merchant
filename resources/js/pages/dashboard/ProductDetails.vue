@@ -158,9 +158,10 @@
                     <p class="text-gray-600 dark:text-gray-400">
                         {{ product?.brand }}
                     </p>
-                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                        {{ product?.description }}
-                    </p>
+                    <p
+                        class="text-sm text-gray-500 dark:text-gray-400 mt-1"
+                        v-html="product?.description"
+                    ></p>
                     <div class="flex flex-wrap gap-2 mt-3">
                         <span
                             v-for="category in product?.categories"
@@ -509,6 +510,12 @@ const tableRows = computed(() => {
                 onClick: () => handleEdit(detail),
             },
             {
+                label: "Duplicate",
+                icon: "duplicate",
+                class: "bg-indigo-100 text-indigo-700 hover:bg-indigo-200 dark:bg-indigo-900/30 dark:text-indigo-300",
+                onClick: () => handleDuplicate(detail),
+            },
+            {
                 label: "Delete",
                 icon: "trash",
                 class: "bg-red-100 text-red-700 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-300",
@@ -600,7 +607,6 @@ const handleViewDetail = async (detail) => {
     }
 };
 
-
 const handleEdit = async (detail) => {
     isEditing.value = true;
     detailToDelete.value = detail;
@@ -617,23 +623,38 @@ const handleEdit = async (detail) => {
     }
 };
 
+const handleDuplicate = (detail) => {
+    isEditing.value = false; 
+    initializeFormFields({ ...detail }); 
+    showFormModal.value = true;
+};
+
 const initializeFormFields = (detail) => {
+
+     if (detail && !isEditing.value) {
+        delete detail.id;
+        delete detail.images;
+    }
     // Format attributes for the AttributeManager
     const formatAttributes = (attributes) => {
         if (!attributes || !Array.isArray(attributes)) return [];
-        
-        return attributes.map(attr => ({
+
+        return attributes.map((attr) => ({
             id: attr.id || Date.now() + Math.random().toString(36).substr(2, 9),
-            name: attr.name || '',
-            code: attr.code || '',
-            type: attr.type || 'select',
-            values: attr.values ? attr.values.map(val => ({
-                id: val.id || Date.now() + Math.random().toString(36).substr(2, 9),
-                value: val.value || '',
-                is_visible: val.is_visible !== false,
-                is_variant: val.is_variant || 0,
-                is_filterable: val.is_filterable !== false
-            })) : []
+            name: attr.name || "",
+            code: attr.code || "",
+            type: attr.type || "select",
+            values: attr.values
+                ? attr.values.map((val) => ({
+                      id:
+                          val.id ||
+                          Date.now() + Math.random().toString(36).substr(2, 9),
+                      value: val.value || "",
+                      is_visible: val.is_visible !== false,
+                      is_variant: val.is_variant || 0,
+                      is_filterable: val.is_filterable !== false,
+                  }))
+                : [],
         }));
     };
 
@@ -645,7 +666,7 @@ const initializeFormFields = (detail) => {
             type: "attribute-selector",
             value: formatAttributes(detail?.attributes) || [],
             categoryId: 5,
-            required: false
+            required: false,
         },
         // Color field (kept for backward compatibility)
         {

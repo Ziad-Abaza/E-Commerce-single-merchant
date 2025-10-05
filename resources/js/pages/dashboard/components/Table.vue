@@ -222,7 +222,8 @@ import {
   ChevronUpIcon,
   ChevronDownIcon,
   PauseIcon,
-  PlayIcon
+  PlayIcon,
+  DocumentDuplicateIcon 
 } from "@heroicons/vue/24/outline";
 
 // Props
@@ -347,6 +348,7 @@ const getIconSymbol = (iconName) => {
     "chevron-down": ChevronDownIcon,
     pause: PauseIcon,
     play: PlayIcon,
+    duplicate: DocumentDuplicateIcon
   };
 
   return iconMap[iconName] || null;
