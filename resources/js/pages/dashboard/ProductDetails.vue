@@ -367,6 +367,7 @@
 
                     <Form
                         :model-fields="formFields"
+                        :available-attributes="availableAttributesForCategory"
                         @submit="handleSubmitForm"
                     />
                 </div>
@@ -427,22 +428,24 @@ import DetailsModal from "./components/DetailsModal.vue";
 import ConfirmModal from "./components/ConfirmModal.vue";
 import VariantDisplay from "./components/VariantDisplay.vue";
 import { useSiteStore } from "@/stores/site";
+import { useAttributeCategoriesStore } from "../../stores/dashboard/attributeCategories";
 
+const attributeCategoriesStore = useAttributeCategoriesStore();
 const siteStore = useSiteStore();
 const productDetailsStore = useProductDetailsStore();
 const productsStore = useProductsStore();
 const route = useRoute();
-const router = useRouter();
-
-const showFormModal = ref(false);
+const formFields = ref([]);
+const isSubmitting = ref(false);
 const isEditing = ref(false);
-const showDeleteConfirm = ref(false);
+const showFormModal = ref(false);
+const availableAttributesForCategory = ref([]);
 const showSecondConfirm = ref(false);
+const showDeleteConfirm = ref(false);
 const showDetailModal = ref(false);
 const viewMode = ref("active");
 const detailToDelete = ref(null);
 const selectedDetail = ref(null);
-const formFields = ref([]);
 
 // Get product ID from route
 const productId = computed(() => route.params.id);
@@ -588,9 +591,9 @@ const fetchProductDetails = async (page = 1, perPage = 10) => {
     );
 };
 
-const openCreateForm = () => {
+const openCreateForm = async () => {
     isEditing.value = false;
-    initializeFormFields(null);
+    await initializeFormFields(null);
     showFormModal.value = true;
 };
 
@@ -616,22 +619,21 @@ const handleEdit = async (detail) => {
             productId.value,
             detail.id,
         );
-        initializeFormFields(productDetailsStore.currentDetail);
+        await initializeFormFields(productDetailsStore.currentDetail);
         showFormModal.value = true;
     } catch (error) {
         console.error("Error loading product detail for edit:", error);
     }
 };
 
-const handleDuplicate = (detail) => {
-    isEditing.value = false; 
-    initializeFormFields({ ...detail }); 
+const handleDuplicate = async (detail) => {
+    isEditing.value = false;
+    await initializeFormFields({ ...detail });
     showFormModal.value = true;
 };
 
-const initializeFormFields = (detail) => {
-
-     if (detail && !isEditing.value) {
+const initializeFormFields = async (detail) => {
+    if (detail && !isEditing.value) {
         delete detail.id;
         delete detail.images;
     }
@@ -657,6 +659,24 @@ const initializeFormFields = (detail) => {
                 : [],
         }));
     };
+    const categoryId = product.value?.categories?.[0]?.id;
+    
+    if (categoryId) {
+        try {
+            const categoryAttrs = await attributeCategoriesStore.fetchAttributesForCategory(categoryId);
+            availableAttributesForCategory.value = categoryAttrs.map(attr => ({
+                id: attr.id,
+                name: attr.name,
+                code: attr.slug,
+                type: attr.type || 'select' // Ensure type has a default value
+            }));
+        } catch (error) {
+            console.error("Failed to load category attributes:", error);
+            availableAttributesForCategory.value = [];
+        }
+    } else {
+        availableAttributesForCategory.value = [];
+    }
 
     formFields.value = [
         // Attributes Section
@@ -665,7 +685,7 @@ const initializeFormFields = (detail) => {
             label: "Product Attributes",
             type: "attribute-selector",
             value: formatAttributes(detail?.attributes) || [],
-            categoryId: 5,
+            availableAttributes: availableAttributesForCategory.value,
             required: false,
         },
         // Color field (kept for backward compatibility)

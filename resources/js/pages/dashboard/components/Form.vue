@@ -102,15 +102,19 @@
                 <AutocompleteInput
                     v-model="field.value"
                     :options="field.options || []"
-                    :placeholder="field.placeholder || 'Type to search or add new...'"
+                    :placeholder="
+                        field.placeholder || 'Type to search or add new...'
+                    "
                     :allow-new="field.allowNew !== false"
-                    @add-new="(newOption) => {
-                        if (field.onAddNew) {
-                            field.onAddNew(newOption);
-                        } else if (field.options) {
-                            field.options.push(newOption);
+                    @add-new="
+                        (newOption) => {
+                            if (field.onAddNew) {
+                                field.onAddNew(newOption);
+                            } else if (field.options) {
+                                field.options.push(newOption);
+                            }
                         }
-                    }"
+                    "
                 />
             </div>
 
@@ -187,34 +191,6 @@
                     <!-- Label -->
                     <span class="flex-1">{{ item.label }}</span>
 
-                    <!-- Attributes -->
-                    <div v-for="attr in field.attributes" :key="attr.name">
-                        <!-- Select attribute -->
-                        <select
-                            v-if="attr.type === 'select'"
-                            v-model="item[attr.name]"
-                            class="px-2 py-1 border border-gray-300 rounded-lg text-sm dark:bg-gray-700 dark:text-white"
-                        >
-                            <option
-                                v-for="opt in attr.options"
-                                :key="opt.value"
-                                :value="opt.value"
-                            >
-                                {{ opt.label }}
-                            </option>
-                        </select>
-
-                        <!-- Text / Number attribute -->
-                        <input
-                            v-else-if="
-                                attr.type === 'text' || attr.type === 'number'
-                            "
-                            v-model="item[attr.name]"
-                            :type="attr.type"
-                            class="px-2 py-1 border border-gray-300 rounded-lg text-sm dark:bg-gray-700 dark:text-white"
-                        />
-                    </div>
-
                     <!-- Remove button -->
                     <button
                         type="button"
@@ -240,6 +216,12 @@
                     </option>
                 </select>
             </div>
+
+            <AttributeManager
+                v-else-if="field.type === 'attribute-selector'"
+                v-model="field.value"
+                :available-attributes="props.availableAttributes"
+            />
         </div>
 
         <button
@@ -247,11 +229,28 @@
             :disabled="isSubmitting"
             class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-75 disabled:cursor-not-allowed flex items-center justify-center min-w-[100px]"
         >
-            <svg v-if="isSubmitting" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            <svg
+                v-if="isSubmitting"
+                class="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+            >
+                <circle
+                    class="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    stroke-width="4"
+                ></circle>
+                <path
+                    class="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                ></path>
             </svg>
-            {{ isSubmitting ? 'Submitting...' : 'Submit' }}
+            {{ isSubmitting ? "Submitting..." : "Submit" }}
         </button>
     </form>
     <!-- UiToast component not available yet -->
@@ -259,7 +258,7 @@
 </template>
 
 <script setup>
-import { reactive, ref, watch, computed } from "vue";
+import { reactive, ref, watch, computed, onMounted } from "vue";
 import AutocompleteInput from "./AutocompleteInput.vue";
 
 const isSubmitting = ref(false);
@@ -267,20 +266,22 @@ import FileDropzone from "./FileDropzone.vue";
 import Select from "./Select.vue";
 import CheckboxSelect from "./CheckboxSelect.vue";
 import RichTextEditor from "./RichTextEditor.vue";
-// Note: These UI components don't exist yet - commented out for now
-// import UiToast from "@/components/ui/Toast.vue";
-
-// const toastRef = ref(null); // Commented out since UiToast is not available
+import AttributeManager from "./AttributeManager.vue";
 
 const emit = defineEmits(["submit"]);
 
 defineExpose({
     setSubmitting: (value) => {
         isSubmitting.value = value;
-    }
+    },
 });
+
 const props = defineProps({
     modelFields: { type: Array, required: true },
+    availableAttributes: {
+        type: Array,
+        default: () => [],
+    },
 });
 
 const fields = reactive([]);
@@ -297,31 +298,34 @@ watch(
         // Deep clone each field to avoid reactivity issues
         newFields.forEach((field) => {
             const clonedField = JSON.parse(JSON.stringify(field));
-            
+
             // If it's a multipleselect field, ensure options are reactive
-            if (field.type === 'multipleselect' || field.type === 'checkboxselect') {
+            if (
+                field.type === "multipleselect" ||
+                field.type === "checkboxselect"
+            ) {
                 clonedField.options = [...(field.options || [])];
             }
-            
+
             fields.push(clonedField);
         });
     },
-    { immediate: true, deep: true }
+    { immediate: true, deep: true },
 );
 
 // Watch for changes in individual field values and sync back to parent
 watch(
-    () => fields.map(f => ({ id: f.id, value: f.value })),
+    () => fields.map((f) => ({ id: f.id, value: f.value })),
     (newValues) => {
         newValues.forEach(({ id, value }) => {
-            const index = props.modelFields.findIndex(f => f.id === id);
+            const index = props.modelFields.findIndex((f) => f.id === id);
             if (index !== -1) {
                 // Update the parent's modelFields
                 props.modelFields[index].value = value;
             }
         });
     },
-    { deep: true }
+    { deep: true },
 );
 
 // Function to add a new entity
@@ -376,7 +380,7 @@ const inputClass = (field) =>
 
 const submitForm = async () => {
     if (isSubmitting.value) return; // Prevent multiple submissions
-    
+
     const formData = {};
     let hasErrors = false;
 
@@ -399,9 +403,7 @@ const submitForm = async () => {
 
         // If there are validation errors, scroll to the first error
         if (hasErrors) {
-            const firstErrorIndex = fields.findIndex(
-                (field) => field.error
-            );
+            const firstErrorIndex = fields.findIndex((field) => field.error);
             if (firstErrorIndex !== -1 && fieldRefs.value[firstErrorIndex]) {
                 fieldRefs.value[firstErrorIndex].scrollIntoView({
                     behavior: "smooth",
