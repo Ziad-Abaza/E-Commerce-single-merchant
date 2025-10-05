@@ -3,207 +3,202 @@
 namespace App\Http\Controllers\Dashboard;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\AttributeResource;
 use App\Models\Attribute;
-use App\Models\Category;
+use App\Http\Resources\AttributeResource;
+use App\Http\Requests\AttributeStoreRequest;
+use App\Http\Requests\AttributeUpdateRequest;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
-use Illuminate\Validation\Rule;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Support\Facades\DB;
 
 class AttributeController extends Controller
 {
-    /**
-     * Display a listing of the attributes.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function index(Request $request)
     {
-        $perPage = $request->input('per_page', 15);
-        $attributes = Attribute::query();
+        try {
+            $perPage = (int) $request->get('per_page', 15);
+            $perPage = max(1, min(100, $perPage));
 
-        if ($request->has('search')) {
-            $search = $request->input('search');
-            $attributes->where('name', 'like', "%{$search}%")
-                      ->orWhere('slug', 'like', "%{$search}%");
-        }
+            $query = Attribute::query();
 
-        $attributes = $attributes->paginate($perPage);
-
-        return response()->json([
-            'message' => 'Attributes retrieved successfully.',
-            'data' => AttributeResource::collection($attributes),
-            'pagination' => [
-                'current_page' => $attributes->currentPage(),
-                'per_page' => $attributes->perPage(),
-                'total' => $attributes->total(),
-                'last_page' => $attributes->lastPage(),
-                'from' => $attributes->firstItem(),
-                'to' => $attributes->lastItem(),
-            ],
-        ]);
-    }
-
-    /**
-     * Store a newly created attribute in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'slug' => 'nullable|string|max:255|unique:attributes,slug',
-            'type' => 'required|in:text,number,select,multiselect,checkbox,radio,textarea,date,datetime,boolean',
-            'options' => 'nullable|array',
-            'is_required' => 'boolean',
-            'is_filterable' => 'boolean',
-            'is_visible_on_frontend' => 'boolean',
-            'is_variant' => 'boolean',
-            'sort_order' => 'nullable|integer',
-            'categories' => 'nullable|array',
-            'categories.*' => 'exists:categories,id',
-            'is_required_for_category' => 'nullable|array',
-            'is_required_for_category.*' => 'boolean',
-            'sort_order_for_category' => 'nullable|array',
-            'sort_order_for_category.*' => 'integer',
-        ]);
-
-        // Generate slug if not provided
-        if (empty($validated['slug'])) {
-            $validated['slug'] = Str::slug($validated['name']);
-        }
-
-        // Create the attribute
-        $attribute = Attribute::create($validated);
-
-        // Sync categories if provided
-        if (isset($validated['categories'])) {
-            $categories = [];
-            foreach ($validated['categories'] as $index => $categoryId) {
-                $categories[$categoryId] = [
-                    'is_required' => $validated['is_required_for_category'][$index] ?? false,
-                    'sort_order' => $validated['sort_order_for_category'][$index] ?? 0,
-                ];
+            if ($request->filled('search')) {
+                $search = $request->input('search');
+                $query->where(function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                        ->orWhere('slug', 'like', "%{$search}%");
+                });
             }
-            $attribute->categories()->sync($categories);
-        }
 
-        return response()->json([
-            'message' => 'Attribute created successfully.',
-            'data' => new AttributeResource($attribute->load('categories')),
-        ], 201);
+            if ($request->filled('type')) {
+                $query->where('type', $request->type);
+            }
+
+            if ($request->filled('is_filterable')) {
+                $query->where('is_filterable', (bool) $request->is_filterable);
+            }
+
+            if ($request->filled('is_variant')) {
+                $query->where('is_variant', (bool) $request->is_variant);
+            }
+
+            $attributes = $query->paginate($perPage);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Attributes retrieved successfully.',
+                'data' => AttributeResource::collection($attributes->load('categories')),
+                'pagination' => [
+                    'current_page' => $attributes->currentPage(),
+                    'per_page' => $attributes->perPage(),
+                    'total' => $attributes->total(),
+                    'last_page' => $attributes->lastPage(),
+                    'from' => $attributes->firstItem(),
+                    'to' => $attributes->lastItem(),
+                ],
+                'errors' => null,
+                'code' => 200,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to retrieve attributes.',
+                'data' => null,
+                'errors' => ['server' => [$e->getMessage()]],
+                'code' => 500,
+            ], 500);
+        }
     }
 
-    /**
-     * Display the specified attribute.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function show($id)
     {
-        $attribute = Attribute::with('categories')->findOrFail($id);
-        
-        return response()->json([
-            'message' => 'Attribute retrieved successfully.',
-            'data' => new AttributeResource($attribute),
-        ]);
-    }
-
-    /**
-     * Update the specified attribute in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function update(Request $request, $id)
-    {
-        $attribute = Attribute::findOrFail($id);
-
-        $validated = $request->validate([
-            'name' => 'sometimes|required|string|max:255',
-            'slug' => [
-                'sometimes',
-                'required',
-                'string',
-                'max:255',
-                Rule::unique('attributes', 'slug')->ignore($attribute->id),
-            ],
-            'type' => 'sometimes|required|in:text,number,select,multiselect,checkbox,radio,textarea,date,datetime,boolean',
-            'options' => 'nullable|array',
-            'is_required' => 'boolean',
-            'is_filterable' => 'boolean',
-            'is_visible_on_frontend' => 'boolean',
-            'is_variant' => 'boolean',
-            'sort_order' => 'nullable|integer',
-            'categories' => 'nullable|array',
-            'categories.*' => 'exists:categories,id',
-            'is_required_for_category' => 'nullable|array',
-            'is_required_for_category.*' => 'boolean',
-            'sort_order_for_category' => 'nullable|array',
-            'sort_order_for_category.*' => 'integer',
-        ]);
-
-        // Update the attribute
-        $attribute->update($validated);
-
-        // Sync categories if provided
-        if (isset($validated['categories'])) {
-            $categories = [];
-            foreach ($validated['categories'] as $index => $categoryId) {
-                $categories[$categoryId] = [
-                    'is_required' => $validated['is_required_for_category'][$index] ?? false,
-                    'sort_order' => $validated['sort_order_for_category'][$index] ?? 0,
-                ];
-            }
-            $attribute->categories()->sync($categories);
+        try {
+            $attribute = Attribute::with('categories')->findOrFail($id);
+            return response()->json([
+                'success' => true,
+                'message' => 'Attribute retrieved successfully.',
+                'data' => new AttributeResource($attribute),
+                'errors' => null,
+                'code' => 200,
+            ], 200);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Attribute not found.',
+                'data' => null,
+                'errors' => ['attribute' => ['Attribute could not be found.']],
+                'code' => 404,
+            ], 404);
         }
-
-        return response()->json([
-            'message' => 'Attribute updated successfully.',
-            'data' => new AttributeResource($attribute->load('categories')),
-        ]);
     }
 
-    /**
-     * Remove the specified attribute from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\JsonResponse
-     */
+    public function store(AttributeStoreRequest $request)
+    {
+        try {
+            $data = $request->validated();
+
+            DB::beginTransaction();
+            $attribute = Attribute::create($data);
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Attribute created successfully.',
+                'data' => new AttributeResource($attribute->load('categories')),
+                'errors' => null,
+                'code' => 201,
+            ], 201);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to create attribute.',
+                'data' => null,
+                'errors' => ['server' => [$e->getMessage()]],
+                'code' => 500,
+            ], 500);
+        }
+    }
+
+    public function update(AttributeUpdateRequest $request, $id)
+    {
+        try {
+            $attribute = Attribute::findOrFail($id);
+            $data = $request->validated();
+
+            DB::beginTransaction();
+            $attribute->update($data);
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Attribute updated successfully.',
+                'data' => new AttributeResource($attribute->load('categories')),
+                'errors' => null,
+                'code' => 200,
+            ], 200);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Attribute not found.',
+                'data' => null,
+                'errors' => ['attribute' => ['Attribute could not be found.']],
+                'code' => 404,
+            ], 404);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update attribute.',
+                'data' => null,
+                'errors' => ['server' => [$e->getMessage()]],
+                'code' => 500,
+            ], 500);
+        }
+    }
+
     public function destroy($id)
     {
-        $attribute = Attribute::findOrFail($id);
-        
-        // Detach from categories first
-        $attribute->categories()->detach();
-        
-        // Delete the attribute
-        $attribute->delete();
+        try {
+            $attribute = Attribute::findOrFail($id);
 
-        return response()->json([
-            'message' => 'Attribute deleted successfully.',
-        ]);
-    }
+            if ($attribute->categories()->exists() || $attribute->values()->exists()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Cannot delete attribute because it is in use.',
+                    'data' => null,
+                    'errors' => ['attribute' => ['This attribute is linked to categories or values and cannot be deleted.']],
+                    'code' => 409,
+                ], 409);
+            }
 
-    /**
-     * Get attributes for a specific category.
-     *
-     * @param  int  $categoryId
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function getByCategory($categoryId)
-    {
-        $category = Category::findOrFail($categoryId);
-        $attributes = $category->allAttributes();
-        
-        return response()->json([
-            'message' => 'Attributes retrieved successfully.',
-            'data' => AttributeResource::collection($attributes),
-        ]);
+            DB::beginTransaction();
+            $attribute->delete();
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Attribute deleted successfully.',
+                'data' => null,
+                'errors' => null,
+                'code' => 200,
+            ], 200);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Attribute not found.',
+                'data' => null,
+                'errors' => ['attribute' => ['Attribute could not be found.']],
+                'code' => 404,
+            ], 404);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to delete attribute.',
+                'data' => null,
+                'errors' => ['server' => [$e->getMessage()]],
+                'code' => 500,
+            ], 500);
+        }
     }
 }

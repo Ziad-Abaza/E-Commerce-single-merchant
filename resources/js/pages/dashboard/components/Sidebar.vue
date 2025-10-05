@@ -209,6 +209,7 @@ import {
     UserIcon,
     Cog6ToothIcon,
     DocumentTextIcon,
+    TagIcon,
 } from "@heroicons/vue/24/outline";
 
 // Props & Emit
@@ -283,7 +284,21 @@ const menuSections = [
                 routeName: "dashboard.categories",
                 icon: Squares2X2Icon,
             },
-             {
+            {
+                name: "Attribute Categories",
+                to: "/dashboard/attribute-categories",
+                routeName: "dashboard.attribute-categories",
+                icon: Squares2X2Icon, 
+                permission: "manage_products",
+            },
+            {
+                name: "Attributes",
+                to: "/dashboard/attributes",
+                routeName: "dashboard.attributes",
+                icon: TagIcon,
+                permission: "manage_products",
+            },
+            {
                 name: "Reviews",
                 to: "/dashboard/reviews",
                 routeName: "dashboard.reviews",

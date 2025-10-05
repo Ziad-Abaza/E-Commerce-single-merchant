@@ -13,8 +13,30 @@ use App\Http\Controllers\Dashboard\PolicyController;
 
 Route::middleware(['auth:sanctum', 'verified'])->prefix('dashboard')->name('dashboard.')->group(function () {
 
-    // Promo Codes
+    // Attributes Management
+    Route::middleware(['can:manage_products'])
+        ->prefix('attributes')
+        ->name('attributes.')
+        ->controller(\App\Http\Controllers\Dashboard\AttributeController::class)
+        ->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::post('/', 'store')->name('store');
+            Route::get('/{id}', 'show')->name('show');
+            Route::post('/{id}', 'update')->name('update');
+            Route::delete('/{id}', 'destroy')->name('destroy');
+        });
 
+    // Attribute Categories Management
+    Route::middleware(['can:manage_products'])
+        ->prefix('attribute-categories')
+        ->name('attribute-categories.')
+        ->controller(\App\Http\Controllers\Dashboard\AttributeCategoryController::class)
+        ->group(function () {
+            Route::get('/all', 'allCategories');
+            Route::post('/assign', 'assign')->name('assign');
+            Route::delete('/{attribute}/{category}/detach', 'detach')->name('detach');
+            Route::get('/category/{category}', 'forCategory')->name('for-category');
+        });
 
     // Promo Codes
     Route::middleware(['can:manage_promo_codes'])

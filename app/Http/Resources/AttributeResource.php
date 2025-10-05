@@ -6,12 +6,6 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class AttributeResource extends JsonResource
 {
-    /**
-     * Transform the resource into an array.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return array<string, mixed>
-     */
     public function toArray($request)
     {
         return [
@@ -20,18 +14,24 @@ class AttributeResource extends JsonResource
             'slug' => $this->slug,
             'type' => $this->type,
             'options' => $this->options,
-            'is_filterable' => $this->is_filterable,
-            'is_visible_on_frontend' => $this->is_visible_on_frontend,
+            'is_required' => (bool) $this->is_required,
+            'is_filterable' => (bool) $this->is_filterable,
+            'is_variant' => (bool) $this->is_variant,
+            'is_visible_on_frontend' => (bool) $this->is_visible_on_frontend,
+            'sort_order' => (int) $this->sort_order,
             'created_at' => $this->created_at?->toDateTimeString(),
             'updated_at' => $this->updated_at?->toDateTimeString(),
-            
-            // This will include the pivot data from the attribute_category table
-            // only when the attribute is loaded through a category relationship.
-            'pivot' => $this->whenPivotLoaded('attribute_category', function () {
-                return [
-                    'is_required' => $this->pivot->is_required,
-                    'sort_order' => $this->pivot->sort_order,
-                ];
+            'categories' => $this->whenLoaded('categories', function () {
+                return $this->categories->map(function ($category) {
+                    return [
+                        'id' => $category->id,
+                        'name' => $category->name,
+                        'pivot' => [
+                            'is_required' => (bool) $category->pivot->is_required,
+                            'sort_order' => (int) $category->pivot->sort_order,
+                        ],
+                    ];
+                });
             }),
         ];
     }

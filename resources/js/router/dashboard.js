@@ -18,6 +18,8 @@ import Settings from "../pages/dashboard/Settings.vue";
 import Contact from "../pages/dashboard/ContactMessages.vue";
 import PrivacyPolicy from "../pages/dashboard/PrivacyPolicy.vue";
 import PromoCodes from "../pages/dashboard/PromoCodes.vue";
+import AttributeCategories from "../pages/dashboard/AttributeCategories.vue";
+import Attributes from "../pages/dashboard/Attribute.vue";
 const routes = [
     {
         path: "/dashboard",
@@ -175,17 +177,39 @@ const routes = [
                     requiresPermission: "manage_privacy",
                     breadcrumb: [
                         { name: "Dashboard", path: "/dashboard" },
-                        {
-                            name: "Privacy & Policies",
-                            path: "/dashboard/privacy-policy",
-                        },
+                        { name: "Privacy & Policies", path: "/dashboard/privacy-policy" }
+                    ],
+                },
+            },
+            {
+                path: "attributes",
+                name: "dashboard.attributes",
+                component: Attributes,
+                meta: {
+                    title: "Attributes",
+                    requiresPermission: "manage_products",
+                    breadcrumb: [
+                        { name: "Dashboard", path: "/dashboard" },
+                        { name: "Attributes", path: "/dashboard/attributes" },
+                    ],
+                },
+            },
+            {
+                path: "attribute-categories",
+                name: "dashboard.attribute-categories",
+                component: AttributeCategories,
+                meta: {
+                    title: "Attribute Categories",
+                    requiresPermission: "manage_products",
+                    breadcrumb: [
+                        { name: "Dashboard", path: "/dashboard" },
+                        { name: "Attribute Categories", path: "/dashboard/attribute-categories" },
                     ],
                 },
             },
             {
                 path: "promo-codes",
                 name: "dashboard.promo-codes",
-                component: PromoCodes,
                 meta: {
                     title: "Promo Codes",
                     requiresPermission: "manage_promo_codes",

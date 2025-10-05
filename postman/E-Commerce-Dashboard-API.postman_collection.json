@@ -1,0 +1,2873 @@
+{
+  "info": {
+    "name": "E-Commerce Dashboard API",
+    "description": "Complete API collection for E-Commerce Dashboard",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"admin@example.com\",\n    \"password\": \"password\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/login",
+              "host": ["{{base_url}}"],
+              "path": ["login"]
+            },
+            "description": "Authenticate and get access token"
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/logout",
+              "host": ["{{base_url}}"],
+              "path": ["logout"]
+            },
+            "description": "Revoke the current access token"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Dashboard",
+      "item": [
+        {
+          "name": "Get Overview",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/dashboard/overview",
+              "host": ["{{base_url}}"],
+              "path": ["dashboard", "overview"]
+            },
+            "description": "Get dashboard overview statistics"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "description": "Endpoints for managing users, including creation, retrieval, updating, and deletion of user accounts, along with role management.",
+      "item": [
+        {
+          "name": "List Users",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/dashboard/users",
+              "host": ["{{base_url}}"],
+              "path": ["dashboard", "users"]
+            },
+            "description": "Get a paginated list of all users"
+          }
+        },
+        {
+          "name": "List Trashed Users",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/dashboard/users/trashed",
+              "host": ["{{base_url}}"],
+              "path": ["dashboard", "users", "trashed"]
+            },
+            "description": "Get a list of soft-deleted users"
+          }
+        },
+        {
+          "name": "Create User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"name\":\"John Doe\",\"email\":\"john.doe@example.com\",\"password\":\"password123\",\"password_confirmation\":\"password123\",\"phone\":\"+1234567890\",\"address\":\"123 Main St\",\"city\":\"New York\",\"country\":\"USA\",\"postal_code\":\"10001\"}"
+            },
+            "url": {
+              "raw": "{{base_url}}/dashboard/users",
+              "host": ["{{base_url}}"],
+              "path": ["dashboard", "users"]
+            },
+            "description": "Create a new user account"
+          }
+        },
+        {
+          "name": "Get User Details",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/dashboard/users/1",
+              "host": ["{{base_url}}"],
+              "path": ["dashboard", "users", "1"]
+            },
+            "description": "Get detailed information about a specific user"
+          }
+        },
+        {
+          "name": "Update User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"name\":\"John Updated\",\"email\":\"john.updated@example.com\",\"phone\":\"+1987654321\",\"address\":\"456 Updated St\",\"city\":\"Los Angeles\",\"country\":\"USA\",\"postal_code\":\"90001\"}"
+            },
+            "url": {
+              "raw": "{{base_url}}/dashboard/users/1",
+              "host": ["{{base_url}}"],
+              "path": ["dashboard", "users", "1"]
+            },
+            "description": "Update an existing user's information"
+          }
+        },
+        {
+          "name": "Delete User",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/dashboard/users/1",
+              "host": ["{{base_url}}"],
+              "path": ["dashboard", "users", "1"]
+            },
+            "description": "Soft delete a user (moves to trash)"
+          }
+        },
+        {
+          "name": "Restore User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/dashboard/users/1/restore",
+              "host": ["{{base_url}}"],
+              "path": ["dashboard", "users", "1", "restore"]
+            },
+            "description": "Restore a soft-deleted user"
+          }
+        },
+        {
+          "name": "Permanently Delete User",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/dashboard/users/1/force",
+              "host": ["{{base_url}}"],
+              "path": ["dashboard", "users", "1", "force"]
+            },
+            "description": "Permanently delete a user (cannot be undone)"
+          }
+        },
+        {
+          "name": "Assign Role to User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"role\":\"admin\"}"
+            },
+            "url": {
+              "raw": "{{base_url}}/dashboard/users/1/assign-role",
+              "host": ["{{base_url}}"],
+              "path": ["dashboard", "users", "1", "assign-role"]
+            },
+            "description": "Assign a role to a user"
+          }
+        },
+        {
+          "name": "Remove Role from User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"role\":\"admin\"}"
+            },
+            "url": {
+              "raw": "{{base_url}}/dashboard/users/1/remove-role",
+              "host": ["{{base_url}}"],
+              "path": ["dashboard", "users", "1", "remove-role"]
+            },
+            "description": "Remove a role from a user"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Products",
+      "description": "Endpoints for managing products, including creation, retrieval, updating, and deletion of products, along with related resources like images, inventory, and variations.",
+      "item": [
+        {
+          "name": "List Products",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/dashboard/products?status=active&category_id=1&min_price=10&max_price=100&sort_by=created_at&sort_order=desc&per_page=15&page=1&include=images,categories,attributes",
+              "host": ["{{base_url}}"],
+              "path": ["dashboard", "products"],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "active",
+                  "description": "Filter by status (active, draft, archived, all)"
+                },
+                {
+                  "key": "category_id",
+                  "value": "1",
+                  "description": "Filter by category ID"
+                },
+                {
+                  "key": "min_price",
+                  "value": "10",
+                  "description": "Minimum price filter"
+                },
+                {
+                  "key": "max_price",
+                  "value": "100",
+                  "description": "Maximum price filter"
+                },
+                {
+                  "key": "sort_by",
+                  "value": "created_at",
+                  "description": "Field to sort by (name, price, created_at, updated_at, sales_count)"
+                },
+                {
+                  "key": "sort_order",
+                  "value": "desc",
+                  "description": "Sort order (asc, desc)"
+                },
+                {
+                  "key": "per_page",
+                  "value": "15",
+                  "description": "Items per page (default: 15, max: 100)"
+                },
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Page number"
+                },
+                {
+                  "key": "include",
+                  "value": "images,categories,attributes",
+                  "description": "Comma-separated list of related resources to include (images, categories, attributes, variations, reviews)"
+                }
+              ]
+            },
+            "description": "Retrieve a paginated list of products with advanced filtering, sorting, and relationship loading options. Supports filtering by status, category, price range, and more."
+          }
+        },
+        {
+          "name": "Product Details",
+          "description": "Endpoints for managing detailed product information including variations, specifications, downloads, and more.",
+          "item": [
+            {
+              "name": "Get Product Details",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{auth_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/dashboard/products/1?include=images,categories,attributes,variations,inventory,reviews,downloads,specifications,seo,related_products,upsells,cross_sells,tags,shipping",
+                  "host": ["{{base_url}}"],
+                  "path": ["dashboard", "products", "1"],
+                  "query": [
+                    {
+                      "key": "include",
+                      "value": "images,categories,attributes,variations,inventory,reviews,downloads,specifications,seo,related_products,upsells,cross_sells,tags,shipping",
+                      "description": "Comma-separated list of related resources to include. Available options: images, categories, attributes, variations, inventory, reviews, downloads, specifications, seo, related_products, upsells, cross_sells, tags, shipping"
+                    },
+                    {
+                      "key": "reviews_limit",
+                      "value": "5",
+                      "description": "Number of latest reviews to include (default: 5)"
+                    },
+                    {
+                      "key": "variation_attributes",
+                      "value": "color,size",
+                      "description": "Filter variations by specific attribute names"
+                    }
+                  ]
+                },
+                "description": "Retrieve comprehensive information about a specific product including all related data. The response includes product details, images, categories, attributes, variations, inventory, reviews, and more based on the included relationships."
+              }
+            },
+            {
+              "name": "Update Product Details",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{auth_token}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"name\": \"Updated Premium Cotton T-Shirt\",\n    \"description\": \"<p>Updated description with more details about the product features and benefits.</p>\",\n    \"short_description\": \"Updated short description for the product\",\n    \"meta_title\": \"Updated Meta Title | Brand Name\",\n    \"meta_description\": \"Updated meta description for better SEO. This appears in search engine results.\",\n    \"meta_keywords\": [\"updated\", \"keywords\", \"for\", \"seo\"],\n    \"is_active\": true,\n    \"is_featured\": true,\n    \"is_taxable\": true,\n    \"tax_class\": \"standard\",\n    \"shipping_class\": \"standard\",\n    \"weight\": 0.35,\n    \"height\": 2.0,\n    \"width\": 10.0,\n    \"length\": 15.0,\n    \"min_order_quantity\": 1,\n    \"max_order_quantity\": 10,\n    \"requires_shipping\": true,\n    \"is_digital\": false,\n    \"is_virtual\": false,\n    \"is_downloadable\": false,\n    \"has_variations\": true,\n    \"manage_stock\": true,\n    \"in_stock\": true,\n    \"stock_status\": \"in_stock\",\n    \"low_stock_threshold\": 5,\n    \"backorders\": \"no\",\n    \"backorder_message\": \"\",\n    \"categories\": [1, 5, 8],\n    \"related_products\": [12, 15, 18],\n    \"upsell_products\": [22, 25],\n    \"cross_sell_products\": [30, 35],\n    \"tags\": [\"summer\", \"casual\", \"cotton\"],\n    \"specifications\": [\n        {\n            \"name\": \"Material\",\n            \"value\": \"100% Cotton\"\n        },\n        {\n            \"name\": \"Care Instructions\",\n            \"value\": \"Machine wash cold, tumble dry low\"\n        }\n    ],\n    \"seo\": {\n        \"canonical_url\": \"https://example.com/products/premium-cotton-t-shirt\",\n        \"meta_robots\": \"index, follow\",\n        \"og_title\": \"Premium Cotton T-Shirt | Brand Name\",\n        \"og_description\": \"High quality cotton t-shirt for everyday wear\",\n        \"og_image\": \"https://example.com/images/tshirt-og.jpg\"\n    },\n    \"shipping\": {\n        \"weight\": 0.35,\n        \"dimensions\": {\n            \"length\": 15.0,\n            \"width\": 10.0,\n            \"height\": 2.0,\n            \"unit\": \"cm\"\n        },\n        \"shipping_class\": \"standard\",\n        \"shipping_class_id\": 1,\n        \"shipping_origin\": \"US\",\n        \"hazardous_material\": false,\n        \"country_of_origin\": \"US\"\n    }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/dashboard/products/1/details",
+                  "host": ["{{base_url}}"],
+                  "path": ["dashboard", "products", "1", "details"]
+                },
+                "description": "Update detailed product information including SEO, shipping, specifications, and relationships. Only include the fields that need to be updated."
+              }
+            },
+            {
+              "name": "Product Variations",
+              "description": "Endpoints for managing product variations",
+              "item": [
+                {
+                  "name": "List Variations",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{auth_token}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/dashboard/products/1/variations?include=attributes,inventory",
+                      "host": ["{{base_url}}"],
+                      "path": ["dashboard", "products", "1", "variations"],
+                      "query": [
+                        {
+                          "key": "include",
+                          "value": "attributes,inventory",
+                          "description": "Comma-separated list of related resources to include"
+                        },
+                        {
+                          "key": "status",
+                          "value": "active",
+                          "description": "Filter by status (active, draft, archived)"
+                        },
+                        {
+                          "key": "in_stock",
+                          "value": "true",
+                          "description": "Filter by in-stock status"
+                        }
+                      ]
+                    },
+                    "description": "Retrieve all variations for a variable product with filtering options."
+                  }
+                },
+                {
+                  "name": "Create Variation",
+                  "request": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{auth_token}}"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n    \"sku\": \"TSHIRT-001-BLUE-L\",\n    \"price\": 34.99,\n    \"sale_price\": 29.99,\n    \"cost_price\": 20.00,\n    \"quantity\": 50,\n    \"weight\": 0.35,\n    \"height\": 2.0,\n    \"width\": 10.0,\n    \"length\": 15.0,\n    \"is_active\": true,\n    \"is_digital\": false,\n    \"is_downloadable\": false,\n    \"manage_stock\": true,\n    \"in_stock\": true,\n    \"stock_status\": \"in_stock\",\n    \"low_stock_threshold\": 5,\n    \"backorders\": \"no\",\n    \"barcode\": \"123456789013\",\n    \"attributes\": [\n        {\n            \"id\": 1,\n            \"name\": \"color\",\n            \"value\": \"Blue\"\n        },\n        {\n            \"id\": 2,\n            \"name\": \"size\",\n            \"value\": \"Large\"\n        }\n    ],\n    \"images\": [\n        {\n            \"url\": \"https://example.com/images/tshirt-blue-large-1.jpg\",\n            \"alt_text\": \"Blue T-Shirt Front View\",\n            \"is_main\": true\n        },\n        {\n            \"url\": \"https://example.com/images/tshirt-blue-large-2.jpg\",\n            \"alt_text\": \"Blue T-Shirt Back View\"\n        }\n    ]\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{base_url}}/dashboard/products/1/variations",
+                      "host": ["{{base_url}}"],
+                      "path": ["dashboard", "products", "1", "variations"]
+                    },
+                    "description": "Create a new variation for a variable product. Include all required attributes for the product type."
+                  }
+                },
+                {
+                  "name": "Update Variation",
+                  "request": {
+                    "method": "PUT",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{auth_token}}"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n    \"price\": 36.99,\n    \"sale_price\": 31.99,\n    \"quantity\": 45,\n    \"is_active\": true,\n    \"attributes\": [\n        {\n            \"id\": 1,\n            \"name\": \"color\",\n            \"value\": \"Navy Blue\"\n        }\n    ]\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{base_url}}/dashboard/products/1/variations/101",
+                      "host": ["{{base_url}}"],
+                      "path": ["dashboard", "products", "1", "variations", "101"]
+                    },
+                    "description": "Update an existing product variation. Only include the fields that need to be updated."
+                  }
+                },
+                {
+                  "name": "Delete Variation",
+                  "request": {
+                    "method": "DELETE",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{auth_token}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/dashboard/products/1/variations/101?force=false",
+                      "host": ["{{base_url}}"],
+                      "path": ["dashboard", "products", "1", "variations", "101"],
+                      "query": [
+                        {
+                          "key": "force",
+                          "value": "false",
+                          "description": "Set to true to permanently delete the variation. If false, the variation will be moved to trash."
+                        }
+                      ]
+                    },
+                    "description": "Delete a product variation. By default, variations are moved to trash. Use the 'force' parameter to permanently delete."
+                  }
+                },
+                {
+                  "name": "Bulk Update Variations",
+                  "request": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{auth_token}}"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n    \"updates\": [\n        {\n            \"id\": 101,\n            \"price\": 34.99,\n            \"sale_price\": 29.99,\n            \"quantity\": 50\n        },\n        {\n            \"id\": 102,\n            \"price\": 34.99,\n            \"sale_price\": 29.99,\n            \"quantity\": 40\n        },\n        {\n            \"id\": 103,\n            \"price\": 34.99,\n            \"sale_price\": 29.99,\n            \"quantity\": 30\n        }\n    ],\n    \"update_all\": false,\n    \"where\": {\n        \"attribute_id\": 1,\n        \"attribute_value\": \"Blue\"\n    }\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{base_url}}/dashboard/products/1/variations/bulk",
+                      "host": ["{{base_url}}"],
+                      "path": ["dashboard", "products", "1", "variations", "bulk"]
+                    },
+                    "description": "Update multiple variations in a single request. Can update specific variations by ID or use the 'where' clause to update variations matching certain criteria."
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Product Specifications",
+              "description": "Endpoints for managing product specifications and technical details",
+              "item": [
+                {
+                  "name": "Get Specifications",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{auth_token}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/dashboard/products/1/specifications?group_by=category",
+                      "host": ["{{base_url}}"],
+                      "path": ["dashboard", "products", "1", "specifications"],
+                      "query": [
+                        {
+                          "key": "group_by",
+                          "value": "category",
+                          "description": "Group specifications by category (optional)"
+                        }
+                      ]
+                    },
+                    "description": "Retrieve all specifications for a product, optionally grouped by category."
+                  }
+                },
+                {
+                  "name": "Update Specifications",
+                  "request": {
+                    "method": "PUT",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{auth_token}}"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\"specifications\":[{\"name\":\"Neckline\",\"value\":\"Crew Neck\",\"group\":\"Style\",\"is_visible\":true,\"position\":5},{\"name\":\"Origin\",\"value\":\"Made in USA\",\"group\":\"Additional Information\",\"is_visible\":true,\"position\":6}],\"delete_missing\":true}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{base_url}}/dashboard/products/1/specifications",
+                      "host": ["{{base_url}}"],
+                      "path": ["dashboard", "products", "1", "specifications"]
+                    },
+                    "description": "Update product specifications. This will replace all existing specifications with the ones provided. Set 'delete_missing' to true to remove any specifications not included in this request."
+                  }
+                },
+                {
+                  "name": "Bulk Update Specifications",
+                  "request": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{auth_token}}"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n    \"updates\": [\n        {\n            \"id\": 1,\n            \"value\": \"95% Cotton, 5% Spandex\"\n        },\n        {\n            \"id\": 2,\n            \"value\": \"Hand wash only\"\n        }\n    ],\n    \"create\": [\n        {\n            \"name\": \"Warranty\",\n            \"value\": \"1 Year Limited\",\n            \"group\": \"Additional Information\"\n        }\n    ],\n    \"delete\": [3, 4, 5]\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{base_url}}/dashboard/products/1/specifications/bulk",
+                      "host": ["{{base_url}}"],
+                      "path": ["dashboard", "products", "1", "specifications", "bulk"]
+                    },
+                    "description": "Bulk update product specifications. This allows updating multiple specifications in a single request, including creating new ones and deleting existing ones."
+                  }
+                },
+                {
+                  "name": "Get Specification Groups",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{auth_token}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/dashboard/products/specification-groups",
+                      "host": ["{{base_url}}"],
+                      "path": ["dashboard", "products", "specification-groups"]
+                    },
+                    "description": "Retrieve all available specification groups that can be used to organize product specifications."
+                  }
+                },
+                {
+                  "name": "Create Specification Group",
+                  "request": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{auth_token}}"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n    \"name\": \"Dimensions\",\n    \"slug\": \"dimensions\",\n    \"description\": \"Product dimensions and measurements\",\n    \"is_active\": true,\n    \"position\": 5\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{base_url}}/dashboard/products/specification-groups",
+                      "host": ["{{base_url}}"],
+                      "path": ["dashboard", "products", "specification-groups"]
+                    },
+                    "description": "Create a new specification group to organize product specifications."
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Product Downloads",
+              "description": "Endpoints for managing digital product downloads and access",
+              "item": [
+                {
+                  "name": "List Downloads",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{auth_token}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/dashboard/products/1/downloads?include=download_stats",
+                      "host": ["{{base_url}}"],
+                      "path": ["dashboard", "products", "1", "downloads"],
+                      "query": [
+                        {
+                          "key": "include",
+                          "value": "download_stats",
+                          "description": "Include download statistics with the response"
+                        }
+                      ]
+                    },
+                    "description": "Retrieve all downloadable files associated with a product, including download statistics if requested."
+                  }
+                },
+                {
+                  "name": "Add Download",
+                  "request": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "multipart/form-data"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{auth_token}}"
+                      }
+                    ],
+                    "body": {
+                      "mode": "formdata",
+                      "formdata": [
+                        {
+                          "key": "name",
+                          "value": "E-book: The Complete Guide",
+                          "type": "text",
+                          "description": "Display name of the download"
+                        },
+                        {
+                          "key": "description",
+                          "value": "PDF version of the complete guide with all chapters included. This is the latest edition with updated content.",
+                          "type": "text",
+                          "description": "Detailed description of the download"
+                        },
+                        {
+                          "key": "file",
+                          "type": "file",
+                          "src": "/path/to/ebook.pdf",
+                          "description": "Digital file to upload (max 50MB)"
+                        },
+                        {
+                          "key": "download_limit",
+                          "value": "5",
+                          "type": "text",
+                          "description": "Maximum number of times the file can be downloaded (0 for unlimited)"
+                        },
+                        {
+                          "key": "expiry_days",
+                          "value": "30",
+                          "type": "text",
+                          "description": "Number of days the download link is valid (0 for never expires)"
+                        },
+                        {
+                          "key": "is_active",
+                          "value": "true",
+                          "type": "text",
+                          "description": "Whether the download is currently active"
+                        }
+                      ]
+                    },
+                    "url": {
+                      "raw": "{{base_url}}/dashboard/products/1/downloads",
+                      "host": ["{{base_url}}"],
+                      "path": ["dashboard", "products", "1", "downloads"]
+                    },
+                    "description": "Add a new downloadable file to a digital product. The file will be uploaded and stored on the server."
+                  }
+                },
+                {
+                  "name": "Update Download",
+                  "request": {
+                    "method": "PUT",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{auth_token}}"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n    \"name\": \"Updated E-book: The Complete Guide 2023\",\n    \"description\": \"Updated PDF version of the complete guide with new content\",\n    \"download_limit\": 10,\n    \"expiry_days\": 60,\n    \"is_active\": true\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{base_url}}/dashboard/products/1/downloads/5",
+                      "host": ["{{base_url}}"],
+                      "path": ["dashboard", "products", "1", "downloads", "5"]
+                    },
+                    "description": "Update an existing product download. You can update the metadata without re-uploading the file."
+                  }
+                },
+                {
+                  "name": "Delete Download",
+                  "request": {
+                    "method": "DELETE",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{auth_token}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/dashboard/products/1/downloads/5",
+                      "host": ["{{base_url}}"],
+                      "path": ["dashboard", "products", "1", "downloads", "5"]
+                    },
+                    "description": "Delete a product download. This will remove the download and the associated file from the server."
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Create Product",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Premium Cotton T-Shirt\",\n    \"slug\": \"premium-cotton-t-shirt\",\n    \"description\": \"<p>High quality 100% cotton t-shirt with premium stitching and durable fabric. Perfect for everyday wear.</p>\",\n    \"short_description\": \"High quality cotton t-shirt for everyday wear\",\n    \"price\": 29.99,\n    \"sale_price\": 24.99,\n    \"cost_price\": 15.00,\n    \"sku\": \"TSHIRT-001-BLUE-M\",\n    \"barcode\": \"123456789012\",,\n    \"quantity\": 100,\n    \"weight\": 0.3,\n    \"height\": 2.0,\n    \"width\": 10.0,\n    \"length\": 15.0,\n    \"is_active\": true,\n    \"is_featured\": true,\n    \"is_taxable\": true,\n    \"is_digital\": false,\n    \"is_virtual\": false,\n    \"is_downloadable\": false,\n    \"has_variations\": true,\n    \"manage_stock\": true,\n    \"in_stock\": true,\n    \"stock_status\": \"in_stock\",\n    \"low_stock_threshold\": 5,\n    \"backorders\": \"no\",\n    \"min_order_quantity\": 1,\n    \"max_order_quantity\": 10,\n    \"meta_title\": \"Premium Cotton T-Shirt - Best Quality | Store Name\",\n    \"meta_description\": \"Buy premium quality cotton t-shirts online. Available in multiple colors and sizes. Free shipping on orders over $50.\",\n    \"meta_keywords\": [\"t-shirt\", \"cotton\", \"premium\", \"clothing\"],\n    \"categories\": [1, 5, 8],\n    \"attributes\": [\n        {\n            \"id\": 1,\n            \"value\": \"Blue\"\n        },\n        {\n            \"id\": 2,\n            \"value\": \"Medium\"\n        }\n    ],\n    \"related_products\": [12, 15, 18],\n    \"upsell_products\": [22, 25],\n    \"cross_sell_products\": [30, 35],\n    \"tags\": [\"summer\", \"casual\", \"cotton\"],\n    \"tax_class\": \"standard\",\n    \"shipping_class\": \"standard\",\n    \"downloads\": [],\n    \"variations\": [\n        {\n            \"sku\": \"TSHIRT-001-BLUE-S\",\n            \"price\": 29.99,\n            \"sale_price\": 24.99,\n            \"quantity\": 50,\n            \"attributes\": [\n                {\"id\": 1, \"value\": \"Blue\"},\n                {\"id\": 2, \"value\": \"Small\"}\n            ]\n        },\n        {\n            \"sku\": \"TSHIRT-001-BLUE-M\",\n            \"price\": 29.99,\n            \"sale_price\": 24.99,\n            \"quantity\": 30,\n            \"attributes\": [\n                {\"id\": 1, \"value\": \"Blue\"},\n                {\"id\": 2, \"value\": \"Medium\"}\n            ]\n        }\n    ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/dashboard/products",
+              "host": ["{{base_url}}"],
+              "path": ["dashboard", "products"]
+            },
+            "description": "Create a new product with all possible fields. This endpoint supports creating simple products as well as variable products with multiple variations. All fields are optional except 'name' and 'price'."
+          }
+        },
+        {
+          "name": "Update Product",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Updated Premium Cotton T-Shirt\",\n    \"price\": 34.99,\n    \"sale_price\": 29.99,\n    \"quantity\": 75,\n    \"is_featured\": true,\n    \"categories\": [1, 5, 8, 12],\n    \"meta_title\": \"Updated Premium Cotton T-Shirt - Best Quality | Store Name\",\n    \"variations\": [\n        {\n            \"id\": 101,\n            \"sku\": \"TSHIRT-001-BLUE-L\",\n            \"price\": 34.99,\n            \"sale_price\": 29.99,\n            \"quantity\": 20,\n            \"attributes\": [\n                {\"id\": 1, \"value\": \"Blue\"},\n                {\"id\": 2, \"value\": \"Large\"}\n            ]\n        }\n    ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/dashboard/products/1",
+              "host": ["{{base_url}}"],
+              "path": ["dashboard", "products", "1"]
+            },
+            "description": "Update an existing product. Only include the fields that need to be updated. For variations, include the variation ID to update existing variations or omit the ID to create new ones."
+          }
+        },
+        {
+          "name": "Delete Product",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/dashboard/products/1?force=true",
+              "host": ["{{base_url}}"],
+              "path": ["dashboard", "products", "1"],
+              "query": [
+                {
+                  "key": "force",
+                  "value": "true",
+                  "description": "Set to true to permanently delete the product. If false, the product will be moved to trash."
+                }
+              ]
+            },
+            "description": "Delete a product. By default, products are moved to trash. Use the 'force' parameter to permanently delete."
+          }
+        },
+        {
+          "name": "Product Images",
+          "description": "Endpoints for managing product images",
+          "item": [
+            {
+              "name": "Upload Product Image",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{auth_token}}"
+                  }
+                ],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "image",
+                      "type": "file",
+                      "src": "/path/to/image.jpg",
+                      "description": "Image file to upload"
+                    },
+                    {
+                      "key": "is_main",
+                      "value": "true",
+                      "description": "Set as main product image"
+                    },
+                    {
+                      "key": "alt_text",
+                      "value": "Blue cotton t-shirt front view",
+                      "description": "Alternative text for accessibility"
+                    },
+                    {
+                      "key": "sort_order",
+                      "value": "1",
+                      "description": "Display order of the image"
+                    }
+                  ]
+                },
+                "url": {
+                  "raw": "{{base_url}}/dashboard/products/1/images",
+                  "host": ["{{base_url}}"],
+                  "path": ["dashboard", "products", "1", "images"]
+                },
+                "description": "Upload a new image for a product. Supports multiple image uploads."
+              }
+            },
+            {
+              "name": "Update Image Details",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{auth_token}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"is_main\": true,\n    \"alt_text\": \"Updated blue t-shirt front view\",\n    \"sort_order\": 2\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/dashboard/products/1/images/5",
+                  "host": ["{{base_url}}"],
+                  "path": ["dashboard", "products", "1", "images", "5"]
+                },
+                "description": "Update image details like alt text, sort order, or set as main image."
+              }
+            },
+            {
+              "name": "Delete Product Image",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{auth_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/dashboard/products/1/images/5",
+                  "host": ["{{base_url}}"],
+                  "path": ["dashboard", "products", "1", "images", "5"]
+                },
+                "description": "Delete a product image. The image will be removed from the product but may still exist in the media library."
+              }
+            }
+          ]
+        },
+        {
+          "name": "Product Inventory",
+          "description": "Endpoints for managing product inventory",
+          "item": [
+            {
+              "name": "Update Stock Level",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{auth_token}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"quantity\": 150,\n    \"stock_status\": \"in_stock\",\n    \"backorders\": \"notify\",\n    \"low_stock_threshold\": 10,\n    \"manage_stock\": true\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/dashboard/products/1/inventory",
+                  "host": ["{{base_url}}"],
+                  "path": ["dashboard", "products", "1", "inventory"]
+                },
+                "description": "Update inventory settings for a product. This affects the main product stock. For variations, use the variations endpoint."
+              }
+            },
+            {
+              "name": "Bulk Update Inventory",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{auth_token}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"updates\": [\n        {\n            \"product_id\": 1,\n            \"quantity\": 50,\n            \"operation\": \"set\"\n        },\n        {\n            \"product_id\": 2,\n            \"quantity\": 10,\n            \"operation\": \"increment\"\n        },\n        {\n            \"product_id\": 3,\n            \"quantity\": 5,\n            \"operation\": \"decrement\"\n        }\n    ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/dashboard/products/bulk-inventory",
+                  "host": ["{{base_url}}"],
+                  "path": ["dashboard", "products", "bulk-inventory"]
+                },
+                "description": "Update inventory for multiple products in a single request. Supports setting, incrementing, or decrementing stock levels."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Categories",
+      "item": [
+        {
+          "name": "List Categories",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/dashboard/categories?page=1&per_page=15&include=children,parent,attributes,products&only_active=true&parent_id=null&sort_by=name&sort_order=asc&search=\"men's\"",
+              "host": ["{{base_url}}"],
+              "path": ["dashboard", "categories"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "per_page",
+                  "value": "15"
+                },
+                {
+                  "key": "include",
+                  "value": "children,parent,attributes,products"
+                },
+                {
+                  "key": "only_active",
+                  "value": "true"
+                },
+                {
+                  "key": "parent_id",
+                  "value": "null"
+                },
+                {
+                  "key": "sort_by",
+                  "value": "name"
+                },
+                {
+                  "key": "sort_order",
+                  "value": "asc"
+                },
+                {
+                  "key": "search",
+                  "value": "\"men's\""
+                }
+              ]
+            },
+            "description": "Get paginated list of categories with advanced filtering and sorting options.\n\n### Query Parameters\n- **page** (int, optional): Page number for pagination. Default: 1\n- **per_page** (int, optional): Number of items per page. Default: 15, Max: 100\n- **include** (string, optional): Comma-separated related resources to include. Options: children, parent, attributes, products\n- **only_active** (boolean, optional): Show only active categories. Default: true\n- **parent_id** (int, optional): Filter by parent category ID. Use null for root categories\n- **sort_by** (string, optional): Field to sort by. Options: name, created_at, updated_at, order. Default: name\n- **sort_order** (string, optional): Sort order. Options: asc, desc. Default: asc\n- **search** (string, optional): Search term to filter categories by name or description\n\n### Example Response\n```json\n{\n  \"data\": [\n    {\n      \"id\": 1,\n      \"name\": \"Men's Fashion\",\n      \"slug\": \"mens-fashion\",\n      \"is_active\": true,\n      \"parent_id\": null,\n      \"children_count\": 5,\n      \"products_count\": 42,\n      \"created_at\": \"2023-01-15T10:30:00Z\",\n      \"updated_at\": \"2023-01-15T10:30:00Z\"\n    }\n  ],\n  \"meta\": {\n    \"current_page\": 1,\n    \"from\": 1,\n    \"last_page\": 3,\n    \"per_page\": 15,\n    \"to\": 15,\n    \"total\": 42\n  }\n}\"\n```"
+          }
+        },
+        {
+          "name": "Get Category Details",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/dashboard/categories/1?include=parent,children,attributes,products",
+              "host": ["{{base_url}}"],
+              "path": ["dashboard", "categories", "1"],
+              "query": [
+                {
+                  "key": "include",
+                  "value": "parent,children,attributes,products"
+                }
+              ]
+            },
+            "description": "Get detailed information about a specific category including its relationships.\n\n### URL Parameters\n- **:id** (required): The ID of the category to retrieve\n\n### Query Parameters\n- **include** (string, optional): Comma-separated related resources to include. Options: parent, children, attributes, products\n\n### Example Response\n```json\n{\n  \"data\": {\n    \"id\": 1,\n    \"name\": \"Men's Fashion\",\n    \"slug\": \"mens-fashion\",\n    \"description\": \"Clothing and accessories for men\",\n    \"is_active\": true,\n    \"is_featured\": true,\n    \"display_mode\": \"products_and_description\",\n    \"meta_title\": \"Men's Fashion | Your Store\",\n    \"meta_description\": \"Shop the latest men's fashion collection\",\n    \"meta_keywords\": [\"men's clothing\", \"men's fashion\", \"menswear\"],\n    \"banner\": \"categories/banners/mens-fashion.jpg\",\n    \"logo\": \"categories/logos/mens-fashion.png\",\n    \"order\": 1,\n    \"parent_id\": null,\n    \"created_at\": \"2023-01-15T10:30:00Z\",\n    \"updated_at\": \"2023-01-15T10:30:00Z\",\n    \"parent\": null,\n    \"children\": [\n      {\n        \"id\": 2,\n        \"name\": \"Men's T-Shirts\",\n        \"slug\": \"mens-tshirts\",\n        \"is_active\": true,\n        \"products_count\": 15\n      }\n    ],\n    \"attributes\": [\n      {\n        \"id\": 1,\n        \"name\": \"Color\",\n        \"type\": \"select\",\n        \"is_required\": true,\n        \"is_variant\": true,\n        \"default_value\": \"Red\",\n        \"sort_order\": 1\n      }\n    ],\n    \"products_count\": 42\n  }\n}\"\n```"
+          }
+        },
+        {
+          "name": "Create Category",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Men's Fashion\",\n    \"slug\": \"mens-fashion\",\n    \"description\": \"Clothing and accessories for men\",\n    \"parent_id\": null,\n    \"is_active\": true,\n    \"is_featured\": true,\n    \"display_mode\": \"products_and_description\",\n    \"meta_title\": \"Men's Fashion | Your Store\",\n    \"meta_description\": \"Shop the latest men's fashion collection\",\n    \"meta_keywords\": [\"men's clothing\", \"men's fashion\", \"menswear\"],\n    \"banner\": \"categories/banners/mens-fashion.jpg\",\n    \"logo\": \"categories/logos/mens-fashion.png\",\n    \"order\": 1,\n    \"attributes\": [\n        {\n            \"id\": 1,\n            \"is_required\": true,\n            \"is_variant\": true,\n            \"default_value\": \"Red\",\n            \"sort_order\": 1\n        },\n        {\n            \"id\": 2,\n            \"is_required\": false,\n            \"is_variant\": false,\n            \"sort_order\": 2\n        }\n    ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/dashboard/categories",
+              "host": ["{{base_url}}"],
+              "path": ["dashboard", "categories"]
+            },
+            "description": "Create a new product category with detailed configuration.\n\n### Request Body\n```json\n{\n  \"name\": \"Men's Fashion\",\n  \"slug\": \"mens-fashion\",\n  \"description\": \"Clothing and accessories for men\",\n  \"parent_id\": null,\n  \"is_active\": true,\n  \"is_featured\": true,\n  \"display_mode\": \"products_and_description\",\n  \"meta_title\": \"Men's Fashion | Your Store\",\n  \"meta_description\": \"Shop the latest men's fashion collection\",\n  \"meta_keywords\": [\"men's clothing\", \"men's fashion\", \"menswear\"],\n  \"banner\": \"categories/banners/mens-fashion.jpg\",\n  \"logo\": \"categories/logos/mens-fashion.png\",\n  \"order\": 1,\n  \"attributes\": [\n    {\n      \"id\": 1,\n      \"is_required\": true,\n      \"is_variant\": true,\n      \"default_value\": \"Red\",\n      \"sort_order\": 1\n    }\n  ]\n}\n```\n\n### Required Fields\n- **name** (string): Category name\n- **slug** (string): URL-friendly slug (auto-generated if not provided)\n\n### Optional Fields\n- **description** (string): Category description\n- **parent_id** (int|null): ID of parent category (null for root categories)\n- **is_active** (boolean): Whether the category is active (default: true)\n- **is_featured** (boolean): Whether the category is featured (default: false)\n- **display_mode** (string): How products are displayed (products_only, products_with_description, etc.)\n- **meta_title** (string): SEO meta title\n- **meta_description** (string): SEO meta description\n- **meta_keywords** (array): Array of SEO keywords\n- **banner** (string): Path/URL to category banner image\n- **logo** (string): Path/URL to category logo\n- **order** (int): Display order (default: 0)\n- **attributes** (array): Array of attribute configurations for this category\n\n### Attribute Configuration\n- **id** (int): Attribute ID (required)\n- **is_required** (boolean): Whether the attribute is required\n- **is_variant** (boolean): Whether the attribute is used for variants\n- **default_value** (string): Default value for the attribute\n- **sort_order** (int): Display order of the attribute"
+          }
+        },
+        {
+          "name": "Update Category",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Men's Apparel\",\n    \"is_active\": true,\n    \"is_featured\": true,\n    \"display_mode\": \"products_only\",\n    \"meta_title\": \"Men's Apparel | Updated Collection\",\n    \"meta_description\": \"Updated collection of men's apparel\",\n    \"meta_keywords\": [\"men's clothing\", \"men's apparel\", \"fashion\"],\n    \"banner\": \"categories/banners/updated-mens-apparel.jpg\",\n    \"order\": 2,\n    \"_method\": \"PUT\",\n    \"attributes\": [\n        {\n            \"id\": 1,\n            \"is_required\": false,\n            \"is_variant\": true,\n            \"default_value\": \"Blue\",\n            \"sort_order\": 1\n        }\n    ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/dashboard/categories/1",
+              "host": ["{{base_url}}"],
+              "path": ["dashboard", "categories", "1"]
+            },
+            "description": "Update an existing category. Only include fields that need to be updated.\n\n### URL Parameters\n- **:id** (required): The ID of the category to update\n\n### Request Body\n```json\n{\n  \"name\": \"Men's Apparel\",\n  \"is_active\": true,\n  \"is_featured\": true,\n  \"display_mode\": \"products_only\",\n  \"meta_title\": \"Men's Apparel | Updated Collection\",\n  \"meta_description\": \"Updated collection of men's apparel\",\n  \"meta_keywords\": [\"men's clothing\", \"men's apparel\", \"fashion\"],\n  \"banner\": \"categories/banners/updated-mens-apparel.jpg\",\n  \"order\": 2,\n  \"attributes\": [\n    {\n      \"id\": 1,\n      \"is_required\": false,\n      \"is_variant\": true,\n      \"default_value\": \"Blue\",\n      \"sort_order\": 1\n    }\n  ]\n}\n```\n\n### Notes\n- The `_method` field is only needed if your API doesn't support PUT directly\n- You can update category attributes by including the `attributes` array with the same structure as in the create request\n- To remove an attribute, omit it from the `attributes` array or set it to `null`"
+          }
+        },
+        {
+          "name": "Delete Category",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/dashboard/categories/1?force=false&move_products_to=2&move_subcategories_to=3",
+              "host": ["{{base_url}}"],
+              "path": ["dashboard", "categories", "1"],
+              "query": [
+                {
+                  "key": "force",
+                  "value": "false"
+                },
+                {
+                  "key": "move_products_to",
+                  "value": "2"
+                },
+                {
+                  "key": "move_subcategories_to",
+                  "value": "3"
+                }
+              ]
+            },
+            "description": "Delete a category.\n\n### URL Parameters\n- **:id** (required): The ID of the category to delete\n\n### Query Parameters\n- **force** (boolean, optional): If true, will delete the category even if it has products or subcategories (default: false)\n- **move_products_to** (int, optional): If specified, products will be moved to this category before deletion\n- **move_subcategories_to** (int, optional): If specified, subcategories will be moved to this parent category before deletion\n\n### Notes\n- If `force` is false and the category has products or subcategories, the deletion will fail\n- If `move_products_to` or `move_subcategories_to` are provided, those resources will be reassigned before deletion\n- Returns HTTP 204 No Content on success"
+          }
+        },
+        {
+          "name": "Category Attributes",
+          "description": "Endpoints for managing category-attribute relationships",
+          "item": [
+            {
+              "name": "List Category Attributes",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{auth_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/dashboard/categories/1/attributes?include=values,products&is_required=true&is_variant=true",
+                  "host": ["{{base_url}}"],
+                  "path": ["dashboard", "categories", "1", "attributes"],
+                  "query": [
+                    {
+                      "key": "include",
+                      "value": "values,products"
+                    },
+                    {
+                      "key": "is_required",
+                      "value": "true"
+                    },
+                    {
+                      "key": "is_variant",
+                      "value": "true"
+                    }
+                  ]
+                },
+                "description": "Get all attributes assigned to a specific category with filtering options.\n\n### URL Parameters\n- **:id** (required): The ID of the category\n\n### Query Parameters\n- **include** (string, optional): Comma-separated related resources to include. Options: values, products\n- **is_required** (boolean, optional): Filter by required status\n- **is_variant** (boolean, optional): Filter by variant status\n\n### Example Response\n```json\n{\n  \"data\": [\n    {\n      \"id\": 1,\n      \"name\": \"Color\",\n      \"type\": \"select\",\n      \"is_required\": true,\n      \"is_variant\": true,\n      \"default_value\": \"Red\",\n      \"sort_order\": 1,\n      \"values\": [\n        {\n          \"id\": 1,\n          \"value\": \"Red\",\n          \"products_count\": 10\n        },\n        {\n          \"id\": 2,\n          \"value\": \"Blue\",\n          \"products_count\": 8\n        }\n      ],\n      \"products_count\": 18\n    }\n  ]\n}\"\n```"
+              }
+            },
+            {
+              "name": "Assign Attribute to Category",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{auth_token}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"attribute_id\": 1,\n    \"is_required\": true,\n    \"is_variant\": true,\n    \"default_value\": \"Red\",\n    \"sort_order\": 1,\n    \"use_default_config\": false,\n    \"validation_rules\": {\n        \"min\": 1,\n        \"max\": 10,\n        \"regex\": \"^[a-zA-Z0-9\\s-]+$\"\n    }\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/dashboard/categories/1/attributes",
+                  "host": ["{{base_url}}"],
+                  "path": ["dashboard", "categories", "1", "attributes"]
+                },
+                "description": "Assign an attribute to a category with custom configuration.\n\n### URL Parameters\n- **:id** (required): The ID of the category\n\n### Request Body\n```json\n{\n  \"attribute_id\": 1,\n  \"is_required\": true,\n  \"is_variant\": true,\n  \"default_value\": \"Red\",\n  \"sort_order\": 1,\n  \"use_default_config\": false,\n  \"validation_rules\": {\n    \"min\": 1,\n    \"max\": 10,\n    \"regex\": \"^[a-zA-Z0-9\\s-]+$\"\n  }\n}\n```\n\n### Required Fields\n- **attribute_id** (int): The ID of the attribute to assign\n\n### Optional Fields\n- **is_required** (boolean): Whether this attribute is required for products in this category (default: false)\n- **is_variant** (boolean): Whether this attribute should be used for product variants (default: false)\n- **default_value** (string): Default value for this attribute in this category\n- **sort_order** (int): Display order of the attribute in this category (default: 0)\n- **use_default_config** (boolean): If true, will use the attribute's default configuration (default: true)\n- **validation_rules** (object): Custom validation rules for this attribute in this category"
+              }
+            },
+            {
+              "name": "Update Category Attribute",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{auth_token}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"is_required\": false,\n    \"is_variant\": true,\n    \"default_value\": \"Blue\",\n    \"sort_order\": 2,\n    \"use_default_config\": false,\n    \"validation_rules\": {\n        \"min\": 1,\n        \"max\": 10\n    }\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/dashboard/categories/1/attributes/1",
+                  "host": ["{{base_url}}"],
+                  "path": ["dashboard", "categories", "1", "attributes", "1"]
+                },
+                "description": "Update the configuration of an attribute for a specific category.\n\n### URL Parameters\n- **:category_id** (required): The ID of the category\n- **:attribute_id** (required): The ID of the attribute to update\n\n### Request Body\n```json\n{\n  \"is_required\": false,\n  \"is_variant\": true,\n  \"default_value\": \"Blue\",\n  \"sort_order\": 2,\n  \"use_default_config\": false,\n  \"validation_rules\": {\n    \"min\": 1,\n    \"max\": 10\n  }\n}\n```\n\n### Notes\n- Only include fields that need to be updated\n- To reset to default configuration, set `use_default_config: true`\n- The attribute must already be assigned to the category"
+              }
+            },
+            {
+              "name": "Remove Attribute from Category",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{auth_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/dashboard/categories/1/attributes/1?force=false",
+                  "host": ["{{base_url}}"],
+                  "path": ["dashboard", "categories", "1", "attributes", "1"],
+                  "query": [
+                    {
+                      "key": "force",
+                      "value": "false"
+                    }
+                  ]
+                },
+                "description": "Remove an attribute from a category.\n\n### URL Parameters\n- **:category_id** (required): The ID of the category\n- **:attribute_id** (required): The ID of the attribute to remove\n\n### Query Parameters\n- **force** (boolean, optional): If true, will remove the attribute even if it's in use by products (default: false)\n\n### Notes\n- If `force` is false and the attribute is in use by products, the operation will fail\n- Returns HTTP 204 No Content on success"
+              }
+            },
+            {
+              "name": "Bulk Update Category Attributes",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{auth_token}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"attributes\": [\n        {\n            \"id\": 1,\n            \"is_required\": true,\n            \"is_variant\": true,\n            \"default_value\": \"Red\",\n            \"sort_order\": 1,\n            \"validation_rules\": {\n                \"min\": 1,\n                \"max\": 10\n            }\n        },\n        {\n            \"id\": 2,\n            \"is_required\": false,\n            \"is_variant\": false,\n            \"sort_order\": 2,\n            \"use_default_config\": true\n        }\n    ],\n    \"delete_missing\": true\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/dashboard/categories/1/attributes/bulk",
+                  "host": ["{{base_url}}"],
+                  "path": ["dashboard", "categories", "1", "attributes", "bulk"]
+                },
+                "description": "Bulk update attributes for a category. This will replace all existing attribute assignments.\n\n### URL Parameters\n- **:id** (required): The ID of the category\n\n### Request Body\n```json\n{\n  \"attributes\": [\n    {\n      \"id\": 1,\n      \"is_required\": true,\n      \"is_variant\": true,\n      \"default_value\": \"Red\",\n      \"sort_order\": 1,\n      \"validation_rules\": {\n        \"min\": 1,\n        \"max\": 10\n      }\n    },\n    {\n      \"id\": 2,\n      \"is_required\": false,\n      \"is_variant\": false,\n      \"sort_order\": 2,\n      \"use_default_config\": true\n    }\n  ],\n  \"delete_missing\": true\n}\n```\n\n### Fields\n- **attributes** (array): Array of attribute configurations\n  - **id** (int): Attribute ID (required)\n  - **is_required** (boolean): Whether the attribute is required\n  - **is_variant** (boolean): Whether the attribute is used for variants\n  - **default_value** (string): Default value for the attribute\n  - **sort_order** (int): Display order of the attribute\n  - **use_default_config** (boolean): Whether to use the attribute's default configuration\n  - **validation_rules** (object): Custom validation rules\n- **delete_missing** (boolean): If true, any attributes not included in this request will be removed from the category (default: false)\n\n### Notes\n- This is an atomic operation - either all updates succeed or none do\n- Returns HTTP 200 with the updated list of category attributes on success"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Attributes",
+      "item": [
+        {
+          "name": "List Attributes",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/dashboard/attributes?page=1&per_page=15&search=color&type=select&is_filterable=true&is_variant=true",
+              "host": ["{{base_url}}"],
+              "path": ["dashboard", "attributes"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "per_page",
+                  "value": "15"
+                },
+                {
+                  "key": "search",
+                  "value": "color"
+                },
+                {
+                  "key": "type",
+                  "value": "select"
+                },
+                {
+                  "key": "is_filterable",
+                  "value": "true"
+                },
+                {
+                  "key": "is_variant",
+                  "value": "true"
+                }
+              ]
+            },
+            "description": "Get paginated list of attributes with filtering options.\n\nQuery Parameters:\n- page: Page number (default: 1)\n- per_page: Items per page (default: 15, max: 100)\n- search: Search by name or slug\n- type: Filter by attribute type (text, select, multiselect, etc.)\n- is_filterable: Filter by filterable status\n- is_variant: Filter by variant status"
+          }
+        },
+        {
+          "name": "Get Attribute Details",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/dashboard/attributes/1",
+              "host": ["{{base_url}}"],
+              "path": ["dashboard", "attributes", "1"]
+            },
+            "description": "Get detailed information about a specific attribute by ID"
+          }
+        },
+        {
+          "name": "Create Attribute",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Color\",\n    \"slug\": \"color\",\n    \"type\": \"select\",\n    \"is_required\": true,\n    \"is_filterable\": true,\n    \"is_variant\": true,\n    \"is_visible\": true,\n    \"options\": [\"Red\", \"Blue\", \"Green\", \"Black\", \"White\"],\n    \"default_value\": \"Red\",\n    \"validation\": {\n        \"min_length\": 1,\n        \"max_length\": 50,\n        \"regex\": \"^[a-zA-Z0-9\\s-]+$\"\n    },\n    \"position\": 1,\n    \"meta_title\": \"Product Color\",\n    \"meta_description\": \"Select the color of the product\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/dashboard/attributes",
+              "host": ["{{base_url}}"],
+              "path": ["dashboard", "attributes"]
+            },
+            "description": "Create a new product attribute.\n\nRequired fields:\n- name: Attribute name\n- slug: URL-friendly slug (auto-generated if not provided)\n- type: Attribute type (text, textarea, select, multiselect, boolean, etc.)\n\nOptional fields:\n- is_required: Whether the attribute is required (default: false)\n- is_filterable: Whether the attribute can be used for filtering (default: false)\n- is_variant: Whether the attribute is used for product variants (default: false)\n- is_visible: Whether the attribute is visible to customers (default: true)\n- options: Array of options for select/multiselect type\n- default_value: Default value for the attribute\n- validation: Validation rules for the attribute value\n- position: Display order of the attribute\n- meta_title: SEO meta title\n- meta_description: SEO meta description"
+          }
+        },
+        {
+          "name": "Update Attribute",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Updated Color\",\n    \"is_filterable\": true,\n    \"is_variant\": true,\n    \"options\": [\"Red\", \"Blue\", \"Green\", \"Black\", \"White\", \"Yellow\"],\n    \"validation\": {\n        \"min_length\": 1,\n        \"max_length\": 100\n    }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/dashboard/attributes/1",
+              "host": ["{{base_url}}"],
+              "path": ["dashboard", "attributes", "1"]
+            },
+            "description": "Update an existing attribute. Only include the fields you want to update.\n\nNote: Some fields like 'type' might not be changeable after creation."
+          }
+        },
+        {
+          "name": "Delete Attribute",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/dashboard/attributes/1",
+              "host": ["{{base_url}}"],
+              "path": ["dashboard", "attributes", "1"]
+            },
+            "description": "Delete an attribute. Will fail if the attribute is in use by any products or categories."
+          }
+        },
+        {
+          "name": "Attribute Categories",
+          "item": [
+            {
+              "name": "Assign Attribute to Category",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{auth_token}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"attribute_id\": 1,\n    \"category_id\": 1,\n    \"is_required\": true,\n    \"is_variant\": true,\n    \"sort_order\": 1,\n    \"default_value\": \"Red\"\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/dashboard/attribute-categories/assign",
+                  "host": ["{{base_url}}"],
+                  "path": ["dashboard", "attribute-categories", "assign"]
+                },
+                "description": "Assign an attribute to a category with additional options.\n\nFields:\n- attribute_id: The ID of the attribute to assign (required)\n- category_id: The ID of the category to assign to (required)\n- is_required: Whether the attribute is required for products in this category\n- is_variant: Whether the attribute should be used for variants in this category\n- sort_order: Display order of the attribute in this category\n- default_value: Default value for this attribute in this category"
+              }
+            },
+            {
+              "name": "Get Category Attributes",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{auth_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/dashboard/attribute-categories/category/1?include=values",
+                  "host": ["{{base_url}}"],
+                  "path": ["dashboard", "attribute-categories", "category", "1"],
+                  "query": [
+                    {
+                      "key": "include",
+                      "value": "values"
+                    }
+                  ]
+                },
+                "description": "Get all attributes assigned to a specific category.\n\nQuery Parameters:\n- include: Optional. Include related data (e.g., 'values' to include attribute values)"
+              }
+            },
+            {
+              "name": "Detach Attribute from Category",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{auth_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/dashboard/attribute-categories/1/2/detach",
+                  "host": ["{{base_url}}"],
+                  "path": ["dashboard", "attribute-categories", "1", "2", "detach"]
+                },
+                "description": "Detach an attribute from a category.\n\nURL Parameters:\n- First ID: Attribute ID\n- Second ID: Category ID"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Attribute Values",
+          "item": [
+            {
+              "name": "Add Value to Attribute",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{auth_token}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"value\": \"Navy Blue\",\n    \"label\": \"Navy\",\n    \"sort_order\": 10,\n    \"is_default\": false,\n    \"swatch_value\": \"#000080\"\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/dashboard/attributes/1/values",
+                  "host": ["{{base_url}}"],
+                  "path": ["dashboard", "attributes", "1", "values"]
+                },
+                "description": "Add a new value to a select/multiselect attribute.\n\nFields:\n- value: The actual value to store (required)\n- label: Display label (uses value if not provided)\n- sort_order: Display order (default: 0)\n- is_default: Whether this is the default value\n- swatch_value: Color code or image URL for swatch display"
+              }
+            },
+            {
+              "name": "Update Attribute Value",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{auth_token}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"value\": \"Navy Blue\",\n    \"label\": \"Navy Blue\",\n    \"sort_order\": 5,\n    \"is_default\": true\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/dashboard/attributes/1/values/5",
+                  "host": ["{{base_url}}"],
+                  "path": ["dashboard", "attributes", "1", "values", "5"]
+                },
+                "description": "Update an existing attribute value. Only include fields that need updating."
+              }
+            },
+            {
+              "name": "Delete Attribute Value",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{auth_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/dashboard/attributes/1/values/5",
+                  "host": ["{{base_url}}"],
+                  "path": ["dashboard", "attributes", "1", "values", "5"]
+                },
+                "description": "Delete an attribute value. Will fail if the value is in use by any products."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Orders",
+      "description": "Endpoints for managing orders, including creation, retrieval, updating status, and handling expired orders.",
+      "item": [
+        {
+          "name": "List Orders",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/dashboard/orders",
+              "host": ["{{base_url}}"],
+              "path": ["dashboard", "orders"],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "pending,processing,completed",
+                  "description": "Comma-separated list of statuses to filter by"
+                },
+                {
+                  "key": "sort",
+                  "value": "-created_at",
+                  "description": "Sort field and direction (prefix with - for descending)"
+                },
+                {
+                  "key": "per_page",
+                  "value": "15",
+                  "description": "Items per page"
+                }
+              ]
+            },
+            "description": "Retrieve a paginated list of orders with optional filtering and sorting"
+          }
+        },
+        {
+          "name": "Handle Expired Pending Orders",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"older_than_hours\": 24,\n    \"status\": \"expired\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/dashboard/orders/handle-expired",
+              "host": ["{{base_url}}"],
+              "path": ["dashboard", "orders", "handle-expired"]
+            },
+            "description": "Process and update the status of orders that have been in 'pending' status for too long"
+          }
+        },
+        {
+          "name": "Get Order Details",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/dashboard/orders/1",
+              "host": ["{{base_url}}"],
+              "path": ["dashboard", "orders", "1"]
+            },
+            "description": "Retrieve detailed information about a specific order including items, customer info, and status history"
+          }
+        },
+        {
+          "name": "Update Order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"customer_name\": \"John Doe\",\n    \"customer_email\": \"john.updated@example.com\",\n    \"shipping_address\": {\n        \"street\": \"123 Updated St\",\n        \"city\": \"Los Angeles\",\n        \"state\": \"CA\",\n        \"postal_code\": \"90001\",\n        \"country\": \"USA\"\n    },\n    \"billing_address\": {\n        \"same_as_shipping\": true\n    },\n    \"shipping_method\": \"standard\",\n    \"payment_method\": \"credit_card\",\n    \"notes\": \"Please deliver to the front door.\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/dashboard/orders/1",
+              "host": ["{{base_url}}"],
+              "path": ["dashboard", "orders", "1"]
+            },
+            "description": "Update order details such as customer information, shipping address, and notes"
+          }
+        },
+        {
+          "name": "Update Order Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"status\": \"shipped\",\n    \"tracking_number\": \"1Z999AA1234567890\",\n    \"shipping_carrier\": \"ups\",\n    \"notes\": \"Package has been shipped and is in transit.\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/dashboard/orders/1/status",
+              "host": ["{{base_url}}"],
+              "path": ["dashboard", "orders", "1", "status"]
+            },
+            "description": "Update the status of an order (e.g., from 'processing' to 'shipped' or 'completed')"
+          }
+        },
+        {
+          "name": "Cancel Order",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"reason\": \"Customer requested cancellation\",\n    \"notify_customer\": true,\n    \"restock_items\": true,\n    \"refund_payment\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/dashboard/orders/1/cancel",
+              "host": ["{{base_url}}"],
+              "path": ["dashboard", "orders", "1", "cancel"]
+            },
+            "description": "Cancel an order with optional refund and restocking of inventory"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Roles",
+      "description": "Endpoints for managing user roles and permissions within the system.",
+      "item": [
+        {
+          "name": "List Roles",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/dashboard/roles",
+              "host": ["{{base_url}}"],
+              "path": ["dashboard", "roles"],
+              "query": [
+                {
+                  "key": "per_page",
+                  "value": "15",
+                  "description": "Number of items per page"
+                },
+                {
+                  "key": "sort",
+                  "value": "name",
+                  "description": "Sort field (name, created_at, etc.)"
+                },
+                {
+                  "key": "order",
+                  "value": "asc",
+                  "description": "Sort direction (asc or desc)"
+                }
+              ]
+            },
+            "description": "Retrieve a paginated list of all roles in the system with optional sorting and filtering."
+          }
+        },
+        {
+          "name": "Get Role Details",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/dashboard/roles/1",
+              "host": ["{{base_url}}"],
+              "path": ["dashboard", "roles", "1"]
+            },
+            "description": "Retrieve detailed information about a specific role including its permissions."
+          }
+        },
+        {
+          "name": "Create Role",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"content_manager\",\n    \"display_name\": \"Content Manager\",\n    \"description\": \"Can manage website content, products, and categories\",\n    \"permissions\": [\n        \"view_products\",\n        \"create_products\",\n        \"edit_products\",\n        \"delete_products\",\n        \"view_categories\",\n        \"manage_categories\"\n    ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/dashboard/roles",
+              "host": ["{{base_url}}"],
+              "path": ["dashboard", "roles"]
+            },
+            "description": "Create a new role with the specified permissions. The 'name' should be in snake_case and unique."
+          }
+        },
+        {
+          "name": "Update Role",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"content_administrator\",\n    \"display_name\": \"Content Administrator\",\n    \"description\": \"Full access to manage all content including products, categories, and media\",\n    \"permissions\": [\n        \"view_products\",\n        \"create_products\",\n        \"edit_products\",\n        \"delete_products\",\n        \"view_categories\",\n        \"manage_categories\",\n        \"manage_media\",\n        \"manage_pages\"\n    ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/dashboard/roles/1",
+              "host": ["{{base_url}}"],
+              "path": ["dashboard", "roles", "1"]
+            },
+            "description": "Update an existing role's details and permissions. All fields are optional - only include what you want to update."
+          }
+        },
+        {
+          "name": "Delete Role",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/dashboard/roles/1",
+              "host": ["{{base_url}}"],
+              "path": ["dashboard", "roles", "1"]
+            },
+            "description": "Permanently delete a role. Note: This will fail if there are users assigned to this role."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "List Users",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/dashboard/users",
+              "host": ["{{base_url}}"],
+              "path": ["dashboard", "users"]
+            },
+            "description": "Get list of users"
+          }
+        },
+        {
+          "name": "Create User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"John Doe\",\n    \"email\": \"john.doe@example.com\",\n    \"password\": \"secret123\",\n    \"password_confirmation\": \"secret123\",\n    \"is_active\": true,\n    \"role\": \"customer\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/dashboard/users",
+              "host": ["{{base_url}}"],
+              "path": ["dashboard", "users"]
+            },
+            "description": "Create a new user"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reviews",
+      "description": "Endpoints for managing product reviews, including creation, retrieval, updating, and moderation.",
+      "item": [
+        {
+          "name": "List Reviews",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/dashboard/reviews?status=pending&product_id=1&customer_id=5&rating=4&sort_by=created_at&sort_order=desc&per_page=15&page=1",
+              "host": ["{{base_url}}"],
+              "path": ["dashboard", "reviews"],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "pending",
+                  "description": "Filter by review status (pending, approved, rejected, all)"
+                },
+                {
+                  "key": "product_id",
+                  "value": "1",
+                  "description": "Filter by product ID"
+                },
+                {
+                  "key": "customer_id",
+                  "value": "5",
+                  "description": "Filter by customer ID"
+                },
+                {
+                  "key": "rating",
+                  "value": "4",
+                  "description": "Filter by rating (1-5)"
+                },
+                {
+                  "key": "sort_by",
+                  "value": "created_at",
+                  "description": "Field to sort by (created_at, rating, updated_at)"
+                },
+                {
+                  "key": "sort_order",
+                  "value": "desc",
+                  "description": "Sort order (asc, desc)"
+                },
+                {
+                  "key": "per_page",
+                  "value": "15",
+                  "description": "Items per page (default: 15)"
+                },
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Page number"
+                }
+              ]
+            },
+            "description": "Retrieve a paginated list of product reviews with filtering and sorting options. This endpoint allows filtering by status, product, customer, and rating, with support for sorting and pagination."
+          }
+        },
+        {
+          "name": "Get Review Details",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/dashboard/reviews/1",
+              "host": ["{{base_url}}"],
+              "path": ["dashboard", "reviews", "1"]
+            },
+            "description": "Retrieve detailed information about a specific review including customer details, product information, and any admin responses."
+          }
+        },
+        {
+          "name": "Create Review (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"product_id\": 5,\n    \"customer_id\": 10,\n    \"rating\": 5,\n    \"title\": \"Amazing sound quality!\",\n    \"comment\": \"These headphones have excellent sound quality and are very comfortable to wear for long periods.\",\n    \"status\": \"approved\",\n    \"is_verified_purchase\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/dashboard/reviews",
+              "host": ["{{base_url}}"],
+              "path": ["dashboard", "reviews"]
+            },
+            "description": "Create a new review on behalf of a customer. This endpoint allows administrators to create reviews for products. All fields are required."
+          }
+        },
+        {
+          "name": "Update Review Status",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"status\": \"approved\",\n    \"notify_customer\": true,\n    \"message\": \"Your review has been approved and is now visible on our site. Thank you for your feedback!\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/dashboard/reviews/1/status",
+              "host": ["{{base_url}}"],
+              "path": ["dashboard", "reviews", "1", "status"]
+            },
+            "description": "Update the status of a review (approve, reject, or mark as pending). Optionally send a notification to the customer with a custom message."
+          }
+        },
+        {
+          "name": "Delete Review",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/dashboard/reviews/1",
+              "host": ["{{base_url}}"],
+              "path": ["dashboard", "reviews", "1"]
+            },
+            "description": "Permanently delete a review. This action cannot be undone. Use with caution as it will remove all associated data including images and responses."
+          }
+        },
+        {
+          "name": "Review Responses",
+          "description": "Endpoints for managing admin responses to reviews",
+          "item": [
+            {
+              "name": "Add Response to Review",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{auth_token}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"comment\": \"Thank you for your detailed review! We're glad to hear you're enjoying the product.\",\n    \"notify_customer\": true,\n    \"is_public\": true\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/dashboard/reviews/1/response",
+                  "host": ["{{base_url}}"],
+                  "path": ["dashboard", "reviews", "1", "response"]
+                },
+                "description": "Add a response to a review. This can be used to thank customers for their feedback or address any concerns they may have raised in their review."
+              }
+            },
+            {
+              "name": "Update Review Response",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{auth_token}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"comment\": \"Thank you for your detailed review! We've updated our response with more information.\",\n    \"is_public\": true\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/dashboard/reviews/1/response/5",
+                  "host": ["{{base_url}}"],
+                  "path": ["dashboard", "reviews", "1", "response", "5"]
+                },
+                "description": "Update an existing review response. This can be used to correct any errors or provide additional information in a response that has already been posted."
+              }
+            },
+            {
+              "name": "Delete Review Response",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{auth_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/dashboard/reviews/1/response/5",
+                  "host": ["{{base_url}}"],
+                  "path": ["dashboard", "reviews", "1", "response", "5"]
+                },
+                "description": "Delete a review response. This will remove the response from the review."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Settings",
+      "description": "Endpoints for managing application settings",
+      "item": [
+        {
+          "name": "Get All Settings",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/dashboard/settings?group=general&search=store&per_page=50",
+              "host": ["{{base_url}}"],
+              "path": ["dashboard", "settings"],
+              "query": [
+                {
+                  "key": "group",
+                  "value": "general"
+                },
+                {
+                  "key": "search",
+                  "value": "store"
+                },
+                {
+                  "key": "per_page",
+                  "value": "50"
+                }
+              ]
+            },
+            "description": "### Get All Settings\nRetrieve all application settings with optional filtering.\n\n#### Query Parameters\n- **group** (string, optional): Filter settings by group (e.g., 'general', 'payment', 'shipping')\n- **search** (string, optional): Search settings by key or value\n- **per_page** (int, optional): Number of items per page (default: 15, max: 100)\n- **page** (int, optional): Page number for pagination\n\n#### Example Response\n```json\n{\n  \"data\": [\n    {\n      \"id\": 1,\n      \"key\": \"store_name\",\n      \"value\": \"My Awesome Store\",\n      \"group\": \"general\",\n      \"type\": \"text\",\n      \"label\": \"Store Name\",\n      \"description\": \"The name of your online store\",\n      \"is_public\": true,\n      \"created_at\": \"2023-01-01T00:00:00Z\",\n      \"updated_at\": \"2023-01-01T00:00:00Z\"\n    },\n    {\n      \"id\": 2,\n      \"key\": \"store_email\",\n      \"value\": \"contact@example.com\",\n      \"group\": \"general\",\n      \"type\": \"email\",\n      \"label\": \"Store Email\",\n      \"description\": \"Contact email for the store\",\n      \"is_public\": true,\n      \"validation\": \"required|email\"\n    }\n  ],\n  \"meta\": {\n    \"current_page\": 1,\n    \"per_page\": 15,\n    \"total\": 2\n  }\n}\n```"
+          }
+        },
+        {
+          "name": "Get Setting by Key",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/dashboard/settings/store_name",
+              "host": ["{{base_url}}"],
+              "path": ["dashboard", "settings", "store_name"]
+            },
+            "description": "### Get Setting by Key\nRetrieve a specific setting by its key.\n\n#### URL Parameters\n- **:key** (required): The key of the setting to retrieve\n\n#### Example Response\n```json\n{\n  \"data\": {\n    \"id\": 1,\n    \"key\": \"store_name\",\n    \"value\": \"My Awesome Store\",\n    \"group\": \"general\",\n    \"type\": \"text\",\n    \"label\": \"Store Name\",\n    \"description\": \"The name of your online store\",\n    \"is_public\": true,\n    \"created_at\": \"2023-01-01T00:00:00Z\",\n    \"updated_at\": \"2023-01-01T00:00:00Z\"\n  }\n}\n```"
+          }
+        },
+        {
+          "name": "Update Multiple Settings",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"settings\": [\n        {\n            \"key\": \"store_name\",\n            \"value\": \"My Updated Store\"\n        },\n        {\n            \"key\": \"store_email\",\n            \"value\": \"updated@example.com\"\n        },\n        {\n            \"key\": \"currency\",\n            \"value\": \"EUR\"\n        }\n    ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/dashboard/settings/bulk-update",
+              "host": ["{{base_url}}"],
+              "path": ["dashboard", "settings", "bulk-update"]
+            },
+            "description": "### Update Multiple Settings\nUpdate multiple settings in a single request. Only the provided fields will be updated.\n\n#### Request Body\n```json\n{\n  \"settings\": [\n    {\n      \"key\": \"store_name\",\n      \"value\": \"My Updated Store\"\n    },\n    {\n      \"key\": \"store_email\",\n      \"value\": \"updated@example.com\"\n    },\n    {\n      \"key\": \"currency\",\n      \"value\": \"EUR\"\n    }\n  ]\n}\n```\n\n#### Fields\n- **settings** (array): Array of setting objects to update\n  - **key** (string): The setting key (required)\n  - **value** (mixed): The new value for the setting\n  - **group** (string, optional): The setting group\n  - **type** (string, optional): The setting type (text, number, boolean, etc.)\n  - **is_public** (boolean, optional): Whether the setting is publicly accessible\n\n#### Notes\n- Returns the updated settings in the response\n- Only settings that exist will be updated\n- Validation rules will be applied based on the setting type"
+          }
+        },
+        {
+          "name": "Update Single Setting",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"value\": \"My Updated Store\",\n    \"group\": \"general\",\n    \"type\": \"text\",\n    \"is_public\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/dashboard/settings/store_name",
+              "host": ["{{base_url}}"],
+              "path": ["dashboard", "settings", "store_name"]
+            },
+            "description": "### Update Single Setting\nUpdate a specific setting by its key.\n\n#### URL Parameters\n- **:key** (required): The key of the setting to update\n\n#### Request Body\n```json\n{\n  \"value\": \"My Updated Store\",\n  \"group\": \"general\",\n  \"type\": \"text\",\n  \"is_public\": true\n}\n```\n\n#### Fields\n- **value** (mixed): The new value for the setting (required)\n- **group** (string, optional): The setting group\n- **type** (string, optional): The setting type (text, number, boolean, etc.)\n- **is_public** (boolean, optional): Whether the setting is publicly accessible\n\n#### Notes\n- Returns the updated setting in the response\n- If the setting doesn't exist, it will be created\n- Validation rules will be applied based on the setting type"
+          }
+        },
+        {
+          "name": "Get Settings by Group",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/dashboard/settings/group/payment",
+              "host": ["{{base_url}}"],
+              "path": ["dashboard", "settings", "group", "payment"]
+            },
+            "description": "### Get Settings by Group\nRetrieve all settings within a specific group.\n\n#### URL Parameters\n- **:group** (required): The group name to filter settings by\n\n#### Example Response\n```json\n{\n  \"data\": [\n    {\n      \"id\": 10,\n      \"key\": \"payment_stripe_enabled\",\n      \"value\": true,\n      \"group\": \"payment\",\n      \"type\": \"boolean\",\n      \"label\": \"Enable Stripe\"\n    },\n    {\n      \"id\": 11,\n      \"key\": \"payment_stripe_secret_key\",\n      \"value\": \"sk_test_...\",\n      \"group\": \"payment\",\n      \"type\": \"password\",\n      \"label\": \"Stripe Secret Key\"\n    }\n  ]\n}\n```"
+          }
+        },
+        {
+          "name": "Get Public Settings",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/settings/public?keys=store_name,store_email,currency",
+              "host": ["{{base_url}}"],
+              "path": ["settings", "public"],
+              "query": [
+                {
+                  "key": "keys",
+                  "value": "store_name,store_email,currency"
+                }
+              ]
+            },
+            "description": "### Get Public Settings\nRetrieve settings that are marked as public. No authentication required.\n\n#### Query Parameters\n- **keys** (string, optional): Comma-separated list of setting keys to retrieve\n\n#### Example Response\n```json\n{\n  \"data\": {\n    \"store_name\": \"My Awesome Store\",\n    \"store_email\": \"contact@example.com\",\n    \"currency\": \"USD\"\n  }\n}\n```"
+          }
+        },
+        {
+          "name": "Setting Groups",
+          "description": "Endpoints for managing setting groups",
+          "item": [
+            {
+              "name": "List Setting Groups",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{auth_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/dashboard/setting-groups",
+                  "host": ["{{base_url}}"],
+                  "path": ["dashboard", "setting-groups"]
+                },
+                "description": "### List Setting Groups\nRetrieve a list of all setting groups.\n\n#### Example Response\n```json\n{\n  \"data\": [\n    {\n      \"name\": \"general\",\n      \"label\": \"General\",\n      \"icon\": \"settings\",\n      \"description\": \"General store settings\",\n      \"settings_count\": 5\n    },\n    {\n      \"name\": \"payment\",\n      \"label\": \"Payments\",\n      \"icon\": \"credit-card\",\n      \"description\": \"Payment gateway settings\",\n      \"settings_count\": 8\n    }\n  ]\n}\n```"
+              }
+            },
+            {
+              "name": "Get Group with Settings",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{auth_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/dashboard/setting-groups/payment?include=settings",
+                  "host": ["{{base_url}}"],
+                  "path": ["dashboard", "setting-groups", "payment"],
+                  "query": [
+                    {
+                      "key": "include",
+                      "value": "settings"
+                    }
+                  ]
+                },
+                "description": "### Get Group with Settings\nRetrieve a specific setting group with all its settings.\n\n#### URL Parameters\n- **:group** (required): The group name\n\n#### Query Parameters\n- **include** (string, optional): Comma-separated related resources to include (e.g., 'settings')\n\n#### Example Response\n```json\n{\n  \"data\": {\n    \"name\": \"payment\",\n    \"label\": \"Payments\",\n    \"icon\": \"credit-card\",\n    \"description\": \"Payment gateway settings\",\n    \"settings\": [\n      {\n        \"id\": 10,\n        \"key\": \"payment_stripe_enabled\",\n        \"value\": true,\n        \"type\": \"boolean\",\n        \"label\": \"Enable Stripe\"\n      },\n      {\n        \"id\": 11,\n        \"key\": \"payment_stripe_secret_key\",\n        \"value\": \"sk_test_...\",\n        \"type\": \"password\",\n        \"label\": \"Stripe Secret Key\"\n      }\n    ]\n  }\n}\n```"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000/api"
+    },
+    {
+      "key": "auth_token",
+      "value": "your_auth_token_here"
+    }
+  ]
+}
