@@ -96,7 +96,10 @@
 
                     <template v-for="item in section.items" :key="item.name">
                         <router-link
-                            v-if="!item.permission || authStore.hasPermission(item.permission)"
+                            v-if="
+                                !item.permission ||
+                                authStore.hasPermission(item.permission)
+                            "
                             :to="item.to"
                             :class="[
                                 'group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors duration-200',
@@ -263,7 +266,7 @@ const menuSections = [
         ],
     },
     {
-        title: "Manage Store",
+        title: "Products & Store",
         divider: true,
         items: [
             {
@@ -271,12 +274,6 @@ const menuSections = [
                 to: "/dashboard/products",
                 routeName: "dashboard-products",
                 icon: CubeIcon,
-            },
-            {
-                name: "Orders",
-                to: "/dashboard/orders",
-                routeName: "dashboard.orders",
-                icon: ShoppingCartIcon,
             },
             {
                 name: "Categories",
@@ -288,7 +285,7 @@ const menuSections = [
                 name: "Attribute Categories",
                 to: "/dashboard/attribute-categories",
                 routeName: "dashboard.attribute-categories",
-                icon: Squares2X2Icon, 
+                icon: Squares2X2Icon,
                 permission: "manage_products",
             },
             {
@@ -298,6 +295,31 @@ const menuSections = [
                 icon: TagIcon,
                 permission: "manage_products",
             },
+            {
+                name: "Promo Codes",
+                to: "/dashboard/promo-codes",
+                routeName: "dashboard.promo-codes",
+                icon: DocumentChartBarIcon,
+                permission: "manage_promo_codes",
+            },
+        ],
+    },
+    {
+        title: "Sales & Orders",
+        divider: true,
+        items: [
+            {
+                name: "Orders",
+                to: "/dashboard/orders",
+                routeName: "dashboard.orders",
+                icon: ShoppingCartIcon,
+            },
+        ],
+    },
+    {
+        title: "Customers ",
+        divider: true,
+        items: [
             {
                 name: "Reviews",
                 to: "/dashboard/reviews",
@@ -309,13 +331,6 @@ const menuSections = [
                 to: "/dashboard/contact-messages",
                 routeName: "dashboard.contact-messages",
                 icon: ChartBarIcon,
-            },
-            {
-                name: "Promo Codes",
-                to: "/dashboard/promo-codes",
-                routeName: "dashboard.promo-codes",
-                icon: DocumentChartBarIcon,
-                permission: "manage_promo_codes",
             },
         ],
     },
