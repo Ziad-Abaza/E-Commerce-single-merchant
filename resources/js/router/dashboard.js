@@ -195,6 +195,19 @@ const routes = [
                 },
             },
             {
+                path: "promo-codes",
+                name: "dashboard.promo-codes",
+                component: PromoCodes,
+                meta: {
+                    title: "Promo Codes",
+                    requiresPermission: "manage_promo_codes",
+                    breadcrumb: [
+                        { name: "Dashboard", path: "/dashboard" },
+                        { name: "Promo Codes", path: "/dashboard/promo-codes" },
+                    ],
+                },
+            },
+            {
                 path: "attribute-categories",
                 name: "dashboard.attribute-categories",
                 component: AttributeCategories,
@@ -204,21 +217,6 @@ const routes = [
                     breadcrumb: [
                         { name: "Dashboard", path: "/dashboard" },
                         { name: "Attribute Categories", path: "/dashboard/attribute-categories" },
-                    ],
-                },
-            },
-            {
-                path: "promo-codes",
-                name: "dashboard.promo-codes",
-                meta: {
-                    title: "Promo Codes",
-                    requiresPermission: "manage_promo_codes",
-                    breadcrumb: [
-                        { name: "Dashboard", path: "/dashboard" },
-                        {
-                            name: "Promo Codes",
-                            path: "/dashboard/promo-codes",
-                        },
                     ],
                 },
             },
