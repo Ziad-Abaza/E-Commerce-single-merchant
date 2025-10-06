@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Support\Facades\Log;
 use Illuminate\Foundation\Http\FormRequest;
 
 class ProductDetailStoreRequest extends FormRequest
@@ -20,33 +19,6 @@ class ProductDetailStoreRequest extends FormRequest
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
-    /**
-     * Prepare the data for validation.
-     */
-    protected function prepareForValidation()
-    {
-        // Log the incoming request data
-        Log::info('Product Detail Store Request Data', [
-            'url' => $this->url(),
-            'method' => $this->method(),
-            'all' => $this->all(),
-            'attributes' => $this->input('attributes'),
-            'files' => $this->allFiles() ? array_keys($this->allFiles()) : []
-        ]);
-    }
-
-    /**
-     * Handle a passed validation attempt.
-     */
-    protected function passedValidation()
-    {
-        // Log the validated data
-        Log::debug('Product Detail Store Validated Data', [
-            'validated' => $this->validated(),
-            'user_id' => auth()->id()
-        ]);
-    }
-
     public function rules(): array
     {
         return [
