@@ -2,9 +2,9 @@
 <template>
     <div class="space-y-4">
         <div
-            v-for="(attr, attrIndex) in modelValue"
-            :key="attr.id"
-            class="border rounded-lg p-4 bg-gray-50 dark:bg-gray-700/30"
+            v-for="(attr, attrIndex) in transformedAttributes"
+            :key="attr.id || attrIndex"
+            class="mb-6 p-4 border rounded-lg dark:border-gray-600"
         >
             <!-- Attribute Header -->
             <div class="flex items-center justify-between mb-3">
@@ -37,29 +37,25 @@
                 Type: <span class="font-mono">{{ attr.type }}</span>
             </div>
 
-            <!-- Values Section -->
+            <!-- Value Section -->
             <div class="space-y-2">
                 <label
                     class="block text-sm font-medium text-gray-700 dark:text-gray-300"
                 >
-                    Values
+                    Value
                 </label>
-                <div
-                    v-for="(val, valIndex) in attr.values"
-                    :key="val.id"
-                    class="flex items-center gap-2"
-                >
+                <div class="flex items-center gap-2">
                     <input
-                        v-model="val.value"
+                        v-model="attr.value"
                         type="text"
                         class="flex-1 rounded-md border-gray-300 shadow-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                        placeholder="Enter value"
+                        :placeholder="'Enter ' + (attr.name || 'value')"
                     />
                     <div class="flex items-center space-x-2">
                         <!-- Visible Switch -->
                         <label class="flex items-center cursor-pointer">
                             <input
-                                v-model="val.is_visible"
+                                v-model="attr.is_visible"
                                 type="checkbox"
                                 class="sr-only peer"
                             />
@@ -75,7 +71,7 @@
                         <!-- Variant Switch -->
                         <label class="flex items-center cursor-pointer">
                             <input
-                                v-model="val.is_variant"
+                                v-model="attr.is_variant"
                                 type="checkbox"
                                 class="sr-only peer"
                             />
@@ -91,7 +87,7 @@
                         <!-- Filterable Switch -->
                         <label class="flex items-center cursor-pointer">
                             <input
-                                v-model="val.is_filterable"
+                                v-model="attr.is_filterable"
                                 type="checkbox"
                                 class="sr-only peer"
                             />
@@ -104,47 +100,7 @@
                             >
                         </label>
                     </div>
-
-                    <button
-                        type="button"
-                        @click="removeValue(attrIndex, valIndex)"
-                        class="p-1 text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
-                    >
-                        <svg
-                            class="w-4 h-4"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M6 18L18 6M6 6l12 12"
-                            />
-                        </svg>
-                    </button>
                 </div>
-                <button
-                    type="button"
-                    @click="addValue(attrIndex)"
-                    class="mt-2 text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 flex items-center"
-                >
-                    <svg
-                        class="w-4 h-4 mr-1"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                    >
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                        />
-                    </svg>
-                    Add Value
-                </button>
             </div>
         </div>
 
@@ -176,12 +132,12 @@
 </template>
 
 <script setup>
-import { ref, watch } from "vue";
+import { ref, watch, computed, onMounted } from "vue";
 
 const props = defineProps({
     modelValue: {
         type: Array,
-        required: true,
+        default: () => [],
     },
     availableAttributes: {
         type: Array,
@@ -191,66 +147,94 @@ const props = defineProps({
 
 const emit = defineEmits(["update:modelValue"]);
 const selectedAttribute = ref("");
+const internalAttributes = ref([]);
 
-// Generate unique ID
-const generateId = () => Date.now() + Math.random().toString(36).substr(2, 9);
+// Transform attribute data from parent format to internal format
+const transformToInternal = (attributes) => {
+    return attributes.map(attr => {
+        if ('value' in attr) return { ...attr };
+        return {
+            id: attr.id,
+            name: attr.name,
+            code: attr.code || '',
+            type: attr.type || 'select',
+            value: attr.values?.[0]?.value || '',
+            is_visible: attr.values?.[0]?.is_visible ?? true,
+            is_variant: attr.values?.[0]?.is_variant ?? false,
+            is_filterable: attr.values?.[0]?.is_filterable ?? true
+        };
+    });
+};
 
-// Add new attribute
-
-const addAttribute = () => {
-    const attr = props.availableAttributes.find(
-        (a) => a.id === selectedAttribute.value,
-    );
-    if (!attr) return;
-
-    const newAttr = {
-        id: generateId(),
+// Transform internal format back to parent format
+const transformToParent = (attributes) => {
+    return attributes.map(attr => ({
+        id: attr.id,
         name: attr.name,
         code: attr.code,
-        type: attr.type || "select",
-        values: [],
+        type: attr.type,
+        values: [{
+            value: attr.value,
+            is_visible: attr.is_visible,
+            is_variant: attr.is_variant,
+            is_filterable: attr.is_filterable
+        }]
+    }));
+};
+
+// Initialize with props
+onMounted(() => {
+    internalAttributes.value = transformToInternal(props.modelValue);
+});
+
+// Watch for changes in modelValue from parent
+watch(() => props.modelValue, (newVal) => {
+    const currentAsParent = transformToParent(internalAttributes.value);
+    if (JSON.stringify(newVal) !== JSON.stringify(currentAsParent)) {
+        internalAttributes.value = transformToInternal(newVal);
+    }
+}, { deep: true });
+
+// Watch for changes in internal state and emit updates
+watch(internalAttributes, (newVal) => {
+    const parentFormat = transformToParent(newVal);
+    if (JSON.stringify(parentFormat) !== JSON.stringify(props.modelValue)) {
+        emit('update:modelValue', parentFormat);
+    }
+}, { deep: true });
+
+// Add new attribute
+const addAttribute = () => {
+    if (!selectedAttribute.value) return;
+
+    const selected = props.availableAttributes.find(
+        (attr) => attr.id === selectedAttribute.value,
+    );
+
+    if (!selected) return;
+
+    const newAttribute = {
+        id: selected.id,
+        name: selected.name,
+        code: selected.code || "",
+        type: selected.type || "select",
+        value: "",
+        is_visible: true,
+        is_variant: false,
+        is_filterable: true
     };
 
-    emit("update:modelValue", [...props.modelValue, newAttr]);
+    internalAttributes.value = [...internalAttributes.value, newAttribute];
     selectedAttribute.value = "";
 };
 
 // Remove attribute
 const removeAttribute = (index) => {
-    const updated = [...props.modelValue];
+    const updated = [...internalAttributes.value];
     updated.splice(index, 1);
-    emit("update:modelValue", updated);
+    internalAttributes.value = updated;
 };
 
-// Add value to attribute
-const addValue = (attrIndex) => {
-    const updated = [...props.modelValue];
-    updated[attrIndex].values = [
-        ...(updated[attrIndex].values || []),
-        {
-            id: generateId(),
-            value: "",
-            is_visible: true,
-            is_variant: false,
-            is_filterable: true,
-        },
-    ];
-    emit("update:modelValue", updated);
-};
-
-// Remove value from attribute
-const removeValue = (attrIndex, valIndex) => {
-    const updated = [...props.modelValue];
-    updated[attrIndex].values.splice(valIndex, 1);
-    emit("update:modelValue", updated);
-};
-
-// Sync changes from parent
-watch(
-    () => props.modelValue,
-    (newVal) => {
-        emit("update:modelValue", newVal);
-    },
-    { deep: true },
-);
+// Expose transformed attributes for template
+const transformedAttributes = computed(() => internalAttributes.value);
 </script>

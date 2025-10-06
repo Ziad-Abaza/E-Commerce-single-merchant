@@ -123,16 +123,23 @@ export const useProductDetailsStore = defineStore("dashboardProductDetails", {
                 }
                 
                 for (let key in detailData) {
-                    if (
-                        key === "images" &&
-                        detailData[key] &&
-                        detailData[key].length
-                    ) {
+                    if (key === 'images' && detailData[key]?.length) {
+                        // Handle file uploads
                         detailData[key].forEach((file, index) => {
                             formData.append(`images[${index}]`, file);
                         });
-                    } else if (key !== "images") {
-                        formData.append(key, detailData[key]);
+                    } else if (key === 'attributes' && Array.isArray(detailData[key])) {
+                        // Stringify the attributes array
+                        formData.append('attributes', JSON.stringify(detailData[key]));
+                    } else if (key !== 'images') {
+                        // Handle all other fields
+                        if (detailData[key] !== null && detailData[key] !== undefined) {
+                            // Convert boolean values to 1 or 0
+                            const value = typeof detailData[key] === 'boolean' 
+                                ? (detailData[key] ? 1 : 0)
+                                : detailData[key];
+                            formData.append(key, value);
+                        }
                     }
                 }
                 formData.append("product_id", productId);
@@ -177,16 +184,23 @@ export const useProductDetailsStore = defineStore("dashboardProductDetails", {
                             : 0;
                 }
                 for (let key in detailData) {
-                    if (
-                        key === "images" &&
-                        detailData[key] &&
-                        detailData[key].length
-                    ) {
+                    if (key === 'images' && detailData[key]?.length) {
+                        // Handle file uploads
                         detailData[key].forEach((file, index) => {
                             formData.append(`images[${index}]`, file);
                         });
-                    } else if (key !== "images") {
-                        formData.append(key, detailData[key]);
+                    } else if (key === 'attributes' && Array.isArray(detailData[key])) {
+                        // Stringify the attributes array
+                        formData.append('attributes', JSON.stringify(detailData[key]));
+                    } else if (key !== 'images') {
+                        // Handle all other fields
+                        if (detailData[key] !== null && detailData[key] !== undefined) {
+                            // Convert boolean values to 1 or 0
+                            const value = typeof detailData[key] === 'boolean' 
+                                ? (detailData[key] ? 1 : 0)
+                                : detailData[key];
+                            formData.append(key, value);
+                        }
                     }
                 }
 

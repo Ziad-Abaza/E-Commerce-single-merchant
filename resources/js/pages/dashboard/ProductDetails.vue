@@ -642,7 +642,7 @@ const initializeFormFields = async (detail) => {
         if (!attributes || !Array.isArray(attributes)) return [];
 
         return attributes.map((attr) => ({
-            id: attr.id || Date.now() + Math.random().toString(36).substr(2, 9),
+            id: attr.id,
             name: attr.name || "",
             code: attr.code || "",
             type: attr.type || "select",
@@ -660,16 +660,21 @@ const initializeFormFields = async (detail) => {
         }));
     };
     const categoryId = product.value?.categories?.[0]?.id;
-    
+
     if (categoryId) {
         try {
-            const categoryAttrs = await attributeCategoriesStore.fetchAttributesForCategory(categoryId);
-            availableAttributesForCategory.value = categoryAttrs.map(attr => ({
-                id: attr.id,
-                name: attr.name,
-                code: attr.slug,
-                type: attr.type || 'select' // Ensure type has a default value
-            }));
+            const categoryAttrs =
+                await attributeCategoriesStore.fetchAttributesForCategory(
+                    categoryId,
+                );
+            availableAttributesForCategory.value = categoryAttrs.map(
+                (attr) => ({
+                    id: attr.id,
+                    name: attr.name,
+                    code: attr.slug,
+                    type: attr.type || "select", // Ensure type has a default value
+                }),
+            );
         } catch (error) {
             console.error("Failed to load category attributes:", error);
             availableAttributesForCategory.value = [];
