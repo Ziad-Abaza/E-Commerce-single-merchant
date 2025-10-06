@@ -137,6 +137,20 @@ class ProductDetailController extends Controller
             if ($request->hasFile('images')) {
                 $detail->setImages($request->file('images'));
             }
+
+            if (!empty($data['attributes'])) {
+                foreach ($data['attributes'] as $attribute) {
+                    $attributeId = $attribute['id'];
+                    foreach ($attribute['values'] as $valueObj) {
+                        $detail->attributeValues()->create([
+                            'attribute_id' => $attributeId,
+                            'value' => $valueObj['value'],
+                            'value_type' => 'string',
+                        ]);
+                    }
+                }
+            }
+            
             DB::commit();
 
             return response()->json([
@@ -198,7 +212,21 @@ class ProductDetailController extends Controller
             if ($request->hasFile('images')) {
                 $detail->setImages($request->file('images'));
             }
-            
+
+            if (!empty($data['attributes'])) {
+                $detail->attributeValues()->delete();
+
+                foreach ($data['attributes'] as $attribute) {
+                    $attributeId = $attribute['id'];
+                    foreach ($attribute['values'] as $valueObj) {
+                        $detail->attributeValues()->create([
+                            'attribute_id' => $attributeId,
+                            'value' => $valueObj['value'],
+                            'value_type' => 'string',
+                        ]);
+                    }
+                }
+            }
             DB::commit();
             
             return response()->json([

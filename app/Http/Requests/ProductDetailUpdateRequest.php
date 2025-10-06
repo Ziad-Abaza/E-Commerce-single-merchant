@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use Illuminate\Support\Facades\Log;
 use Illuminate\Foundation\Http\FormRequest;
 
 class ProductDetailUpdateRequest extends FormRequest
@@ -13,15 +14,53 @@ class ProductDetailUpdateRequest extends FormRequest
     {
         return true;
     }
-
     /**
      * Get the validation rules that apply to the request.
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
+    /**
+     * Prepare the data for validation.
+     */
+    protected function prepareForValidation()
+    {
+        $productDetailId = $this->route('product_detail') ?
+            $this->route('product_detail')->id :
+            $this->route('id');
+
+        // Log the incoming request data
+        Log::info('Product Detail Update Request Data', [
+            'product_detail_id' => $productDetailId,
+            'url' => $this->url(),
+            'method' => $this->method(),
+            'all' => $this->all(),
+            'attributes' => $this->input('attributes'),
+            'files' => $this->allFiles() ? array_keys($this->allFiles()) : []
+        ]);
+    }
+
+    /**
+     * Handle a passed validation attempt.
+     */
+    protected function passedValidation()
+    {
+        $productDetailId = $this->route('product_detail') ?
+            $this->route('product_detail')->id :
+            $this->route('id');
+
+        // Log the validated data
+        Log::debug('Product Detail Update Validated Data', [
+            'product_detail_id' => $productDetailId,
+            'validated' => $this->validated(),
+            'user_id' => auth()->id()
+        ]);
+    }
+
     public function rules(): array
     {
-        $productDetailId = $this->route('detail');
+        $productDetailId = $this->route('product_detail') ?
+            $this->route('product_detail')->id :
+            $this->route('id');
 
         if ($productDetailId instanceof \App\Models\ProductDetail) {
             $productDetailId = $productDetailId->id;
@@ -29,7 +68,6 @@ class ProductDetailUpdateRequest extends FormRequest
 
         return [
             'color' => 'nullable|string|max:50',
-            'price' => 'required|numeric|min:0',
             'discount' => 'nullable|numeric|min:0',
             'stock' => 'required|integer|min:0',
             'min_stock_alert' => 'nullable|integer|min:0',
@@ -39,8 +77,10 @@ class ProductDetailUpdateRequest extends FormRequest
             'images' => 'nullable|array',
             'images.*' => 'image|mimes:jpeg,png,jpg,webp,gif|max:8192',
             'attributes' => 'nullable|array',
-            'attributes.*.id' => 'required|exists:attributes,id',
-            'attributes.*.value' => 'required',
+            'attributes.*.id' => 'required|string',
+            'attributes.*.values' => 'required|array|min:1',
+            'attributes.*.values.*.value' => 'required|string',
+
         ];
     }
 
