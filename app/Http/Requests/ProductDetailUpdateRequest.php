@@ -4,6 +4,8 @@ namespace App\Http\Requests;
 
 use Illuminate\Support\Facades\Log;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
+
 
 class ProductDetailUpdateRequest extends FormRequest
 {
@@ -58,9 +60,9 @@ class ProductDetailUpdateRequest extends FormRequest
 
     public function rules(): array
     {
-        $productDetailId = $this->route('product_detail') ?
-            $this->route('product_detail')->id :
-            $this->route('id');
+        $productDetailId = $this->route('detail') ? 
+            $this->route('detail')->id : 
+            ($this->route('product_detail') ? $this->route('product_detail')->id : $this->route('id'));
 
         if ($productDetailId instanceof \App\Models\ProductDetail) {
             $productDetailId = $productDetailId->id;
@@ -71,7 +73,15 @@ class ProductDetailUpdateRequest extends FormRequest
             'discount' => 'nullable|numeric|min:0',
             'stock' => 'required|integer|min:0',
             'min_stock_alert' => 'nullable|integer|min:0',
-            'sku_variant' => 'nullable|string|max:100|unique:product_details,sku_variant,' . $productDetailId,
+            'sku_variant' => [
+                'sometimes',
+                'nullable',
+                'string',
+                'max:100',
+                Rule::unique('product_details', 'sku_variant')
+                    ->where('product_id', $this->route('product')->id)
+                    ->ignore($productDetailId),
+            ],
             'variant_identifier' => 'nullable|string|max:255',
             'is_active' => 'boolean',
             'images' => 'nullable|array',
