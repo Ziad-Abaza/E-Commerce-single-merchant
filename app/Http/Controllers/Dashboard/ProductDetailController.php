@@ -8,6 +8,7 @@ use App\Http\Resources\ProductDetailsResource;
 use App\Http\Requests\ProductDetailStoreRequest;
 use App\Http\Requests\ProductDetailUpdateRequest;
 use App\Models\Product;
+use App\Models\Attribute;
 use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\DB;
@@ -195,10 +196,12 @@ class ProductDetailController extends Controller
             $data = $request->validated();
 
             // Generate SKU variant if not provided and either size or color has changed
-            if (empty($data['sku_variant']) && 
-                (isset($data['size']) && $data['size'] !== $detail->size) || 
-                (isset($data['color']) && $data['color'] !== $detail->color)) {
-                
+            if (
+                empty($data['sku_variant']) &&
+                ((isset($data['size']) && $data['size'] !== $detail->size) ||
+                    (isset($data['color']) && $data['color'] !== $detail->color))
+            ) {
+
                 $data['sku_variant'] = ProductDetail::generateSkuVariant(
                     $product->sku,
                     $data['size'] ?? $detail->size,
@@ -207,6 +210,7 @@ class ProductDetailController extends Controller
             }
 
             DB::beginTransaction();
+
             $detail->update($data);
 
             if ($request->hasFile('images')) {
@@ -214,25 +218,28 @@ class ProductDetailController extends Controller
             }
 
             if (!empty($data['attributes'])) {
-                $detail->attributeValues()->delete();
-
                 foreach ($data['attributes'] as $attribute) {
-                    $attributeId = $attribute['id'];
-                    foreach ($attribute['values'] as $valueObj) {
-                        $detail->attributeValues()->create([
-                            'attribute_id' => $attributeId,
-                            'value' => $valueObj['value'],
-                            'value_type' => 'string',
-                        ]);
-                    }
+                    $valueType = $attribute['value_type'] ?? 'string';
+                    $value = $attribute['value'];
+
+                    $detail->attributeValues()->updateOrCreate(
+                        ['attribute_id' => $attribute['id']],
+                        [
+                            'value' => is_array($value) || is_object($value) ? json_encode($value) : $value,
+                            'value_type' => $valueType,
+                        ]
+                    );
                 }
             }
+
+            $detail->updateVariantIdentifier();
+
             DB::commit();
-            
+
             return response()->json([
                 'success' => true,
                 'message' => 'Product detail updated successfully',
-                'data' => $detail->toArray(),
+                'data' => $detail->load('attributeValues')->toArray(),
                 'code' => 200
             ], 200);
         } catch (\Exception $e) {
@@ -414,6 +421,59 @@ class ProductDetailController extends Controller
                 'success' => false,
                 'message' => 'Failed to permanently delete product detail.',
                 'data' => null,
+                'errors' => ['server' => [$e->getMessage()]],
+                'code' => 500,
+            ], 500);
+        }
+    }
+
+
+    /**
+     * Remove a specific attribute value from a product detail (variant).
+     *
+     * @param  \App\Models\Product  $product
+     * @param  \App\Models\ProductDetail  $detail
+     * @param  \App\Models\Attribute  $attribute
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function removeAttribute(Product $product, ProductDetail $detail, Attribute $attribute)
+    {
+        // Verify the product detail belongs to the product
+        if ($detail->product_id !== $product->id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Product detail does not belong to this product.',
+                'errors' => ['product_detail' => ['Invalid product detail for this product.']],
+                'code' => 404,
+            ], 404);
+        }
+
+        try {
+            // Delete the attribute value linked to this detail and attribute
+            $deleted = $detail->attributeValues()
+                ->where('attribute_id', $attribute->id)
+                ->delete();
+
+            if ($deleted === 0) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Attribute not found on this product variant.',
+                    'code' => 404,
+                ], 404);
+            }
+
+            // Update the variant identifier after removing the attribute
+            $detail->updateVariantIdentifier();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Attribute removed from product variant successfully.',
+                'code' => 200,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to remove attribute from product variant.',
                 'errors' => ['server' => [$e->getMessage()]],
                 'code' => 500,
             ], 500);

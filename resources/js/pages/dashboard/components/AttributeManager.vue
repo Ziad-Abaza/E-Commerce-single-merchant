@@ -51,55 +51,6 @@
                         class="flex-1 rounded-md border-gray-300 shadow-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                         :placeholder="'Enter ' + (attr.name || 'value')"
                     />
-                    <div class="flex items-center space-x-2">
-                        <!-- Visible Switch -->
-                        <label class="flex items-center cursor-pointer">
-                            <input
-                                v-model="attr.is_visible"
-                                type="checkbox"
-                                class="sr-only peer"
-                            />
-                            <div
-                                class="relative w-10 h-6 bg-gray-200 dark:bg-gray-600 rounded-full after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600 peer-checked:after:translate-x-full peer-checked:after:border-white"
-                            ></div>
-                            <span
-                                class="ml-2 text-xs text-gray-500 dark:text-gray-400"
-                                >Visible</span
-                            >
-                        </label>
-
-                        <!-- Variant Switch -->
-                        <label class="flex items-center cursor-pointer">
-                            <input
-                                v-model="attr.is_variant"
-                                type="checkbox"
-                                class="sr-only peer"
-                            />
-                            <div
-                                class="relative w-10 h-6 bg-gray-200 dark:bg-gray-600 rounded-full after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600 peer-checked:after:translate-x-full peer-checked:after:border-white"
-                            ></div>
-                            <span
-                                class="ml-2 text-xs text-gray-500 dark:text-gray-400"
-                                >Variant</span
-                            >
-                        </label>
-
-                        <!-- Filterable Switch -->
-                        <label class="flex items-center cursor-pointer">
-                            <input
-                                v-model="attr.is_filterable"
-                                type="checkbox"
-                                class="sr-only peer"
-                            />
-                            <div
-                                class="relative w-10 h-6 bg-gray-200 dark:bg-gray-600 rounded-full after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600 peer-checked:after:translate-x-full peer-checked:after:border-white"
-                            ></div>
-                            <span
-                                class="ml-2 text-xs text-gray-500 dark:text-gray-400"
-                                >Filterable</span
-                            >
-                        </label>
-                    </div>
                 </div>
             </div>
         </div>
@@ -152,34 +103,69 @@ const internalAttributes = ref([]);
 // Transform attribute data from parent format to internal format
 const transformToInternal = (attributes) => {
     return attributes.map(attr => {
-        if ('value' in attr) return { ...attr };
+        // If we have a direct value and value_type (new format)
+        if ('value' in attr && 'value_type' in attr) {
+            // Try to find the attribute in availableAttributes by ID or name
+            const attributeInfo = props.availableAttributes.find(a => 
+                a.id === attr.id || a.name === attr.name
+            ) || {};
+            
+            return {
+                id: attr.id || attributeInfo.id || undefined,
+                name: attr.name || attributeInfo.name || '',
+                code: attributeInfo.code || '',
+                type: attr.value_type || attributeInfo.type || 'text',
+                value: attr.value,
+            };
+        }
+        
+        // Handle old format or fallback
+        const attributeInfo = props.availableAttributes.find(a => 
+            a.id === attr.id || a.name === attr.name
+        ) || {};
+        
         return {
-            id: attr.id,
-            name: attr.name,
-            code: attr.code || '',
-            type: attr.type || 'select',
-            value: attr.values?.[0]?.value || '',
-            is_visible: attr.values?.[0]?.is_visible ?? true,
-            is_variant: attr.values?.[0]?.is_variant ?? false,
-            is_filterable: attr.values?.[0]?.is_filterable ?? true
+            id: attr.id || attributeInfo.id || undefined,
+            name: attr.name || attributeInfo.name || '',
+            code: attr.code || attributeInfo.code || '',
+            type: attr.type || attributeInfo.type || 'text',
+            value: attr.values?.[0]?.value || attr.value || '',
         };
     });
 };
 
 // Transform internal format back to parent format
 const transformToParent = (attributes) => {
-    return attributes.map(attr => ({
-        id: attr.id,
-        name: attr.name,
-        code: attr.code,
-        type: attr.type,
-        values: [{
-            value: attr.value,
-            is_visible: attr.is_visible,
-            is_variant: attr.is_variant,
-            is_filterable: attr.is_filterable
-        }]
-    }));
+    return attributes
+        .filter(attr => {
+            // Include attributes that have a value (id is not strictly required)
+            const hasValue = attr && (attr.value || attr.value === 0 || attr.value === '');
+            if (!hasValue) {
+                console.warn('Skipping invalid attribute (missing value):', attr);
+                return false;
+            }
+            return true;
+        })
+        .map(attr => {
+            // Try to find the attribute in availableAttributes by ID or name
+            const attrDef = props.availableAttributes.find(a => 
+                a.id === attr.id || a.name === attr.name
+            ) || {};
+            
+            // Use the ID from availableAttributes if we matched by name
+            const attributeId = attr.id || attrDef.id;
+            
+            if (!attributeId) {
+                console.warn('No ID found for attribute:', attr);
+            }
+            
+            return {
+                id: attributeId ? Number(attributeId) : null,
+                name: attr.name || attrDef.name || '',
+                value: String(attr.value),
+                value_type: attr.type || attrDef.type || 'text'
+            };
+        });
 };
 
 // Initialize with props
@@ -219,9 +205,6 @@ const addAttribute = () => {
         code: selected.code || "",
         type: selected.type || "select",
         value: "",
-        is_visible: true,
-        is_variant: false,
-        is_filterable: true
     };
 
     internalAttributes.value = [...internalAttributes.value, newAttribute];

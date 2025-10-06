@@ -14,21 +14,26 @@ class ProductDetailStoreRequest extends FormRequest
         return true;
     }
 
+    /**
+     * Prepare the input for validation.
+     */
     protected function prepareForValidation()
     {
         $attributes = $this->input('attributes');
 
+        // Handle JSON string from frontend (e.g., Axios sends as string)
         if ($this->has('attributes') && is_string($attributes)) {
-            $this->merge([
-                'attributes' => json_decode($attributes, true),
-            ]);
+            $decoded = json_decode($attributes, true);
+            if (json_last_error() === JSON_ERROR_NONE) {
+                $this->merge(['attributes' => $decoded]);
+            }
         }
     }
-    
+
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, \Illuminate\Contracts\Validation\Rule|array|string>
      */
     public function rules(): array
     {
@@ -45,10 +50,9 @@ class ProductDetailStoreRequest extends FormRequest
             'images' => 'nullable|array',
             'images.*' => 'image|mimes:jpeg,png,jpg,webp,gif|max:8192',
             'attributes' => 'nullable|array',
-            'attributes.*.id' => 'required|string',
-            'attributes.*.values' => 'required|array|min:1',
-            'attributes.*.values.*.value' => 'required|string',
-
+            'attributes.*.id' => 'required|exists:attributes,id',
+            'attributes.*.value' => 'required', // Can be string, number, array, etc.
+            'attributes.*.value_type' => 'required|string',
         ];
     }
 
@@ -62,26 +66,8 @@ class ProductDetailStoreRequest extends FormRequest
         return [
             'product_id.required' => 'Product ID is required.',
             'product_id.exists' => 'The selected product does not exist.',
-            'size.string' => 'Size must be a string.',
-            'size.max' => 'Size may not be greater than 50 characters.',
             'color.string' => 'Color must be a string.',
             'color.max' => 'Color may not be greater than 50 characters.',
-            'material.string' => 'Material must be a string.',
-            'material.max' => 'Material may not be greater than 100 characters.',
-            'weight.numeric' => 'Weight must be a number.',
-            'weight.min' => 'Weight must be at least 0.',
-            'length.numeric' => 'Length must be a number.',
-            'length.min' => 'Length must be at least 0.',
-            'width.numeric' => 'Width must be a number.',
-            'width.min' => 'Width must be at least 0.',
-            'height.numeric' => 'Height must be a number.',
-            'height.min' => 'Height must be at least 0.',
-            'origin.string' => 'Origin must be a string.',
-            'origin.max' => 'Origin may not be greater than 100 characters.',
-            'quality.string' => 'Quality must be a string.',
-            'quality.max' => 'Quality may not be greater than 50 characters.',
-            'packaging.string' => 'Packaging must be a string.',
-            'packaging.max' => 'Packaging may not be greater than 100 characters.',
             'price.required' => 'Price is required.',
             'price.numeric' => 'Price must be a number.',
             'price.min' => 'Price must be at least 0.',
@@ -95,14 +81,13 @@ class ProductDetailStoreRequest extends FormRequest
             'sku_variant.string' => 'SKU variant must be a string.',
             'sku_variant.max' => 'SKU variant may not be greater than 100 characters.',
             'sku_variant.unique' => 'The SKU variant has already been taken.',
-            'barcode.string' => 'Barcode must be a string.',
-            'barcode.max' => 'Barcode may not be greater than 100 characters.',
-            'barcode.unique' => 'The barcode has already been taken.',
             'is_active.boolean' => 'Active status must be true or false.',
             'images.array' => 'Images must be an array.',
             'images.*.image' => 'Each image must be an image file.',
             'images.*.mimes' => 'Each image must be a file of type: jpeg, png, jpg, webp, gif.',
             'images.*.max' => 'Each image may not be greater than 8192 kilobytes.',
+            'attributes.*.id.exists' => 'One or more selected attributes do not exist.',
+            'attributes.*.value_type.in' => 'Invalid value type. Allowed: string, integer, float, boolean, array, json.',
         ];
     }
 }

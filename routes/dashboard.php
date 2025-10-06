@@ -138,6 +138,7 @@ Route::middleware(['auth:sanctum', 'verified'])->prefix('dashboard')->name('dash
             Route::post('/{detail}', 'update')->name('update');
             Route::delete('/{detail}', 'destroy')->name('destroy');
             Route::post('/{detail}/restore', 'restore')->name('restore');
+            Route::delete('/{detail}/attributes/{attribute}', 'removeAttribute')->name('remove-attribute');
             Route::delete('/{detail}/force-delete', 'forceDestroy')->name('force-delete');
         });
 

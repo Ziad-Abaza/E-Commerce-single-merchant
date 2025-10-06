@@ -21,7 +21,8 @@ return new class extends Migration
             $table->integer('min_stock_alert')->default(5); // alert when stock is below this value
 
             $table->string('sku_variant', 100)->unique()->nullable();
-
+            $table->string('variant_identifier')->nullable(); // e.g., "Size: M, Color: Red"
+            
             $table->boolean('is_active')->default(true);
             $table->softDeletes();
             $table->timestamps();

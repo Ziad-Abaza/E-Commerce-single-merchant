@@ -636,6 +636,7 @@ const initializeFormFields = async (detail) => {
     if (detail && !isEditing.value) {
         delete detail.id;
         delete detail.images;
+        delete detail.sku_variant;
     }
     // Format attributes for the AttributeManager
     const formatAttributes = (attributes) => {
@@ -652,9 +653,6 @@ const initializeFormFields = async (detail) => {
                           val.id ||
                           Date.now() + Math.random().toString(36).substr(2, 9),
                       value: val.value || "",
-                      is_visible: val.is_visible !== false,
-                      is_variant: val.is_variant || 0,
-                      is_filterable: val.is_filterable !== false,
                   }))
                 : [],
         }));
