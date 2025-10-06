@@ -14,6 +14,17 @@ class ProductDetailStoreRequest extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation()
+    {
+        $attributes = $this->input('attributes');
+
+        if ($this->has('attributes') && is_string($attributes)) {
+            $this->merge([
+                'attributes' => json_decode($attributes, true),
+            ]);
+        }
+    }
+    
     /**
      * Get the validation rules that apply to the request.
      *

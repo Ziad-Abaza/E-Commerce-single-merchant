@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Log;
 
 class ProductDetailUpdateRequest extends FormRequest
 {
@@ -14,13 +15,29 @@ class ProductDetailUpdateRequest extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation()
+    {
+        $attributes = $this->input('attributes');
+
+        if ($this->has('attributes') && is_string($attributes)) {
+            $this->merge([
+                'attributes' => json_decode($attributes, true),
+            ]);
+        }
+    }
+
     /**
      * Get the validation rules that apply to the request.
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
+
     public function rules(): array
     {
+        Log::info('================= Incoming Request Data =================');
+        Log::info($this->all());
+        Log::info('=========================================================');
+
         $productDetailId = $this->route('detail');
 
         if ($productDetailId instanceof \App\Models\ProductDetail) {
@@ -40,7 +57,8 @@ class ProductDetailUpdateRequest extends FormRequest
             'images.*' => 'image|mimes:jpeg,png,jpg,webp,gif|max:8192',
             'attributes' => 'nullable|array',
             'attributes.*.id' => 'required|exists:attributes,id',
-            'attributes.*.value' => 'required',
+            'attributes.*.values' => 'required|array|min:1',
+            'attributes.*.values.*.value' => 'required|string',
         ];
     }
 
