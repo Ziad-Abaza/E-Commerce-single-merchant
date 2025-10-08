@@ -16,10 +16,10 @@ class AttributeUpdateRequest extends FormRequest
   public function rules()
   {
     $attribute = $this->route('attribute');
-
+    $attributeId = $this->route('id');
     return [
       'name' => ['sometimes', 'required', 'string', 'max:255'],
-      'slug' => ['sometimes', 'nullable', 'string', 'max:255', Rule::unique('attributes', 'slug')->ignore($attribute)],
+      'slug' => ['sometimes', 'nullable', 'string', 'max:255', Rule::unique('attributes', 'slug')->ignore($attributeId)],
       'type' => ['sometimes', 'required', 'string', Rule::in(['text', 'number', 'select', 'checkbox', 'radio', 'textarea'])],
       'options' => ['nullable', 'array'],
       'options.*' => ['string', 'max:255'],

@@ -42,14 +42,14 @@ export const useAttributesStore = defineStore("attributes", {
                         this.filters.is_filterable === "true"
                             ? true
                             : this.filters.is_filterable === "false"
-                              ? false
-                              : undefined,
+                                ? false
+                                : undefined,
                     is_variant:
                         this.filters.is_variant === "true"
                             ? true
                             : this.filters.is_variant === "false"
-                              ? false
-                              : undefined,
+                                ? false
+                                : undefined,
                 };
 
                 // Clean undefined params
@@ -141,10 +141,32 @@ export const useAttributesStore = defineStore("attributes", {
             this.error = null;
 
             try {
+                // 1. FIND THE CURRENT ATTRIBUTE: Look in the state for the attribute
+                //    we are about to edit. This gives us the original slug.
+                const originalAttribute = this.attributes.find(
+                    (attr) => attr.id === id,
+                );
+
+                // 2. PREPARE THE DATA: Create a safe copy of the incoming form data.
+                const payload = { ...attributeData };
+
+                // 3. THE CRUCIAL CHECK:
+                //    This `if` statement checks if the slug from the form (`payload.slug`)
+                //    is identical to the one we already have saved (`originalAttribute.slug`).
+                //    This condition will be TRUE when you change "Filterable" but NOT the "Name".
+                if (originalAttribute && payload.slug === originalAttribute.slug) {
+                    // If they are the same, we DELETE the slug from the data we're sending.
+                    // Your backend will never even see the 'slug' field and won't trigger the error.
+                    delete payload.slug;
+                }
+
+                // 4. SEND TO BACKEND: The `payload` is sent. It will only contain a `slug`
+                //    if the user has actually typed a new name, generating a new slug.
                 const response = await axios.post(
                     `/dashboard/attributes/${id}`,
-                    attributeData,
+                    payload,
                 );
+
                 const index = this.attributes.findIndex(
                     (attr) => attr.id === id,
                 );
