@@ -21,7 +21,6 @@ class Cart extends Model implements HasMedia
         'user_id',
         'product_detail_id',
         'quantity',
-        'promo_code_id',
         'discount_amount',
     ];
 
