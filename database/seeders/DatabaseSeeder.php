@@ -28,7 +28,7 @@ class DatabaseSeeder extends Seeder
             WishlistCategorySeeder::class,
             WishlistItemSeeder::class,
             PolicySeeder::class,
-            ProductionSeeder::class,
+            // ProductionSeeder::class,
         ]);
 
         // After seeding, reset demo folder
