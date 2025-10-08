@@ -201,4 +201,38 @@ class AttributeController extends Controller
             ], 500);
         }
     }
+
+
+    public function getByCategory($categoryId)
+    {
+        try {
+            $category = \App\Models\Category::findOrFail($categoryId);
+
+            $attributes = $category->attributes()->get();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Attributes retrieved successfully for the selected category.',
+                'data' => AttributeResource::collection($attributes),
+                'errors' => null,
+                'code' => 200,
+            ], 200);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Category not found.',
+                'data' => null,
+                'errors' => ['category' => ['Category not found.']],
+                'code' => 404,
+            ], 404);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to retrieve attributes for category.',
+                'data' => null,
+                'errors' => ['server' => [$e->getMessage()]],
+                'code' => 500,
+            ], 500);
+        }
+    }
 }

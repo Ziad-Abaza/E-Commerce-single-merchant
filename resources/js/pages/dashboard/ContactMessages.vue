@@ -395,6 +395,7 @@
             title="Message Details"
             subtitle="Complete information about this message"
             id-label="Message ID"
+            :custom-sections="messageDetailSections"
             @close="showDetailModal = false"
         />
 
@@ -615,6 +616,32 @@ const getStatusColor = (status) => {
             return "bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-300 p-1 rounded";
     }
 };
+
+const messageDetailSections = computed(() => {
+    const msg = messagesStore.currentMessage;
+    if (!msg) return [];
+
+    return [
+        {
+            title: "Sender Information",
+            fields: [
+                { label: "Name", value: msg.name },
+                { label: "Email", value: msg.email },
+                { label: "Phone", value: msg.phone },
+                { label: "IP Address", value: msg.ip_address },
+            ],
+        },
+        {
+            title: "Message Details",
+            fields: [
+                { label: "Subject", value: msg.subject },
+                { label: "Message", value: msg.message, type: "richtext" },
+                { label: "Status", value: msg.status },
+                { label: "Created At", value: msg.created_at },
+            ],
+        },
+    ];
+});
 
 const handleSearch = (searchTerm) => {
     messagesStore.setFilter("search", searchTerm);

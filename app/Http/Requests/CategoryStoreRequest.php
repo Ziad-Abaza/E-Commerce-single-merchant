@@ -14,6 +14,14 @@ class CategoryStoreRequest extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation()
+    {
+        $this->merge([
+            'parent_id' => $this->parent_id === 'null' ? null : $this->parent_id,
+            'slug' => $this->slug === 'null' ? null : $this->slug,
+        ]);
+    }
+
     /**
      * Get the validation rules that apply to the request.
      *
@@ -23,7 +31,7 @@ class CategoryStoreRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255',
-            'slug' => 'string|max:255|unique:categories,slug',
+            'slug' => 'nullable|string|max:255|unique:categories,slug',
             'parent_id' => 'nullable|exists:categories,id',
             'description' => 'nullable|string',
             'is_active' => 'boolean',

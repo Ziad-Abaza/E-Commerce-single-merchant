@@ -109,18 +109,27 @@ class ProductController extends Controller
     {
         try {
             $data = $request->validated();
-            
+
             // Generate SKU if not provided
             if (empty($data['sku'])) {
                 $data['sku'] = Product::generateSku($data['name'], $data['brand'] ?? null);
             }
-            
+
             DB::beginTransaction();
+
+            // Create product
             $product = Product::create($data);
+
+            // Attach categories
+            if (!empty($data['category_ids'])) {
+                $product->categories()->sync($data['category_ids']);
+            }
+
             DB::commit();
+
             return response()->json([
                 'message' => 'Product created successfully.',
-                'data' => new ProductResource($product),
+                'data' => new ProductResource($product->load('categories')),
                 'errors' => null,
                 'code' => 201,
                 'success' => true,
@@ -148,22 +157,32 @@ class ProductController extends Controller
         try {
             $product = Product::findOrFail($id);
             $data = $request->validated();
-            
+
             // Generate SKU if not provided and name or brand has changed
-            if (empty($data['sku']) && 
-                ($product->wasChanged('name') || $product->wasChanged('brand'))) {
+            if (
+                empty($data['sku']) &&
+                (($data['name'] ?? null) !== $product->name || ($data['brand'] ?? null) !== $product->brand)
+            ) {
                 $data['sku'] = Product::generateSku(
-                    $data['name'] ?? $product->name, 
+                    $data['name'] ?? $product->name,
                     $data['brand'] ?? $product->brand
                 );
             }
-            
+
             DB::beginTransaction();
+
             $product->update($data);
+
+            // Sync categories if provided
+            if (isset($data['category_ids'])) {
+                $product->categories()->sync($data['category_ids']);
+            }
+
             DB::commit();
+
             return response()->json([
                 'message' => 'Product updated successfully.',
-                'data' => new ProductResource($product),
+                'data' => new ProductResource($product->load('categories')),
                 'errors' => null,
                 'code' => 200,
                 'success' => true,

@@ -483,7 +483,8 @@ const initializeFormFields = (category) => {
       id: 'thumbnail',
       label: 'Thumbnail image',
       type: 'file',
-      value: category?.thumbnail_url || '',
+      value: category?.thumbnail_url ? null : null,
+
       required: false,
       placeholder: 'Enter thumbnail URL'
     },
@@ -491,7 +492,8 @@ const initializeFormFields = (category) => {
       id: 'icon',
       label: 'Icon image',
       type: 'file',
-      value: category?.icon_url || '',
+      value: category?.icon_url ? null : null,
+
       required: false,
       placeholder: 'Enter icon URL'
     }

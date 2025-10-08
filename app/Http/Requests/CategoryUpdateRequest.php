@@ -14,6 +14,14 @@ class CategoryUpdateRequest extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation()
+    {
+        $this->merge([
+            'parent_id' => $this->parent_id === 'null' ? null : $this->parent_id,
+            'slug' => $this->slug === 'null' ? null : $this->slug,
+        ]);
+    }
+
     /**
      * Get the validation rules that apply to the request.
      *

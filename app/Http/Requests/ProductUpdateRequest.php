@@ -25,12 +25,14 @@ class ProductUpdateRequest extends FormRequest
         
         return [
             'name' => 'sometimes|required|string|max:255',
-            'slug' => 'string|max:255|unique:products,slug,' . $productId,
+            'slug' => 'nullable|string|max:255|unique:products,slug,' . $productId,
             'brand' => 'nullable|string|max:255',
             'short_description' => 'nullable|string',
             'description' => 'nullable|string',
             'sku' => 'sometimes|nullable|string|max:100|unique:products,sku,' . $productId,
             'is_active' => 'boolean',
+            'category_ids' => 'sometimes|array|min:1',
+            'category_ids.*' => 'exists:categories,id',
         ];
     }
 

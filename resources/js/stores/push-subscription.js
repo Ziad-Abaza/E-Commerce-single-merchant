@@ -12,7 +12,7 @@ export async function registerPushSubscription() {
     }
 
     if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
-        toast.error("Push notifications are not supported in this browser.");
+        toast.warning("Push notifications are not supported in this browser.");
         return;
     }
 

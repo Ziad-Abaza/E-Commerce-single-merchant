@@ -48,6 +48,28 @@
                 :class="inputClass(field)"
             />
 
+            <!-- Email Input -->
+            <input
+                v-else-if="field.type === 'email'"
+                v-model="field.value"
+                :id="field.id"
+                type="email"
+                :placeholder="
+                    field.placeholder || 'Enter a valid email address'
+                "
+                :class="inputClass(field)"
+                @blur="
+                    field.error =
+                        field.value &&
+                        !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(field.value)
+                            ? 'Invalid email format'
+                            : ''
+                "
+            />
+            <p v-if="field.error" class="text-red-500 text-sm mt-1">
+                {{ field.error }}
+            </p>
+
             <!-- Password Input -->
             <input
                 v-else-if="field.type === 'password'"

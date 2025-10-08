@@ -23,12 +23,14 @@ class ProductStoreRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255',
-            'slug' => 'string|max:255|unique:products,slug',
+            'slug' => 'nullable|string|max:255|unique:products,slug',
             'brand' => 'nullable|string|max:255',
             'short_description' => 'nullable|string',
             'description' => 'nullable|string',
             'sku' => 'nullable|string|max:100|unique:products,sku',
             'is_active' => 'boolean',
+            'category_ids' => 'required|array|min:1',
+            'category_ids.*' => 'exists:categories,id',
         ];
     }
 

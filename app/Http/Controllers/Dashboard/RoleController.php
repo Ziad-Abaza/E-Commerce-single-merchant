@@ -102,7 +102,7 @@ class RoleController extends Controller
 
             $role = Role::create([
                 'name' => $validated['name'],
-                'guard_name' => 'web',
+                'guard_name' => config('auth.defaults.guard', 'sanctum'),
             ]);
 
             if (!empty($validated['permissions'])) {
